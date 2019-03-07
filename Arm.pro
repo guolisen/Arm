@@ -26,13 +26,56 @@ CONFIG += c++11
 
 SOURCES += \
         main.cpp \
-        armdialog.cpp
+    Core/detail/Thread.cpp \
+    Core/appcontext.cpp \
+    Core/ThreadPool.cpp \
+    FileIdentifier/defaultfileobject.cpp \
+    FileIdentifier/fileidentifier.cpp \
+    FileIdentifier/filetypecontainer.cpp \
+    FileIdentifier/luafileobjectwrapper.cpp \
+    Script/detail/ScriptCenterImpl.cpp \
+    Script/detail/ScriptUtil.cpp \
+    Thirdparty/LuaWrapper/luaWrapper.cpp \
+    logfilesystemmodel.cpp \
+    armwindow.cpp
 
 HEADERS += \
-        armdialog.h
+    Core/detail/IThread.h \
+    Core/detail/Thread.h \
+    Core/appcontext.h \
+    Core/IThreadPool.h \
+    Core/ThreadPool.h \
+    FileIdentifier/defaultfileobject.h \
+    FileIdentifier/fileidentifier.h \
+    FileIdentifier/filetypecontainer.h \
+    FileIdentifier/ifileidentifier.h \
+    FileIdentifier/ifileObject.h \
+    FileIdentifier/ifiletypecontainer.h \
+    FileIdentifier/luafileobjectwrapper.h \
+    Script/detail/ScriptCenterImpl.h \
+    Script/detail/ScriptUtil.h \
+    Script/IScriptCenter.h \
+    Script/ScriptCenter.h \
+    Thirdparty/LuaWrapper/any.h \
+    Thirdparty/LuaWrapper/luaClass.h \
+    Thirdparty/LuaWrapper/luacommon.h \
+    Thirdparty/LuaWrapper/luaFunction.h \
+    Thirdparty/LuaWrapper/luaObject.h \
+    Thirdparty/LuaWrapper/luaWrapper.h \
+    Thirdparty/LuaWrapper/ObjPush.h \
+    Thirdparty/LuaWrapper/PopValue.h \
+    Thirdparty/LuaWrapper/Trait.h \
+    Thirdparty/LuaWrapper/TypeList.h \
+    Thirdparty/LuaWrapper/utility.h \
+    logfilesystemmodel.h \
+    armwindow.h
 
 FORMS += \
-        armdialog.ui
+    armwindow.ui
+
+INCLUDEPATH += E:/code/lua-5.3.5/src
+
+LIBS += E:/code/lua-5.3.5/luaLib/x64/Debug/luaLib.lib
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
