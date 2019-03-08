@@ -37,7 +37,8 @@ SOURCES += \
     Script/detail/ScriptUtil.cpp \
     Thirdparty/LuaWrapper/luaWrapper.cpp \
     logfilesystemmodel.cpp \
-    armwindow.cpp
+    armwindow.cpp \
+    readtimejob.cpp
 
 HEADERS += \
     Core/detail/IThread.h \
@@ -68,7 +69,8 @@ HEADERS += \
     Thirdparty/LuaWrapper/TypeList.h \
     Thirdparty/LuaWrapper/utility.h \
     logfilesystemmodel.h \
-    armwindow.h
+    armwindow.h \
+    readtimejob.h
 
 FORMS += \
     armwindow.ui

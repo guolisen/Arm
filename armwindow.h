@@ -7,7 +7,7 @@ namespace Ui {
 class ArmWindow;
 }
 
-class QFileSystemModel;
+class LogFileSystemModel;
 class ArmWindow : public QMainWindow
 {
     Q_OBJECT
@@ -20,7 +20,7 @@ public:
 
 private:
     Ui::ArmWindow *ui;
-    QFileSystemModel* model_;
+    LogFileSystemModel* model_;
 };
 
 #endif // ARMWINDOW_H

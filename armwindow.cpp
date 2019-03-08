@@ -1,7 +1,7 @@
 #include "armwindow.h"
 #include "ui_armwindow.h"
 #include "logfilesystemmodel.h"
-
+#include <QDebug>
 
 
 ArmWindow::ArmWindow(QWidget *parent) :
@@ -19,11 +19,14 @@ ArmWindow::~ArmWindow()
 void ArmWindow::init()
 {
     model_ = new LogFileSystemModel(this);
+    model_->init();
     model_->setRootPath("");
-    ui->treeView->setModel(model_);
 
-    //int column = model_->columnCount();
-    //model_->setHeaderData(column, Qt::Horizontal, QVariant("[No header]"));
+    //const QModelIndex rootIndex = model_->index(QDir::cleanPath("C:\\test"));
+    //ui->treeView->setRootIndex(rootIndex);
+    //model_->setRootPath(rootIndex);
+
+    ui->treeView->setModel(model_);
 
 
     //if (parser.isSet(dontUseCustomDirectoryIconsOption))

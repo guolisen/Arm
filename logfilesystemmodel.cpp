@@ -1,4 +1,17 @@
+#include <memory>
+#include "FileIdentifier/ifileObject.h"
+#include <FileIdentifier/fileidentifier.h>
+#include <FileIdentifier/filetypecontainer.h>
+#include <FileIdentifier/luafileobjectwrapper.h>
+#include "Core/ThreadPool.h"
+#include "Core/detail/Thread.h"
+#include "Script/IScriptCenter.h"
+#include "Script/ScriptCenter.h"
+#include "Script/detail/ScriptCenterImpl.h"
+#include <QDebug>
 #include "logfilesystemmodel.h"
+#include "readtimejob.h"
+#include <QMutex>
 
 QVariant LogFileSystemModel::data(const QModelIndex &index, int role) const
 {
@@ -11,7 +24,7 @@ QVariant LogFileSystemModel::data(const QModelIndex &index, int role) const
         switch(role)
         {
            case(Qt::DisplayRole):
-               return QString("YourText");
+               return logStartTime(index, fileInfo(index));
            case(Qt::TextAlignmentRole):
                return Qt::AlignLeft;
            default:
@@ -21,21 +34,60 @@ QVariant LogFileSystemModel::data(const QModelIndex &index, int role) const
     return QFileSystemModel::data(index,role);
 }
 
-QHash<int, QByteArray> LogFileSystemModel::roleNames() const
+void LogFileSystemModel::init()
 {
-     QHash<int, QByteArray> result = QFileSystemModel::roleNames();
-     result.insert(LogStartTimeRole, QByteArrayLiteral("LogStartTime"));
-     return result;
+    pool_ = std::make_shared<core::ThreadPool>(
+                core::detail::Thread::getFactory());
+    pool_->createThreads(5);
+
+    script::ScriptCenterPtr scriptCenter =
+        std::make_shared<script::ScriptCenter>(
+                std::make_shared<script::detail::ScriptCenterImpl>());
+    scriptCenter->initialize();
+
+    fileIdentifier::FileTypeContainerPtr container =
+            std::make_shared<fileIdentifier::FileTypeContainer>(
+                fileIdentifier::LuaFileObjectWrapper::getFactory(), scriptCenter);
+
+    QDir currentFolder("FileTypeScript");
+    currentFolder.setFilter(QDir::Files | QDir::Hidden | QDir::NoSymLinks | QDir::AllDirs);
+    const QFileInfoList list = currentFolder.entryInfoList();
+    Q_FOREACH(const QFileInfo fileInfo, list)
+    {
+        qDebug() << "current : " << fileInfo.fileName();
+        QString fileName = fileInfo.filePath();
+        if (fileName.contains(".lua"))
+            container->registerLuaFileType(fileName.toStdString());
+    }
+
+    fileIdentifier_ = std::make_shared<fileIdentifier::FileIdentifier>(container);
+
 }
 
-QString LogFileSystemModel::logStartTime(const QFileInfo &fi) const
+static void threadWrapper(unsigned int id, std::shared_ptr<ReadTimeJob> job)
+{
+    (*job)(id);
+}
+
+QString LogFileSystemModel::logStartTime(const QModelIndex &index, const QFileInfo &fi) const
 {
     if (!fi.isFile())
         return QString();
-    const qint64 size = fi.size();
-    if (size > 1024 * 1024 * 10)
-        return QString::number(size / (1024 * 1024)) + QLatin1Char('M');
-    if (size > 1024 * 10)
-        return QString::number(size / 1024) + QLatin1Char('K');
-    return QString::number(size);
+
+    auto fileTypeObj = fileIdentifier_->checkFileType(fi.fileName().toStdString());
+    if(!fileTypeObj)
+        return QString();
+
+    auto cacheTime = findCache(fi.filePath());
+    if (!cacheTime.isEmpty())
+        return cacheTime;
+
+    std::shared_ptr<ReadTimeJob> readTimeJobPtr =
+            std::make_shared<ReadTimeJob>(fi.filePath(), fileTypeObj,
+                                          std::bind(&LogFileSystemModel::setCache, this,
+                                                    std::placeholders::_1, std::placeholders::_2));
+
+    pool_->attach(std::bind(threadWrapper, std::placeholders::_1, readTimeJobPtr), 1);
+
+    return "Loading";
 }
