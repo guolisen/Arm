@@ -26,7 +26,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>Find: </string>
+         <string>Filter: </string>
         </property>
        </widget>
       </item>
