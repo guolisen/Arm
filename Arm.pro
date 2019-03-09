@@ -38,7 +38,8 @@ SOURCES += \
     Thirdparty/LuaWrapper/luaWrapper.cpp \
     logfilesystemmodel.cpp \
     armwindow.cpp \
-    readtimejob.cpp
+    readtimejob.cpp \
+    aboutdialog.cpp
 
 HEADERS += \
     Core/detail/IThread.h \
@@ -70,10 +71,12 @@ HEADERS += \
     Thirdparty/LuaWrapper/utility.h \
     logfilesystemmodel.h \
     armwindow.h \
-    readtimejob.h
+    readtimejob.h \
+    aboutdialog.h
 
 FORMS += \
-    armwindow.ui
+    armwindow.ui \
+    aboutdialog.ui
 
 INCLUDEPATH += E:/code/lua-5.3.5/src \
                E:/code/qt/quazip/quazip/quazip \

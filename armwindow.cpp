@@ -2,7 +2,7 @@
 #include "ui_armwindow.h"
 #include "logfilesystemmodel.h"
 #include <QDebug>
-
+#include "aboutdialog.h"
 
 ArmWindow::ArmWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -28,13 +28,6 @@ void ArmWindow::init()
     //if (parser.isSet(dontUseCustomDirectoryIconsOption))
     //    model.iconProvider()->setOptions(QFileIconProvider::DontUseCustomDirectoryIcons);
 
-
-    //if (!rootPath.isEmpty()) {
-    //    const QModelIndex rootIndex = model.index(QDir::cleanPath(rootPath));
-    //    if (rootIndex.isValid())
-    //        ui->treeView->.setRootIndex(rootIndex);
-    //}
-
     ui->treeView->setAnimated(true);
     ui->treeView->setIndentation(20);
     ui->treeView->setSortingEnabled(false);
@@ -43,4 +36,32 @@ void ArmWindow::init()
    // ui->treeView->setColumnWidth(0, ui->treeView->width() / 3);
 
     ui->treeView->setWindowTitle(QObject::tr("Arm"));
+
+    createMenu();
+}
+
+void ArmWindow::open()
+{
+
+}
+
+void ArmWindow::createMenu()
+{
+    QMenu *fileMenu = menuBar()->addMenu(tr("&File"));
+    QAction *newAct = new QAction(tr("&Open Log Folder"), this);
+    newAct->setShortcuts(QKeySequence::Open);
+    newAct->setStatusTip(tr("Open a new folder"));
+    connect(newAct, &QAction::triggered, this, &ArmWindow::open);
+    fileMenu->addAction(newAct);
+
+
+    QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
+    QAction *aboutAct = new QAction(tr("&About"), this);
+    aboutAct->setStatusTip(tr("Open About"));
+    connect(aboutAct, &QAction::triggered, this, [this](){
+        AboutDialog dialog(this);
+        if (dialog.exec() != QDialog::Accepted)
+            return;
+    });
+    helpMenu->addAction(aboutAct);
 }

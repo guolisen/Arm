@@ -18,9 +18,13 @@ public:
 
     void init();
 
+private slots:
+    void open();
 private:
+    void createMenu();
     Ui::ArmWindow *ui;
     LogFileSystemModel* model_;
+
 };
 
 #endif // ARMWINDOW_H
