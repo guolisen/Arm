@@ -3,13 +3,17 @@
 #include "ui_armwindow.h"
 #include "logfilesystemmodel.h"
 #include <QDebug>
+#include <QProcess>
 #include "aboutdialog.h"
+#include "uncompressfilecache.h"
 
 ArmWindow::ArmWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::ArmWindow)
+    ui(new Ui::ArmWindow),
+    process_(new QProcess(this))
 {
     ui->setupUi(this);
+
 }
 
 ArmWindow::~ArmWindow()
@@ -37,6 +41,13 @@ void ArmWindow::init()
 
     connect(ui->comboBox, &QComboBox::editTextChanged, this, &ArmWindow::findStringProcess);
     connect(model_, &LogFileSystemModel::directoryLoaded, this, &ArmWindow::resizeColumn);
+    //connect(process_, &QProcess::finished, this, &ArmWindow::notefinished);
+
+    QObject::connect(process_,static_cast<void(QProcess::*)(int)>(&QProcess::finished),
+          [](int){
+          qWarning()<<"Clean cache";
+          ::system("del cache*"); });
+
     createMenu();
 }
 
@@ -60,10 +71,8 @@ void ArmWindow::open()
         fileName = fileDialog->selectedFiles();
         model_->setRootPath(QDir::cleanPath(fileName[0]));
         const QModelIndex rootIndex = model_->index(QDir::cleanPath(fileName[0]));
-
         ui->treeView->setRootIndex(rootIndex);
         ui->treeView->update();
-
     }
 }
 
@@ -85,4 +94,22 @@ void ArmWindow::createMenu()
             return;
     });
     helpMenu->addAction(aboutAct);
+}
+void ArmWindow::notefinished(int exitCode)
+{
+
+}
+void ArmWindow::on_treeView_doubleClicked(const QModelIndex &index)
+{
+    ::system("del cache*");
+    LogFileSystemModel* m=(LogFileSystemModel*)index.model();
+    QString activeFileName = m->filePath(index);
+    UncompressFileCache fileCache;
+    QString cacheFileName = fileCache.createUncompressCacheFile(activeFileName);
+    if(cacheFileName.isEmpty())
+        return;
+
+    qDebug() << "cacheFileName: " << cacheFileName;
+    //process_->start("C:\\Program Files (x86)\\Notepad++\\notepad++.exe");
+    process_->start("C:/Program Files/TortoiseGit/bin/notepad2.exe", {cacheFileName});
 }

@@ -20,7 +20,6 @@ public:
     void operator()(int);
 
     bool readLine(QString &line);
-    bool isCompressFile();
 
 Q_SIGNALS:
     void dataChanged(const QModelIndex& index, ReadTimeJob* jobObj);
@@ -28,7 +27,6 @@ Q_SIGNALS:
 private:
     QString fullFileName_;
     fileIdentifier::FileObjectPtr typeObj_;
-    bool isCompressFile_;
     SetCacheCallBack setCache_;
     QIODevice* file_;
     QModelIndex index_;

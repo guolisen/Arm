@@ -11,14 +11,9 @@ ReadTimeJob::ReadTimeJob(const QModelIndex& index,
                          fileIdentifier::FileObjectPtr typeObj,
                          SetCacheCallBack setCache):
                          fullFileName_(fullFileName), typeObj_(typeObj),
-                         isCompressFile_(isCompressFile()),
                          setCache_(setCache), index_(index)
 {
-    if (isCompressFile_)
-        file_ = new QuaGzipFile(fullFileName_);
-    else
-        file_ = new QFile(fullFileName_);
-
+    file_ = new QuaGzipFile(fullFileName_);
     if (!file_->open(QIODevice::ReadOnly))
     {
         qDebug() << "Can't open the file of" << fullFileName_;
@@ -69,11 +64,4 @@ bool ReadTimeJob::readLine(QString& line)
 
     line = QString::fromLatin1(buf);
     return true;
-}
-
-bool ReadTimeJob::isCompressFile()
-{
-    return fullFileName_.contains("gz") ||
-            fullFileName_.contains("zip") ||
-            fullFileName_.contains("tgz");
 }

@@ -39,7 +39,8 @@ SOURCES += \
     logfilesystemmodel.cpp \
     armwindow.cpp \
     readtimejob.cpp \
-    aboutdialog.cpp
+    aboutdialog.cpp \
+    uncompressfilecache.cpp
 
 HEADERS += \
     Core/detail/IThread.h \
@@ -72,7 +73,8 @@ HEADERS += \
     logfilesystemmodel.h \
     armwindow.h \
     readtimejob.h \
-    aboutdialog.h
+    aboutdialog.h \
+    uncompressfilecache.h
 
 FORMS += \
     armwindow.ui \
