@@ -19,6 +19,7 @@ ArmWindow::ArmWindow(QWidget *parent) :
 ArmWindow::~ArmWindow()
 {
     delete ui;
+    ::system("del cache*");
 }
 
 void ArmWindow::resizeColumn(const QString &path)
@@ -41,12 +42,8 @@ void ArmWindow::init()
 
     connect(ui->comboBox, &QComboBox::editTextChanged, this, &ArmWindow::findStringProcess);
     connect(model_, &LogFileSystemModel::directoryLoaded, this, &ArmWindow::resizeColumn);
-    //connect(process_, &QProcess::finished, this, &ArmWindow::notefinished);
 
-    QObject::connect(process_,static_cast<void(QProcess::*)(int)>(&QProcess::finished),
-          [](int){
-          qWarning()<<"Clean cache";
-          ::system("del cache*"); });
+
 
     createMenu();
 }
@@ -95,13 +92,17 @@ void ArmWindow::createMenu()
     });
     helpMenu->addAction(aboutAct);
 }
-void ArmWindow::notefinished(int exitCode)
-{
 
+
+void ArmWindow::editFinish(int, std::shared_ptr<TestClass> test)
+{
+    //qWarning()<<"Clean cache"<< proc.use_count() << " " << test.use_count();
+    //::system("del cache*");
+    //proc->close();
+    test.reset();
 }
 void ArmWindow::on_treeView_doubleClicked(const QModelIndex &index)
 {
-    ::system("del cache*");
     LogFileSystemModel* m=(LogFileSystemModel*)index.model();
     QString activeFileName = m->filePath(index);
     UncompressFileCache fileCache;
@@ -109,7 +110,26 @@ void ArmWindow::on_treeView_doubleClicked(const QModelIndex &index)
     if(cacheFileName.isEmpty())
         return;
 
+    //TO DO: check memory leak
+    std::shared_ptr<QProcess> proc = std::make_shared<QProcess>();
+    std::shared_ptr<TestClass> test = std::make_shared<TestClass>();
+
+    //connect(proc.get(),static_cast<void(QProcess::*)(int)>(&QProcess::finished),
+    //        std::bind(&ArmWindow::editFinish, this, std::placeholders::_1, test));
+
+#if 1
+    connect(proc.get(),static_cast<void(QProcess::*)(int)>(&QProcess::finished),
+          [proc, test, cacheFileName, this](int){
+         // QString command = "del " + QDir::cleanPath(cacheFileName);
+          //::system(command.toStdString().c_str());
+         // qWarning()<< command << " Clean cache"<< proc.use_count() << " " << test.use_count();
+          //proc->close();
+          //proc->disconnect();
+    });
+#endif
     qDebug() << "cacheFileName: " << cacheFileName;
-    //process_->start("C:\\Program Files (x86)\\Notepad++\\notepad++.exe");
-    process_->start("C:/Program Files/TortoiseGit/bin/notepad2.exe", {cacheFileName});
+    proc->start("C:/Program Files (x86)/Notepad++/notepad++.exe", {cacheFileName});
+    //proc->start("C:/Program Files/TortoiseGit/bin/notepad2.exe", {cacheFileName});
+
+
 }
