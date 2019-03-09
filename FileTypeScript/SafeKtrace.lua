@@ -1,7 +1,6 @@
 
 --c4_safe_ktrace.log.1.gz
 function SafeKtrace_isMyType(filename)
-    print(filename)
     filestr = string.match(filename, "^c4_safe_ktrace.log*")
     if (filestr == nil) then 
         return false

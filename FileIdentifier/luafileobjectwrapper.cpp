@@ -1,12 +1,15 @@
+#include <QMutexLocker>
 #include "luafileobjectwrapper.h"
 
 namespace fileIdentifier
 {
+
 typedef luacpp::luatable luatable;
 LuaFileObjectWrapper::LuaFileObjectWrapper(const std::string& luaFileName,
                                            script::ScriptCenterPtr script): typeTag_(""),
                                            luaFileName_(luaFileName), script_(script)
 {
+    script::ScriptScopeLock locker(script_);
     script_->execute(luaFileName_);
 
     std::string::size_type startPos = luaFileName_.find_last_of("/") + 1;
@@ -33,10 +36,12 @@ LuaFileObjectWrapper::LuaFileObjectWrapper(const std::string& luaFileName,
         .property("functionName",&ElementEntry::functionName)
         .property("sourceFilePath",&ElementEntry::sourceFilePath)
         .property("logString",&ElementEntry::logString);
+
 }
 
 bool LuaFileObjectWrapper::isMyType(const std::string &fileName)
 {
+    script::ScriptScopeLock locker(script_);
     try
     {
         std::string funcName = typeTag_ + "_isMyType";
@@ -52,7 +57,7 @@ bool LuaFileObjectWrapper::isMyType(const std::string &fileName)
 
 const std::string LuaFileObjectWrapper::getTypeName()
 {
-
+    script::ScriptScopeLock locker(script_);
     try
     {
         std::string funcName = typeTag_ + "_getTypeName";
@@ -67,6 +72,7 @@ const std::string LuaFileObjectWrapper::getTypeName()
 
 DateEntry LuaFileObjectWrapper::getLineTime(const std::string &lineStr)
 {
+    script::ScriptScopeLock locker(script_);
     try
     {
         std::string funcName = typeTag_ + "_getLineTime";
@@ -81,6 +87,7 @@ DateEntry LuaFileObjectWrapper::getLineTime(const std::string &lineStr)
 
 ElementEntry LuaFileObjectWrapper::getElement(const std::string &lineStr)
 {
+    script::ScriptScopeLock locker(script_);
     try
     {
         std::string funcName = typeTag_ + "_getElement";

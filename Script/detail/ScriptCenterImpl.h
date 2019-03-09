@@ -7,6 +7,9 @@
 
 #include <vector>
 #include <string>
+#include <QMutex>
+#include <QMutexLocker>
+
 extern "C"
 {
 #include <lua.h>
@@ -35,12 +38,20 @@ public:
     {
         return luaState_;
     }
+    virtual void lock()
+    {
+        stateMutex_.lock();
+    }
+    virtual void unlock()
+    {
+        stateMutex_.unlock();
+    }
 private:
     void setContext();
     bool findLuaFunction(const std::string &fileName);
     std::vector<std::string> stringSplit(const std::string& str, const std::string& flag);
-
     luacpp::luaWrapper luaState_;
+    QMutex stateMutex_;
 };
 
 }

@@ -33,7 +33,14 @@ public:
     {
         return impl_->luaState();
     }
-
+    virtual void lock()
+    {
+        return impl_->lock();
+    }
+    virtual void unlock()
+    {
+        return impl_->unlock();
+    }
 private:
     ScriptCenterPtr impl_;
 };

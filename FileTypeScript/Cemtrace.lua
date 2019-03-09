@@ -1,6 +1,5 @@
 
 function Cemtrace_isMyType(filename)
-    print(filename)
     --cemtracer_core_provisioning.log.0.gz
     filestr = string.match(filename, "^cemtracer_core_provisioning.log*")
     if (filestr ~= nil) then 

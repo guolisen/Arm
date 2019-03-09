@@ -11,6 +11,7 @@
 
 namespace script
 {
+
 class IScriptCenter: public QObject
 {
     Q_OBJECT
@@ -20,10 +21,26 @@ public:
     virtual bool execute(const std::string &fileName) = 0;
     virtual bool executeString(const std::string &codeStr) = 0;
     virtual luacpp::luaWrapper& luaState() = 0;
+    virtual void lock() = 0;
+    virtual void unlock() = 0;
 };
 
 typedef std::shared_ptr<IScriptCenter> ScriptCenterPtr;
 
+class ScriptScopeLock
+{
+public:
+    ScriptScopeLock(script::ScriptCenterPtr script): script_(script)
+    {
+        script_->lock();
+    }
+    ~ScriptScopeLock()
+    {
+        script_->unlock();
+    }
+
+    script::ScriptCenterPtr script_;
+};
 }
 
 #endif //ELFBOX_ISCRIPTCENTER_H

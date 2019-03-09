@@ -61,7 +61,6 @@ void LogFileSystemModel::init()
     }
 
     fileIdentifier_ = std::make_shared<fileIdentifier::FileIdentifier>(container);
-
 }
 
 static void threadWrapper(unsigned int id, std::shared_ptr<ReadTimeJob> job)
@@ -82,6 +81,7 @@ QString LogFileSystemModel::logStartTime(const QModelIndex &index, const QFileIn
     if (!cacheTime.isEmpty())
         return cacheTime;
 
+    setCache(fi.filePath(), "Loading");
     auto setCacheFunc = std::bind(&LogFileSystemModel::setCache, this,
                                   std::placeholders::_1, std::placeholders::_2);
     auto emitDataChangeFunc = std::bind(&LogFileSystemModel::emitDataChange, this, index);

@@ -38,9 +38,9 @@ void ReadTimeJob::operator()(int)
 
     while (1)
     {
-        if(!readLine(lineStr))
+        if(!readLine(lineStr) || lineStr.isEmpty())
         {
-            lineStr = "File is broken";
+            lineStr = "No Time Info";
             setCache_(fullFileName_, lineStr);
             return;
         }
@@ -50,9 +50,9 @@ void ReadTimeJob::operator()(int)
             continue;
 
         QDate date(dateEntry.year, dateEntry.month, dateEntry.day);
-        QTime time(dateEntry.hour, dateEntry.minute, dateEntry.second, dateEntry.mSecond);
+        QTime time(dateEntry.hour, dateEntry.minute, dateEntry.second, dateEntry.mSecond/1000);
         QDateTime dt(date, time);
-        lineStr = dt.toString();
+        lineStr = dt.toString(Qt::SystemLocaleLongDate);
         setCache_(fullFileName_, lineStr);
         emitDataChange_();
         return;
