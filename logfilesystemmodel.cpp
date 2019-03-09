@@ -82,10 +82,12 @@ QString LogFileSystemModel::logStartTime(const QModelIndex &index, const QFileIn
     if (!cacheTime.isEmpty())
         return cacheTime;
 
+    auto setCacheFunc = std::bind(&LogFileSystemModel::setCache, this,
+                                  std::placeholders::_1, std::placeholders::_2);
+    auto emitDataChangeFunc = std::bind(&LogFileSystemModel::emitDataChange, this, index);
     std::shared_ptr<ReadTimeJob> readTimeJobPtr =
             std::make_shared<ReadTimeJob>(fi.filePath(), fileTypeObj,
-                                          std::bind(&LogFileSystemModel::setCache, this,
-                                                    std::placeholders::_1, std::placeholders::_2));
+                                          setCacheFunc, emitDataChangeFunc);
 
     pool_->attach(std::bind(threadWrapper, std::placeholders::_1, readTimeJobPtr), 1);
 

@@ -51,6 +51,10 @@ public:
         return "";
     }
 
+    void emitDataChange(const QModelIndex index) const
+    {
+        //emit dataChanged(index, index);
+    }
 private:
     QString logStartTime(const QModelIndex &index, const QFileInfo &fi) const;
     mutable LogTimeCache logCache_;

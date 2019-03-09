@@ -3,16 +3,23 @@
 #include <QDate>
 #include <QTime>
 #include <QDateTime>
+#include <quagzipfile.h>
 #include "readtimejob.h"
 
 ReadTimeJob::ReadTimeJob(const QString& fullFileName,
                          fileIdentifier::FileObjectPtr typeObj,
-                         SetCacheCallBack setCache):
+                         SetCacheCallBack setCache,
+                         EmitDataChangeCallBack emitDataChange):
                          fullFileName_(fullFileName), typeObj_(typeObj),
                          isCompressFile_(isCompressFile()), setCache_(setCache),
-                         file_(new QFile(fullFileName_))
+                         emitDataChange_(emitDataChange)
 {
-    if (!file_->open(QIODevice::ReadOnly | QIODevice::Text))
+    if (isCompressFile_)
+        file_ = new QuaGzipFile(fullFileName_);
+    else
+        file_ = new QFile(fullFileName_);
+
+    if (!file_->open(QIODevice::ReadOnly))
     {
         qDebug() << "Can't open the file of" << fullFileName_;
         return;
@@ -47,34 +54,14 @@ void ReadTimeJob::operator()(int)
         QDateTime dt(date, time);
         lineStr = dt.toString();
         setCache_(fullFileName_, lineStr);
+        emitDataChange_();
         return;
     }
 }
 
 bool ReadTimeJob::readLine(QString& line)
 {
-    if (isCompressFile_)
-        return readCompressFileLine(line);
-    else
-        return readFileLine(line);
-}
-
-bool ReadTimeJob::isCompressFile()
-{
-    return fullFileName_.contains("gz") ||
-            fullFileName_.contains("zip") ||
-            fullFileName_.contains("tgz");
-}
-
-bool  ReadTimeJob::readCompressFileLine(QString& line)
-{
-    return false;
-}
-
-bool ReadTimeJob::readFileLine(QString& line)
-{
     line = "";
-
     char buf[10000];
     qint64 lineLength = file_->readLine(buf, sizeof(buf));
     if (lineLength == -1)
@@ -82,4 +69,11 @@ bool ReadTimeJob::readFileLine(QString& line)
 
     line = QString::fromLatin1(buf);
     return true;
+}
+
+bool ReadTimeJob::isCompressFile()
+{
+    return fullFileName_.contains("gz") ||
+            fullFileName_.contains("zip") ||
+            fullFileName_.contains("tgz");
 }

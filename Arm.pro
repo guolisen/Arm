@@ -75,9 +75,15 @@ HEADERS += \
 FORMS += \
     armwindow.ui
 
-INCLUDEPATH += E:/code/lua-5.3.5/src
+INCLUDEPATH += E:/code/lua-5.3.5/src \
+               E:/code/qt/quazip/quazip/quazip \
+               E:/"Program Files"/zlib/include
 
-LIBS += E:/code/lua-5.3.5/luaLib/x64/Debug/luaLib.lib
+LIBS += E:/code/lua-5.3.5/luaLib/x64/Debug/luaLib.lib \
+        E:/"Program Files"/zlib/lib/zlibstaticd.lib \
+        E:/code/qt/quazip/quazip/build-quazip-Desktop_Qt_5_12_1_MSVC2017_64bit-Debug/debug/quazipd.lib
+
+
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
