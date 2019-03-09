@@ -20,13 +20,9 @@ void ArmWindow::init()
 {
     model_ = new LogFileSystemModel(this);
     model_->init();
-    model_->setRootPath("");
-
-    //const QModelIndex rootIndex = model_->index(QDir::cleanPath("C:\\test"));
-    //ui->treeView->setRootIndex(rootIndex);
-    //model_->setRootPath(rootIndex);
-
     ui->treeView->setModel(model_);
+    const QModelIndex rootIndex = model_->index(QDir::cleanPath("C:\\test"));
+    ui->treeView->setRootIndex(rootIndex);
 
 
     //if (parser.isSet(dontUseCustomDirectoryIconsOption))
