@@ -20,11 +20,14 @@ public:
 
 private slots:
     void open();
+    void findStringProcess(const QString &s);
+    void resizeColumn(const QString &path);
+
 private:
     void createMenu();
+
     Ui::ArmWindow *ui;
     LogFileSystemModel* model_;
-
 };
 
 #endif // ARMWINDOW_H

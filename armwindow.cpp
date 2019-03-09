@@ -17,21 +17,33 @@ ArmWindow::~ArmWindow()
     delete ui;
 }
 
+void ArmWindow::resizeColumn(const QString &path)
+{
+    for (int column = 0; column < model_->columnCount(); ++column)
+        ui->treeView->resizeColumnToContents(column);
+}
+
 void ArmWindow::init()
 {
+    setWindowTitle("Arm v0.1");
     model_ = new LogFileSystemModel(this);
     model_->init();
+
     ui->treeView->setModel(model_);
     ui->treeView->setAnimated(true);
     ui->treeView->setIndentation(20);
     ui->treeView->setSortingEnabled(false);
-    //const QSize availableSize = QApplication::desktop()->availableGeometry(ui->treeView).size();
-   // ui->treeView->resize(availableSize / 2);
-   // ui->treeView->setColumnWidth(0, ui->treeView->width() / 3);
-
     ui->treeView->setWindowTitle(QObject::tr("Arm"));
 
+    connect(ui->comboBox, &QComboBox::editTextChanged, this, &ArmWindow::findStringProcess);
+    connect(model_, &LogFileSystemModel::directoryLoaded, this, &ArmWindow::resizeColumn);
     createMenu();
+}
+
+void ArmWindow::findStringProcess(const QString& s)
+{
+    model_->setFilter(QDir::Files | QDir::Dirs);
+    model_->setNameFilters({s});
 }
 
 void ArmWindow::open()
@@ -48,8 +60,10 @@ void ArmWindow::open()
         fileName = fileDialog->selectedFiles();
         model_->setRootPath(QDir::cleanPath(fileName[0]));
         const QModelIndex rootIndex = model_->index(QDir::cleanPath(fileName[0]));
+
         ui->treeView->setRootIndex(rootIndex);
         ui->treeView->update();
+
     }
 }
 
