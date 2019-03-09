@@ -6,13 +6,13 @@
 #include <quagzipfile.h>
 #include "readtimejob.h"
 
-ReadTimeJob::ReadTimeJob(const QString& fullFileName,
+ReadTimeJob::ReadTimeJob(const QModelIndex& index,
+                         const QString& fullFileName,
                          fileIdentifier::FileObjectPtr typeObj,
-                         SetCacheCallBack setCache,
-                         EmitDataChangeCallBack emitDataChange):
+                         SetCacheCallBack setCache):
                          fullFileName_(fullFileName), typeObj_(typeObj),
-                         isCompressFile_(isCompressFile()), setCache_(setCache),
-                         emitDataChange_(emitDataChange)
+                         isCompressFile_(isCompressFile()),
+                         setCache_(setCache), index_(index)
 {
     if (isCompressFile_)
         file_ = new QuaGzipFile(fullFileName_);
@@ -54,7 +54,7 @@ void ReadTimeJob::operator()(int)
         QDateTime dt(date, time);
         lineStr = dt.toString(Qt::SystemLocaleLongDate);
         setCache_(fullFileName_, lineStr);
-        emitDataChange_();
+        emit dataChanged(index_, this);
         return;
     }
 }

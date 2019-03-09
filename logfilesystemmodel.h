@@ -10,6 +10,7 @@
 #include <Core/IThreadPool.h>
 
 typedef QMap<QString, QString> LogTimeCache;
+class ReadTimeJob;
 class LogFileSystemModel : public QFileSystemModel
 {
     Q_OBJECT
@@ -51,10 +52,9 @@ public:
         return "";
     }
 
-    void emitDataChange(const QModelIndex index) const
-    {
-        //emit dataChanged(index, index);
-    }
+public slots:
+    void dataTriger(const QModelIndex &index, ReadTimeJob* jobObj);
+
 private:
     QString logStartTime(const QModelIndex &index, const QFileInfo &fi) const;
     mutable LogTimeCache logCache_;
