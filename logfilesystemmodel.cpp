@@ -61,6 +61,8 @@ void LogFileSystemModel::init()
     }
 
     fileIdentifier_ = std::make_shared<fileIdentifier::FileIdentifier>(container);
+
+    setReadOnly(true);
 }
 
 static void threadWrapper(unsigned int id, std::shared_ptr<ReadTimeJob> job)

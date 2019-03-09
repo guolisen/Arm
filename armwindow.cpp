@@ -1,3 +1,4 @@
+#include <QFileDialog>
 #include "armwindow.h"
 #include "ui_armwindow.h"
 #include "logfilesystemmodel.h"
@@ -21,13 +22,6 @@ void ArmWindow::init()
     model_ = new LogFileSystemModel(this);
     model_->init();
     ui->treeView->setModel(model_);
-    const QModelIndex rootIndex = model_->index(QDir::cleanPath("C:\\test"));
-    ui->treeView->setRootIndex(rootIndex);
-
-
-    //if (parser.isSet(dontUseCustomDirectoryIconsOption))
-    //    model.iconProvider()->setOptions(QFileIconProvider::DontUseCustomDirectoryIcons);
-
     ui->treeView->setAnimated(true);
     ui->treeView->setIndentation(20);
     ui->treeView->setSortingEnabled(false);
@@ -42,7 +36,21 @@ void ArmWindow::init()
 
 void ArmWindow::open()
 {
+    QFileDialog* fileDialog = new QFileDialog(this);
+    fileDialog->setWindowTitle("Choose Source Directory");
+    //fd->setDirectory(buf);
+    fileDialog->setFileMode(QFileDialog::DirectoryOnly);
+    QStringList fileName;
+    fileDialog->setOption(QFileDialog::ShowDirsOnly);
 
+    if (fileDialog->exec() == QDialog::Accepted)
+    {
+        fileName = fileDialog->selectedFiles();
+        model_->setRootPath(QDir::cleanPath(fileName[0]));
+        const QModelIndex rootIndex = model_->index(QDir::cleanPath(fileName[0]));
+        ui->treeView->setRootIndex(rootIndex);
+        ui->treeView->update();
+    }
 }
 
 void ArmWindow::createMenu()
@@ -53,7 +61,6 @@ void ArmWindow::createMenu()
     newAct->setStatusTip(tr("Open a new folder"));
     connect(newAct, &QAction::triggered, this, &ArmWindow::open);
     fileMenu->addAction(newAct);
-
 
     QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
     QAction *aboutAct = new QAction(tr("&About"), this);
