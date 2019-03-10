@@ -30,7 +30,6 @@ ReadTimeJob::~ReadTimeJob()
 void ReadTimeJob::operator()(int)
 {
     QString lineStr;
-
     while (1)
     {
         if(!readLine(lineStr) || lineStr.isEmpty())

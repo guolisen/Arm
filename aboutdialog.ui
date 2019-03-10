@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>360</width>
-    <height>173</height>
+    <width>377</width>
+    <height>182</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -71,7 +71,7 @@
         <property name="font">
          <font>
           <family>Courier New</family>
-          <pointsize>9</pointsize>
+          <pointsize>10</pointsize>
          </font>
         </property>
         <property name="text">
@@ -80,12 +80,25 @@
        </widget>
       </item>
       <item>
+       <widget class="QLabel" name="label_7">
+        <property name="font">
+         <font>
+          <family>Courier New</family>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Github: github.com/guolisen/Arm</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QLabel" name="label_3">
         <property name="font">
          <font>
-          <family>Buxton Sketch</family>
-          <pointsize>10</pointsize>
-          <italic>false</italic>
+          <family>Monotype Corsiva</family>
+          <pointsize>14</pointsize>
+          <italic>true</italic>
          </font>
         </property>
         <property name="text">
@@ -97,9 +110,9 @@
        <widget class="QLabel" name="label_4">
         <property name="font">
          <font>
-          <family>Buxton Sketch</family>
-          <pointsize>10</pointsize>
-          <italic>false</italic>
+          <family>Monotype Corsiva</family>
+          <pointsize>14</pointsize>
+          <italic>true</italic>
          </font>
         </property>
         <property name="text">

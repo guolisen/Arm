@@ -4,7 +4,6 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    //a.setWindowIcon(QIcon("hands.ico"));
 
     QCoreApplication::setOrganizationName("DELLEMC");
     QCoreApplication::setOrganizationDomain("FILETEAM");

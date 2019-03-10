@@ -38,7 +38,7 @@ void ArmWindow::init()
     model_->init();
 
     ui->treeView->setModel(model_);
-    ui->treeView->setAnimated(true);
+    ui->treeView->setAnimated(false);
     ui->treeView->setIndentation(20);
     ui->treeView->setSortingEnabled(false);
     ui->treeView->setWindowTitle(QObject::tr("Arm"));
@@ -128,18 +128,13 @@ void ArmWindow::on_treeView_doubleClicked(const QModelIndex &index)
     if(cacheFileName.isEmpty())
         return;
 
-    //TO DO: check memory leak
     QProcess* proc = new QProcess(this);
-    //connect(proc.get(),static_cast<void(QProcess::*)(int)>(&QProcess::finished),
-    //        std::bind(&ArmWindow::editFinish, this, std::placeholders::_1, test));
-
     connect(proc, static_cast<void(QProcess::*)(int)>(&QProcess::finished),
           [proc, cacheFileName, this](int){
-         // QString command = "del " + QDir::cleanPath(cacheFileName);
+          // QString command = "del " + QDir::cleanPath(cacheFileName);
           //::system(command.toStdString().c_str());
-         // qWarning()<< command << " Clean cache"<< proc.use_count() << " " << test.use_count();
+          // qWarning()<< command << " Clean cache"<< proc.use_count() << " " << test.use_count();
           proc->close();
-          //proc->disconnect();
     });
 
     qDebug() << "cacheFileName: " << cacheFileName;
