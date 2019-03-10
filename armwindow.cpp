@@ -89,27 +89,31 @@ void ArmWindow::setting()
 void ArmWindow::createMenu()
 {
     QMenu *fileMenu = menuBar()->addMenu(tr("&File"));
-    QAction *newAct = new QAction(tr("&Open Log Folder"), this);
+    const QIcon openIcon = QIcon::fromTheme("open", QIcon(":/folder.ico"));
+    QAction *newAct = new QAction(openIcon, tr("&Open Log Folder"), this);
     newAct->setShortcuts(QKeySequence::Open);
     newAct->setStatusTip(tr("Open a new folder"));
     connect(newAct, &QAction::triggered, this, &ArmWindow::open);
     fileMenu->addAction(newAct);
     //-----
-    QAction *settingAct = new QAction(tr("&Preferences..."), this);
+    const QIcon settingIcon = QIcon::fromTheme("setting", QIcon(":/setting.ico"));
+    QAction *settingAct = new QAction(settingIcon, tr("&Preferences..."), this);
     settingAct->setShortcuts(QKeySequence::Preferences);
     settingAct->setStatusTip(tr("Setting..."));
     connect(settingAct, &QAction::triggered, this, &ArmWindow::setting);
     fileMenu->addAction(settingAct);
     fileMenu->addSeparator();
     //-----
-    QAction *quitAct = new QAction(tr("&Quit"), this);
+    const QIcon exitIcon = QIcon::fromTheme("exit", QIcon(":/exit.ico"));
+    QAction *quitAct = new QAction(exitIcon, tr("&Quit"), this);
     quitAct->setShortcuts(QKeySequence::Quit);
     quitAct->setStatusTip(tr("Quit"));
     connect(quitAct, &QAction::triggered, this, [this](){close();});
     fileMenu->addAction(quitAct);
 
     QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
-    QAction *aboutAct = new QAction(tr("&About"), this);
+    const QIcon infoIcon = QIcon::fromTheme("info", QIcon(":/info.ico"));
+    QAction *aboutAct = new QAction(infoIcon, tr("&About"), this);
     aboutAct->setStatusTip(tr("Open About"));
     connect(aboutAct, &QAction::triggered, this, [this](){
         AboutDialog dialog(this);

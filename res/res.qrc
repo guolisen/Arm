@@ -3,5 +3,9 @@
         <file>mhands.ico</file>
         <file>mhands1.png</file>
         <file>mhands2.png</file>
+        <file>exit.ico</file>
+        <file>folder.ico</file>
+        <file>info.ico</file>
+        <file>setting.ico</file>
     </qresource>
 </RCC>

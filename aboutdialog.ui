@@ -97,7 +97,7 @@
         <property name="font">
          <font>
           <family>Monotype Corsiva</family>
-          <pointsize>14</pointsize>
+          <pointsize>11</pointsize>
           <italic>true</italic>
          </font>
         </property>
@@ -111,7 +111,7 @@
         <property name="font">
          <font>
           <family>Monotype Corsiva</family>
-          <pointsize>14</pointsize>
+          <pointsize>11</pointsize>
           <italic>true</italic>
          </font>
         </property>
