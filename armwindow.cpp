@@ -4,9 +4,12 @@
 #include "logfilesystemmodel.h"
 #include <QDebug>
 #include <QProcess>
+#include <QSettings>
+#include <QMessageBox>
 #include "aboutdialog.h"
 #include "uncompressfilecache.h"
 #include "folderopendialog.h"
+#include "settingdialog.h"
 
 ArmWindow::ArmWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -14,7 +17,7 @@ ArmWindow::ArmWindow(QWidget *parent) :
     process_(new QProcess(this))
 {
     ui->setupUi(this);
-
+    setting_ = new QSettings;
 }
 
 ArmWindow::~ArmWindow()
@@ -44,9 +47,11 @@ void ArmWindow::init()
     connect(ui->comboBox, &QComboBox::editTextChanged, this, &ArmWindow::findStringProcess);
     connect(model_, &LogFileSystemModel::directoryLoaded, this, &ArmWindow::resizeColumn);
 
-
-
     createMenu();
+
+    editorPath_ = setting_->value("Arm/Setting/editorPath").toString();
+    if (editorPath_.isEmpty())
+        editorPath_ = QDir::cleanPath("C:/Program Files (x86)/Notepad++/notepad++.exe");
 }
 
 void ArmWindow::findStringProcess(const QString& s)
@@ -71,6 +76,17 @@ void ArmWindow::open()
     }
 }
 
+void ArmWindow::setting()
+{
+    SettingDialog settingDialog(this);
+    if (settingDialog.exec() == QDialog::Accepted)
+    {
+        editorPath_ = setting_->value("Arm/Setting/editorPath").toString();
+        if (editorPath_.isEmpty())
+            editorPath_ = QDir::cleanPath("C:/Program Files (x86)/Notepad++/notepad++.exe");
+    }
+}
+
 void ArmWindow::createMenu()
 {
     QMenu *fileMenu = menuBar()->addMenu(tr("&File"));
@@ -79,6 +95,19 @@ void ArmWindow::createMenu()
     newAct->setStatusTip(tr("Open a new folder"));
     connect(newAct, &QAction::triggered, this, &ArmWindow::open);
     fileMenu->addAction(newAct);
+    //-----
+    QAction *settingAct = new QAction(tr("&Preferences..."), this);
+    settingAct->setShortcuts(QKeySequence::Preferences);
+    settingAct->setStatusTip(tr("Setting..."));
+    connect(settingAct, &QAction::triggered, this, &ArmWindow::setting);
+    fileMenu->addAction(settingAct);
+    fileMenu->addSeparator();
+    //-----
+    QAction *quitAct = new QAction(tr("&Quit"), this);
+    quitAct->setShortcuts(QKeySequence::Quit);
+    quitAct->setStatusTip(tr("Quit"));
+    connect(quitAct, &QAction::triggered, this, [this](){close();});
+    fileMenu->addAction(quitAct);
 
     QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
     QAction *aboutAct = new QAction(tr("&About"), this);
@@ -108,23 +137,27 @@ void ArmWindow::on_treeView_doubleClicked(const QModelIndex &index)
         return;
 
     //TO DO: check memory leak
-    std::shared_ptr<QProcess> proc = std::make_shared<QProcess>(this);
+    std::shared_ptr<QProcess> proc = std::make_shared<QProcess>();
     std::shared_ptr<TestClass> test = std::make_shared<TestClass>();
 
     //connect(proc.get(),static_cast<void(QProcess::*)(int)>(&QProcess::finished),
     //        std::bind(&ArmWindow::editFinish, this, std::placeholders::_1, test));
 
-#if 0
     connect(proc.get(),static_cast<void(QProcess::*)(int)>(&QProcess::finished),
-          [proc, test, cacheFileName, this](int){
+          [proc, cacheFileName, this](int){
          // QString command = "del " + QDir::cleanPath(cacheFileName);
           //::system(command.toStdString().c_str());
          // qWarning()<< command << " Clean cache"<< proc.use_count() << " " << test.use_count();
-          //proc->close();
+          proc->close();
           //proc->disconnect();
     });
-#endif
+
     qDebug() << "cacheFileName: " << cacheFileName;
-    proc->start("C:/Program Files (x86)/Notepad++/notepad++.exe", {cacheFileName});
+    if (editorPath_.isEmpty())
+    {
+        QMessageBox::information(this, tr("Warning"), tr("Cannot Find Editor Path"));
+        return;
+    }
+    proc->start(editorPath_, {cacheFileName});
     //proc->start("C:/Program Files/TortoiseGit/bin/notepad2.exe", {cacheFileName});
 }

@@ -21,6 +21,7 @@ public:
 
 };
 class QProcess;
+class QSettings;
 class LogFileSystemModel;
 class ArmWindow : public QMainWindow
 {
@@ -38,12 +39,15 @@ private slots:
     void on_treeView_doubleClicked(const QModelIndex &index);
 
     void editFinish(int, std::shared_ptr<TestClass> test);
+    void setting();
 private:
     void createMenu();
 
     Ui::ArmWindow *ui;
     LogFileSystemModel* model_;
     QProcess* process_;
+    QString editorPath_;
+    QSettings* setting_;
 };
 
 #endif // ARMWINDOW_H

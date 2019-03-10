@@ -41,7 +41,8 @@ SOURCES += \
     readtimejob.cpp \
     aboutdialog.cpp \
     uncompressfilecache.cpp \
-    folderopendialog.cpp
+    folderopendialog.cpp \
+    settingdialog.cpp
 
 HEADERS += \
     Core/detail/IThread.h \
@@ -76,12 +77,14 @@ HEADERS += \
     readtimejob.h \
     aboutdialog.h \
     uncompressfilecache.h \
-    folderopendialog.h
+    folderopendialog.h \
+    settingdialog.h
 
 FORMS += \
     armwindow.ui \
     aboutdialog.ui \
-    folderopendialog.ui
+    folderopendialog.ui \
+    settingdialog.ui
 
 INCLUDEPATH += E:/code/lua-5.3.5/src \
                E:/code/qt/quazip/quazip/quazip \
