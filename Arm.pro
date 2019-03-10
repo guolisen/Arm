@@ -5,7 +5,7 @@
 #-------------------------------------------------
 
 QT       += core gui
-
+RC_ICONS += res/mhands.ico
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = Arm
@@ -94,9 +94,11 @@ LIBS += E:/code/lua-5.3.5/luaLib/x64/Debug/luaLib.lib \
         E:/"Program Files"/zlib/lib/zlibstaticd.lib \
         E:/code/qt/quazip/quazip/build-quazip-Desktop_Qt_5_12_1_MSVC2017_64bit-Debug/debug/quazipd.lib
 
-
-
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    res/res.qrc
+
