@@ -8,7 +8,7 @@ SettingDialog::SettingDialog(QWidget *parent) :
     ui(new Ui::SettingDialog)
 {
     ui->setupUi(this);
-    editorPath_ = settings_.value("Setting/editorPath").toString();
+    editorPath_ = settings_.value("Arm/Setting/EditorPath").toString();
     if (editorPath_.isEmpty())
         editorPath_ = QDir::cleanPath("C:/Program Files (x86)/Notepad++/notepad++.exe");
     ui->lineEdit->setText(editorPath_);
@@ -43,6 +43,16 @@ void SettingDialog::on_pushButton_clicked()
     {
         editorPath_ = QDir::cleanPath(fileName);
         ui->lineEdit->setText(editorPath_);
-        settings_.setValue("Setting/editorPath", editorPath_);
+
     }
+}
+
+void SettingDialog::on_buttonBox_accepted()
+{
+    editorPath_ = ui->lineEdit->text();
+    QFileInfo info(QDir::cleanPath(editorPath_));
+    if (!info.exists())
+        editorPath_ = "";
+    settings_.setValue("Arm/Setting/EditorPath", editorPath_);
+    close();
 }

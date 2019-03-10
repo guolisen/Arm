@@ -9,8 +9,22 @@ UncompressFileCache::UncompressFileCache(): fileNumber_(0)
 
 }
 
+QString UncompressFileCache::getCompressFile(const QString &fullFilePath)
+{
+    if (fullFilePath.contains(".gz"))
+        return "gz";
+    else if(fullFilePath.contains(".zip"))
+        return "zip";
+
+    return "";
+}
+
 QString UncompressFileCache::createUncompressCacheFile(const QString &fullFilePath)
 {
+    QString compressType = getCompressFile(fullFilePath);
+    if (compressType.isEmpty())
+        return fullFilePath;
+
     QuaGzipFile gzip(fullFilePath);
     if(!gzip.open(QIODevice::ReadOnly))
     {
