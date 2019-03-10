@@ -1,5 +1,7 @@
 <RCC>
     <qresource prefix="/">
         <file>mhands.ico</file>
+        <file>mhands1.png</file>
+        <file>mhands2.png</file>
     </qresource>
 </RCC>
