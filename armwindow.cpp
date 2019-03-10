@@ -120,13 +120,6 @@ void ArmWindow::createMenu()
     helpMenu->addAction(aboutAct);
 }
 
-
-void ArmWindow::editFinish(int, std::shared_ptr<TestClass> test)
-{
-    //qWarning()<<"Clean cache"<< proc.use_count() << " " << test.use_count();
-    //::system("del cache*");
-    //proc->close();
-}
 void ArmWindow::on_treeView_doubleClicked(const QModelIndex &index)
 {
     LogFileSystemModel* m=(LogFileSystemModel*)index.model();
@@ -137,13 +130,11 @@ void ArmWindow::on_treeView_doubleClicked(const QModelIndex &index)
         return;
 
     //TO DO: check memory leak
-    std::shared_ptr<QProcess> proc = std::make_shared<QProcess>();
-    std::shared_ptr<TestClass> test = std::make_shared<TestClass>();
-
+    QProcess* proc = new QProcess(this);
     //connect(proc.get(),static_cast<void(QProcess::*)(int)>(&QProcess::finished),
     //        std::bind(&ArmWindow::editFinish, this, std::placeholders::_1, test));
 
-    connect(proc.get(),static_cast<void(QProcess::*)(int)>(&QProcess::finished),
+    connect(proc, static_cast<void(QProcess::*)(int)>(&QProcess::finished),
           [proc, cacheFileName, this](int){
          // QString command = "del " + QDir::cleanPath(cacheFileName);
           //::system(command.toStdString().c_str());

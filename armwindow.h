@@ -7,19 +7,7 @@
 namespace Ui {
 class ArmWindow;
 }
-class TestClass
-{
-public:
-    TestClass()
-    {
-        qDebug()<<"TestClass create";
-    }
-    ~TestClass()
-    {
-        qDebug()<<"TestClass delete";
-    }
 
-};
 class QProcess;
 class QSettings;
 class LogFileSystemModel;
@@ -37,8 +25,6 @@ private slots:
     void findStringProcess(const QString &s);
     void resizeColumn(const QString &path);
     void on_treeView_doubleClicked(const QModelIndex &index);
-
-    void editFinish(int, std::shared_ptr<TestClass> test);
     void setting();
 private:
     void createMenu();
