@@ -6,6 +6,7 @@
 #include <QProcess>
 #include "aboutdialog.h"
 #include "uncompressfilecache.h"
+#include "folderopendialog.h"
 
 ArmWindow::ArmWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -56,18 +57,15 @@ void ArmWindow::findStringProcess(const QString& s)
 
 void ArmWindow::open()
 {
-    QFileDialog* fileDialog = new QFileDialog(this);
-    fileDialog->setWindowTitle("Choose Source Directory");
-    //fd->setDirectory(buf);
-    fileDialog->setFileMode(QFileDialog::DirectoryOnly);
-    QStringList fileName;
-    fileDialog->setOption(QFileDialog::ShowDirsOnly);
-
-    if (fileDialog->exec() == QDialog::Accepted)
+    FolderOpenDialog folderDialog(this);
+    if (folderDialog.exec() == QDialog::Accepted)
     {
-        fileName = fileDialog->selectedFiles();
-        model_->setRootPath(QDir::cleanPath(fileName[0]));
-        const QModelIndex rootIndex = model_->index(QDir::cleanPath(fileName[0]));
+        QString fileName;
+        fileName = folderDialog.getFileName();
+        if (fileName.isEmpty())
+            return;
+        model_->setRootPath(QDir::cleanPath(fileName));
+        const QModelIndex rootIndex = model_->index(QDir::cleanPath(fileName));
         ui->treeView->setRootIndex(rootIndex);
         ui->treeView->update();
     }
@@ -99,7 +97,6 @@ void ArmWindow::editFinish(int, std::shared_ptr<TestClass> test)
     //qWarning()<<"Clean cache"<< proc.use_count() << " " << test.use_count();
     //::system("del cache*");
     //proc->close();
-    test.reset();
 }
 void ArmWindow::on_treeView_doubleClicked(const QModelIndex &index)
 {
@@ -111,13 +108,13 @@ void ArmWindow::on_treeView_doubleClicked(const QModelIndex &index)
         return;
 
     //TO DO: check memory leak
-    std::shared_ptr<QProcess> proc = std::make_shared<QProcess>();
+    std::shared_ptr<QProcess> proc = std::make_shared<QProcess>(this);
     std::shared_ptr<TestClass> test = std::make_shared<TestClass>();
 
     //connect(proc.get(),static_cast<void(QProcess::*)(int)>(&QProcess::finished),
     //        std::bind(&ArmWindow::editFinish, this, std::placeholders::_1, test));
 
-#if 1
+#if 0
     connect(proc.get(),static_cast<void(QProcess::*)(int)>(&QProcess::finished),
           [proc, test, cacheFileName, this](int){
          // QString command = "del " + QDir::cleanPath(cacheFileName);
@@ -130,6 +127,4 @@ void ArmWindow::on_treeView_doubleClicked(const QModelIndex &index)
     qDebug() << "cacheFileName: " << cacheFileName;
     proc->start("C:/Program Files (x86)/Notepad++/notepad++.exe", {cacheFileName});
     //proc->start("C:/Program Files/TortoiseGit/bin/notepad2.exe", {cacheFileName});
-
-
 }
