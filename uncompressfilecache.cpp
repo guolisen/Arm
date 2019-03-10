@@ -13,8 +13,8 @@ QString UncompressFileCache::getCompressFile(const QString &fullFilePath)
 {
     if (fullFilePath.contains(".gz"))
         return "gz";
-    else if(fullFilePath.contains(".zip"))
-        return "zip";
+    //else if(fullFilePath.contains(".zip"))
+    //    return "zip";
 
     return "";
 }
