@@ -17,7 +17,7 @@ class LogFileSystemModel : public QFileSystemModel
 public:
     explicit LogFileSystemModel(QObject *parent = nullptr):
         QFileSystemModel(parent) {}
-
+    virtual ~LogFileSystemModel();
 public:
     enum Roles  {
         LogStartTimeRole = Qt::UserRole + 4,

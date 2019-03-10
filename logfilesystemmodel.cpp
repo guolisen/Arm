@@ -13,6 +13,11 @@
 #include "readtimejob.h"
 #include <QMutex>
 
+LogFileSystemModel::~LogFileSystemModel()
+{
+    pool_->complete(-1);
+}
+
 QVariant LogFileSystemModel::data(const QModelIndex &index, int role) const
 {
     if(!index.isValid())

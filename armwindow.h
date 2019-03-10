@@ -31,7 +31,6 @@ private:
 
     Ui::ArmWindow *ui;
     LogFileSystemModel* model_;
-    QProcess* process_;
     QString editorPath_;
     QSettings* setting_;
 };

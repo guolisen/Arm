@@ -13,7 +13,7 @@ ReadTimeJob::ReadTimeJob(const QModelIndex& index,
                          fullFileName_(fullFileName), typeObj_(typeObj),
                          setCache_(setCache), index_(index)
 {
-    file_ = new QuaGzipFile(fullFileName_);
+    file_ = new QuaGzipFile(fullFileName_, this);
     if (!file_->open(QIODevice::ReadOnly))
     {
         qDebug() << "Can't open the file of" << fullFileName_;
@@ -23,8 +23,8 @@ ReadTimeJob::ReadTimeJob(const QModelIndex& index,
 
 ReadTimeJob::~ReadTimeJob()
 {
-    file_->close();
-    delete file_;
+    //if(file_->isOpen())
+     //   file_->close();
 }
 
 void ReadTimeJob::operator()(int)
@@ -57,7 +57,7 @@ void ReadTimeJob::operator()(int)
 bool ReadTimeJob::readLine(QString& line)
 {
     line = "";
-    char buf[10000];
+    char buf[10000] = {0};
     qint64 lineLength = file_->readLine(buf, sizeof(buf));
     if (lineLength == -1)
         return false;

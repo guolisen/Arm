@@ -13,8 +13,7 @@
 
 ArmWindow::ArmWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::ArmWindow),
-    process_(new QProcess(this))
+    ui(new Ui::ArmWindow)
 {
     ui->setupUi(this);
     setting_ = new QSettings;
@@ -122,7 +121,7 @@ void ArmWindow::createMenu()
 
 void ArmWindow::on_treeView_doubleClicked(const QModelIndex &index)
 {
-    LogFileSystemModel* m=(LogFileSystemModel*)index.model();
+    LogFileSystemModel* m = (LogFileSystemModel*)index.model();
     QString activeFileName = m->filePath(index);
     UncompressFileCache fileCache;
     QString cacheFileName = fileCache.createUncompressCacheFile(activeFileName);
@@ -150,5 +149,4 @@ void ArmWindow::on_treeView_doubleClicked(const QModelIndex &index)
         return;
     }
     proc->start(editorPath_, {cacheFileName});
-    //proc->start("C:/Program Files/TortoiseGit/bin/notepad2.exe", {cacheFileName});
 }
