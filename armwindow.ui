@@ -38,6 +38,39 @@
         <property name="editable">
          <bool>true</bool>
         </property>
+        <property name="currentText">
+         <string/>
+        </property>
+        <item>
+         <property name="text">
+          <string>*ktrace*</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>*safe*</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>*core*</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>*health*</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>*sysapi*</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>*start*</string>
+         </property>
+        </item>
        </widget>
       </item>
      </layout>
