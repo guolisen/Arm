@@ -42,7 +42,40 @@ SOURCES += \
     aboutdialog.cpp \
     uncompressfilecache.cpp \
     folderopendialog.cpp \
-    settingdialog.cpp
+    settingdialog.cpp \
+    Thirdparty/Lua/src/lapi.c \
+    Thirdparty/Lua/src/lauxlib.c \
+    Thirdparty/Lua/src/lbaselib.c \
+    Thirdparty/Lua/src/lbitlib.c \
+    Thirdparty/Lua/src/lcode.c \
+    Thirdparty/Lua/src/lcorolib.c \
+    Thirdparty/Lua/src/lctype.c \
+    Thirdparty/Lua/src/ldblib.c \
+    Thirdparty/Lua/src/ldebug.c \
+    Thirdparty/Lua/src/ldo.c \
+    Thirdparty/Lua/src/ldump.c \
+    Thirdparty/Lua/src/lfunc.c \
+    Thirdparty/Lua/src/lgc.c \
+    Thirdparty/Lua/src/linit.c \
+    Thirdparty/Lua/src/liolib.c \
+    Thirdparty/Lua/src/llex.c \
+    Thirdparty/Lua/src/lmathlib.c \
+    Thirdparty/Lua/src/lmem.c \
+    Thirdparty/Lua/src/loadlib.c \
+    Thirdparty/Lua/src/lobject.c \
+    Thirdparty/Lua/src/lopcodes.c \
+    Thirdparty/Lua/src/loslib.c \
+    Thirdparty/Lua/src/lparser.c \
+    Thirdparty/Lua/src/lstate.c \
+    Thirdparty/Lua/src/lstring.c \
+    Thirdparty/Lua/src/lstrlib.c \
+    Thirdparty/Lua/src/ltable.c \
+    Thirdparty/Lua/src/ltablib.c \
+    Thirdparty/Lua/src/ltm.c \
+    Thirdparty/Lua/src/lundump.c \
+    Thirdparty/Lua/src/lutf8lib.c \
+    Thirdparty/Lua/src/lvm.c \
+    Thirdparty/Lua/src/lzio.c \
 
 HEADERS += \
     Core/detail/IThread.h \
@@ -78,7 +111,33 @@ HEADERS += \
     aboutdialog.h \
     uncompressfilecache.h \
     folderopendialog.h \
-    settingdialog.h
+    settingdialog.h \
+    Thirdparty/Lua/src/lapi.h \
+    Thirdparty/Lua/src/lauxlib.h \
+    Thirdparty/Lua/src/lcode.h \
+    Thirdparty/Lua/src/lctype.h \
+    Thirdparty/Lua/src/ldebug.h \
+    Thirdparty/Lua/src/ldo.h \
+    Thirdparty/Lua/src/lfunc.h \
+    Thirdparty/Lua/src/lgc.h \
+    Thirdparty/Lua/src/llex.h \
+    Thirdparty/Lua/src/llimits.h \
+    Thirdparty/Lua/src/lmem.h \
+    Thirdparty/Lua/src/lobject.h \
+    Thirdparty/Lua/src/lopcodes.h \
+    Thirdparty/Lua/src/lparser.h \
+    Thirdparty/Lua/src/lprefix.h \
+    Thirdparty/Lua/src/lstate.h \
+    Thirdparty/Lua/src/lstring.h \
+    Thirdparty/Lua/src/ltable.h \
+    Thirdparty/Lua/src/ltm.h \
+    Thirdparty/Lua/src/lua.hpp \
+    Thirdparty/Lua/src/lua.h \
+    Thirdparty/Lua/src/luaconf.h \
+    Thirdparty/Lua/src/lualib.h \
+    Thirdparty/Lua/src/lundump.h \
+    Thirdparty/Lua/src/lvm.h \
+    Thirdparty/Lua/src/lzio.h
 
 FORMS += \
     armwindow.ui \
@@ -86,13 +145,12 @@ FORMS += \
     folderopendialog.ui \
     settingdialog.ui
 
-INCLUDEPATH += E:/code/lua-5.3.5/src \
-               E:/code/qt/quazip/quazip/quazip \
-               E:/"Program Files"/zlib/include
+INCLUDEPATH += Thirdparty/Lua/src \
+               C:/Code/qt/Quazip/quazip/quazip \
+               C:/"Program Files"/zlib/include
 
-LIBS += E:/code/lua-5.3.5/luaLib/x64/Debug/luaLib.lib \
-        E:/"Program Files"/zlib/lib/zlibstaticd.lib \
-        E:/code/qt/quazip/quazip/build-quazip-Desktop_Qt_5_12_1_MSVC2017_64bit-Debug/debug/quazipd.lib
+LIBS += C:/"Program Files"/zlib/lib/zlibstaticd.lib \
+        C:/Code/qt/Quazip/build-quazip-Desktop_Qt_5_12_2_MSVC2017_64bit-Debug/quazip/debug/quazipd.lib
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
