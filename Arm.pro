@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui network
 RC_ICONS += res/mhands.ico
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -76,6 +76,7 @@ SOURCES += \
     Thirdparty/Lua/src/lutf8lib.c \
     Thirdparty/Lua/src/lvm.c \
     Thirdparty/Lua/src/lzio.c \
+    filemodelcontainer.cpp
 
 HEADERS += \
     Core/detail/IThread.h \
@@ -137,7 +138,8 @@ HEADERS += \
     Thirdparty/Lua/src/lualib.h \
     Thirdparty/Lua/src/lundump.h \
     Thirdparty/Lua/src/lvm.h \
-    Thirdparty/Lua/src/lzio.h
+    Thirdparty/Lua/src/lzio.h \
+    filemodelcontainer.h
 
 FORMS += \
     armwindow.ui \
@@ -147,10 +149,13 @@ FORMS += \
 
 INCLUDEPATH += Thirdparty/Lua/src \
                C:/Code/qt/Quazip/quazip/quazip \
-               C:/"Program Files"/zlib/include
+               C:/"Program Files"/zlib/include \
+               C:/Code/qt/Qssh/QSsh/src/libs
 
 LIBS += C:/"Program Files"/zlib/lib/zlibstaticd.lib \
-        C:/Code/qt/Quazip/build-quazip-Desktop_Qt_5_12_2_MSVC2017_64bit-Debug/quazip/debug/quazipd.lib
+        C:/Code/qt/Quazip/build-quazip-Desktop_Qt_5_12_2_MSVC2017_64bit-Debug/quazip/debug/quazipd.lib \
+        C:/Code/qt/Qssh/build-qssh-Desktop_Qt_5_12_2_MSVC2017_64bit-Debug/lib/QSshd.lib
+
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

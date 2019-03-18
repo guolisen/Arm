@@ -48,9 +48,9 @@ void FolderOpenDialog::on_pushButton_clicked()
 void FolderOpenDialog::on_buttonBox_accepted()
 {
     filePath_ = ui->comboBox->currentText();
-    QFileInfo info(filePath_);
-    if (!info.exists())
-        filePath_ = "";
+    //QFileInfo info(filePath_);
+    //if (!info.exists())
+    //    filePath_ = "";
     QSettings setting;
     setting.setValue("Arm/Setting/DefaultLogPath", filePath_);
     close();

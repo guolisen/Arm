@@ -10,6 +10,7 @@
 #include "uncompressfilecache.h"
 #include "folderopendialog.h"
 #include "settingdialog.h"
+#include "filemodelcontainer.h"
 
 ArmWindow::ArmWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -27,24 +28,51 @@ ArmWindow::~ArmWindow()
 
 void ArmWindow::resizeColumn(const QString &path)
 {
-    for (int column = 0; column < model_->columnCount(); ++column)
+    QAbstractItemModel* model = modelContainer_->getModel();
+    for (int column = 0; column < model->columnCount(); ++column)
         ui->treeView->resizeColumnToContents(column);
+}
+
+void ArmWindow::handleSftpOperationFailed(const QString &errorMessage)
+{
+    statusBar()->showMessage(errorMessage);
+}
+
+void ArmWindow::handleSftpOperationFinished(const QString &error)
+{
+    statusBar()->showMessage(error);
+}
+
+void ArmWindow::handleConnectionError(const QString &errorMessage)
+{
+    QMessageBox::warning(this, tr("Connection Error"),
+        tr("Fatal SSH error: %1").arg(errorMessage));
 }
 
 void ArmWindow::init()
 {
     setWindowTitle("Arm v0.1");
-    model_ = new LogFileSystemModel(this);
-    model_->init();
+    modelContainer_ = new FileModelContainer(this);
+    modelContainer_->init();
 
-    ui->treeView->setModel(model_);
+    //ui->treeView->setModel(model_);
     ui->treeView->setAnimated(false);
     ui->treeView->setIndentation(20);
     ui->treeView->setSortingEnabled(false);
     ui->treeView->setWindowTitle(QObject::tr("Arm"));
 
     connect(ui->comboBox, &QComboBox::editTextChanged, this, &ArmWindow::findStringProcess);
-    connect(model_, &LogFileSystemModel::directoryLoaded, this, &ArmWindow::resizeColumn);
+    connect(modelContainer_, &FileModelContainer::directoryLoadedWrapper, this, &ArmWindow::resizeColumn);
+
+    //void sftpOperationFailed(const QString &errorMessage);
+    //void sftpOperationFinished(const QString &error);
+    //void connectionError(const QString &errorMessage);
+
+    connect(modelContainer_, SIGNAL(sftpOperationFailed(QString)),
+        SLOT(handleSftpOperationFailed(QString)));
+    connect(modelContainer_, SIGNAL(connectionError(QString)), SLOT(handleConnectionError(QString)));
+    connect(modelContainer_, SIGNAL(sftpOperationFinished(QString)),
+        SLOT(handleSftpOperationFinished(QString)));
 
     createMenu();
 
@@ -55,8 +83,13 @@ void ArmWindow::init()
 
 void ArmWindow::findStringProcess(const QString& s)
 {
-    model_->setFilter(QDir::Files | QDir::Dirs);
-    model_->setNameFilters({s});
+    QAbstractItemModel* model = modelContainer_->getModel();
+    LogFileSystemModel* localFsModel = dynamic_cast<LogFileSystemModel*>(model);
+    if (localFsModel)
+    {
+        localFsModel->setFilter(QDir::Files | QDir::Dirs);
+        localFsModel->setNameFilters({s});
+    }
 }
 
 void ArmWindow::open()
@@ -64,14 +97,30 @@ void ArmWindow::open()
     FolderOpenDialog folderDialog(this);
     if (folderDialog.exec() == QDialog::Accepted)
     {
+        qDebug() << "fffffffffffffffffffffffffffffffff";
         QString fileName;
         fileName = folderDialog.getFileName();
         if (fileName.isEmpty())
             return;
-        model_->setRootPath(QDir::cleanPath(fileName));
-        const QModelIndex rootIndex = model_->index(QDir::cleanPath(fileName));
-        ui->treeView->setRootIndex(rootIndex);
-        ui->treeView->update();
+        qDebug() << fileName;
+        if (modelContainer_->isRemote(fileName))
+            modelContainer_->setRootRemotePath(QDir::cleanPath(fileName), "10.207.141.30");
+        else
+            modelContainer_->setRootLocalPath(QDir::cleanPath(fileName));
+
+        ui->treeView->setModel(modelContainer_->getModel());
+
+        QModelIndex rootIndex;
+        QAbstractItemModel* model = modelContainer_->getModel();
+        LogFileSystemModel* localFsModel = dynamic_cast<LogFileSystemModel*>(model);
+        if (localFsModel)
+        {
+            rootIndex = localFsModel->index(QDir::cleanPath(fileName));
+            ui->treeView->setRootIndex(rootIndex);
+            ui->treeView->update();
+        }
+
+        setWindowTitle("Arm v0.1 " + fileName);
     }
 }
 
