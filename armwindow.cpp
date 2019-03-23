@@ -1,16 +1,16 @@
 #include <QFileDialog>
 #include "armwindow.h"
 #include "ui_armwindow.h"
-#include "logfilesystemmodel.h"
+#include "FileInfoModel/logfilesystemmodel.h"
 #include <QDebug>
 #include <QProcess>
 #include <QSettings>
 #include <QMessageBox>
 #include "aboutdialog.h"
-#include "uncompressfilecache.h"
+#include "FileInfoModel/uncompressfilecache.h"
 #include "folderopendialog.h"
 #include "settingdialog.h"
-#include "filemodelcontainer.h"
+#include "FileInfoModel/filemodelcontainer.h"
 
 ArmWindow::ArmWindow(QWidget *parent) :
     QMainWindow(parent),

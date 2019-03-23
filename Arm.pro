@@ -36,11 +36,8 @@ SOURCES += \
     Script/detail/ScriptCenterImpl.cpp \
     Script/detail/ScriptUtil.cpp \
     Thirdparty/LuaWrapper/luaWrapper.cpp \
-    logfilesystemmodel.cpp \
     armwindow.cpp \
-    readtimejob.cpp \
     aboutdialog.cpp \
-    uncompressfilecache.cpp \
     folderopendialog.cpp \
     settingdialog.cpp \
     Thirdparty/Lua/src/lapi.c \
@@ -76,7 +73,11 @@ SOURCES += \
     Thirdparty/Lua/src/lutf8lib.c \
     Thirdparty/Lua/src/lvm.c \
     Thirdparty/Lua/src/lzio.c \
-    filemodelcontainer.cpp
+    FileInfoModel/filemodelcontainer.cpp \
+    FileInfoModel/logfilesystemmodel.cpp \
+    FileInfoModel/readtimejob.cpp \
+    FileInfoModel/uncompressfilecache.cpp
+
 
 HEADERS += \
     Core/detail/IThread.h \
@@ -106,11 +107,8 @@ HEADERS += \
     Thirdparty/LuaWrapper/Trait.h \
     Thirdparty/LuaWrapper/TypeList.h \
     Thirdparty/LuaWrapper/utility.h \
-    logfilesystemmodel.h \
     armwindow.h \
-    readtimejob.h \
     aboutdialog.h \
-    uncompressfilecache.h \
     folderopendialog.h \
     settingdialog.h \
     Thirdparty/Lua/src/lapi.h \
@@ -139,7 +137,10 @@ HEADERS += \
     Thirdparty/Lua/src/lundump.h \
     Thirdparty/Lua/src/lvm.h \
     Thirdparty/Lua/src/lzio.h \
-    filemodelcontainer.h
+    FileInfoModel/filemodelcontainer.h \
+    FileInfoModel/logfilesystemmodel.h \
+    FileInfoModel/readtimejob.h \
+    FileInfoModel/uncompressfilecache.h
 
 FORMS += \
     armwindow.ui \
