@@ -31,7 +31,7 @@ QVariant LogFileSystemModel::data(const QModelIndex &index, int role) const
            case(Qt::DisplayRole):
                return logStartTime(index, fileInfo(index));
            case(Qt::TextAlignmentRole):
-               return Qt::AlignLeft;
+               return static_cast<int>(Qt::AlignLeft | Qt::AlignHCenter);
            default:
                break;
         }
