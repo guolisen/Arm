@@ -1,44 +1,52 @@
 #include <QMessageBox>
 #include <QDebug>
 #include "logfilesystemmodel.h"
-#include "filemodelcontainer.h"
+#include "filemodelmgr.h"
 
 #include <ssh/sftpfilesystemmodel.h>
 #include <ssh/sshconnection.h>
 
-FileModelContainer::FileModelContainer(QObject* parent):  QObject(parent),
+FileModelMgr::FileModelMgr(core::ConfigMgrPtr config, QObject* parent):  QObject(parent),
     currentModeType_(LocalFileSystemModel),
-    isRemoteConnected_(false), currentModel_(nullptr)
+    isRemoteConnected_(false),
+    localFSModel_(new LogFileSystemModel(this)),
+    remoteFSModel_(new QSsh::SftpFileSystemModel(this)),
+    currentModel_(nullptr), config_(config)
 {
-
+    init();
 }
 
-void FileModelContainer::directoryLoaded(const QString &path)
+void FileModelMgr::directoryLoaded(const QString &path)
 {
     emit directoryLoadedWrapper(path);
 }
 
-void FileModelContainer::operationFinished(QSsh::SftpJobId, const QString &error)
+void FileModelMgr::operationFinished(QSsh::SftpJobId, const QString &error)
 {
     emit directoryLoadedWrapper("");
 }
 
-bool FileModelContainer::init()
+bool FileModelMgr::init()
 {
-    localFSModel_ = new LogFileSystemModel(this);
-    remoteFSModel_ = new QSsh::SftpFileSystemModel(this);
-
     localFSModel_->init();
 
     connect(localFSModel_, &LogFileSystemModel::directoryLoaded,
-            this, &FileModelContainer::directoryLoaded);
+            this, &FileModelMgr::directoryLoaded);
     connect(remoteFSModel_, &QSsh::SftpFileSystemModel::sftpOperationFinished,
-            this, &FileModelContainer::operationFinished);
+            this, &FileModelMgr::operationFinished);
 
     return true;
 }
 
-bool FileModelContainer::isRemote(const QString& path)
+void FileModelMgr::setRootPath(const QString &path, QTreeView* tree)
+{
+    if (isRemote(path))
+        setRootRemotePath(path, tree);
+    else
+        setRootLocalPath(path, tree);
+}
+
+bool FileModelMgr::isRemote(const QString& path)
 {
     if('/' == path[0])
     {
@@ -50,31 +58,40 @@ bool FileModelContainer::isRemote(const QString& path)
     return false;
 }
 
-QAbstractItemModel* FileModelContainer::getModel()
+QAbstractItemModel* FileModelMgr::getModel()
 {
     return currentModel_;
 }
 
-QAbstractItemModel* FileModelContainer::setRootLocalPath(const QString& path)
+void FileModelMgr::setRootLocalPath(const QString& path, QTreeView* tree)
 {
     localFSModel_->setRootPath(path);
     currentModel_ = localFSModel_;
-    return localFSModel_;
+    setModelToTree(path, tree);
 }
 
-QAbstractItemModel *FileModelContainer::setRootRemotePath(const QString &path, const QString &host)
+void FileModelMgr::setModelToTree(const QString& path, QTreeView* tree)
+{
+    tree->setModel(currentModel_);
+    QModelIndex rootIndex;
+    rootIndex = localFSModel_->index(QDir::cleanPath(path));
+    //tree->setRootIndex(rootIndex);
+    tree->update();
+}
+
+void FileModelMgr::setRootRemotePath(const QString& path, QTreeView* tree)
 {
     if(!isRemoteConnected_)
     {
         QSsh::SshConnectionParameters sshParams;
-        sshParams.host = host;
-        sshParams.userName = "root";
-        sshParams.authenticationType = QSsh::SshConnectionParameters::AuthenticationByKey;
-        sshParams.privateKeyFile = "C:/Users/guol13/.ssh/id_rsa";
+        sshParams.host = "192.168.0.102";
+        sshParams.userName = "guolisen";
+        sshParams.authenticationType = QSsh::SshConnectionParameters::AuthenticationByPassword;
+        //sshParams.privateKeyFile = "C:/Users/qq/.ssh/id_rsa";
         //
-        //sshParams.password = m_ui->passwordLineEdit->text();
+        sshParams.password = "lifesgood";
         sshParams.port = 22;
-        sshParams.timeout = 10;
+        sshParams.timeout = 100;
 
         connect(remoteFSModel_, SIGNAL(sftpOperationFailed(QString)),
             SLOT(handleSftpOperationFailed(QString)));
@@ -86,21 +103,21 @@ QAbstractItemModel *FileModelContainer::setRootRemotePath(const QString &path, c
     }
     else {
         // /disks/USD_dumps21/ARs/0992000-0992999/992710
-        remoteFSModel_->setRootDirectory(path);
+       //remoteFSModel_->setRootDirectory(path);
     }
 
     currentModel_ = remoteFSModel_;
+    setModelToTree(path, tree);
     qDebug() << "FileModelContainer::setRootRemotePath " << path;
-    return remoteFSModel_;
 }
 
-void FileModelContainer::handleSftpOperationFailed(const QString &errorMessage)
+void FileModelMgr::handleSftpOperationFailed(const QString &errorMessage)
 {
     qDebug() << "FileModelContainer::handleSftpOperationFailed " << errorMessage;
     emit sftpOperationFailed(errorMessage);
 }
 
-void FileModelContainer::handleSftpOperationFinished(QSsh::SftpJobId jobId, const QString &error)
+void FileModelMgr::handleSftpOperationFinished(QSsh::SftpJobId jobId, const QString &error)
 {
     QString message;
     if (error.isEmpty())
@@ -113,7 +130,7 @@ void FileModelContainer::handleSftpOperationFinished(QSsh::SftpJobId jobId, cons
     emit sftpOperationFinished(message);
 }
 
-void FileModelContainer::handleConnectionError(const QString &errorMessage)
+void FileModelMgr::handleConnectionError(const QString &errorMessage)
 {
     isRemoteConnected_ = false;
     qDebug() << "FileModelContainer::handleConnectionError " << errorMessage;

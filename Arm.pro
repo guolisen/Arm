@@ -73,10 +73,11 @@ SOURCES += \
     Thirdparty/Lua/src/lutf8lib.c \
     Thirdparty/Lua/src/lvm.c \
     Thirdparty/Lua/src/lzio.c \
-    FileInfoModel/filemodelcontainer.cpp \
     FileInfoModel/logfilesystemmodel.cpp \
     FileInfoModel/readtimejob.cpp \
-    FileInfoModel/uncompressfilecache.cpp
+    FileInfoModel/uncompressfilecache.cpp \
+    Core/configmgr.cpp \
+    FileInfoModel/filemodelmgr.cpp
 
 
 HEADERS += \
@@ -137,10 +138,12 @@ HEADERS += \
     Thirdparty/Lua/src/lundump.h \
     Thirdparty/Lua/src/lvm.h \
     Thirdparty/Lua/src/lzio.h \
-    FileInfoModel/filemodelcontainer.h \
     FileInfoModel/logfilesystemmodel.h \
     FileInfoModel/readtimejob.h \
-    FileInfoModel/uncompressfilecache.h
+    FileInfoModel/uncompressfilecache.h \
+    Core/configmgr.h \
+    Core/iconfigmgr.h \
+    FileInfoModel/filemodelmgr.h
 
 FORMS += \
     armwindow.ui \
@@ -163,7 +166,7 @@ INCLUDEPATH += Thirdparty/Lua/src \
                E:/code/qt/qssh/MyQssh/QSsh/src/libs
 
 LIBS += E:/"Program Files"/zlib/lib/zlibstaticd.lib \
-        E:/code/qt/quazip/quazip/build-quazip-Desktop_Qt_5_12_1_MSVC2017_64bit-Debug/debug/quazipd.lib \
+        E:/code/qt/quazip/build-quazip-Desktop_Qt_5_12_1_MSVC2017_64bit-Debug/quazip/debug/quazipd.lib \
         E:/code/qt/qssh/MyQssh/build-qssh-Desktop_Qt_5_12_1_MSVC2017_64bit-Debug/lib/QSshd.lib
 
 

@@ -3,6 +3,8 @@
 
 #include <QObject>
 #include <ssh/sftpfilesystemmodel.h>
+#include <Core/iconfigmgr.h>
+#include <QTreeView>
 
 enum FileModelType
 {
@@ -15,26 +17,15 @@ namespace QSsh {
 class SftpFileSystemModel;
 }
 
-class FileModelContainer: public QObject
+class FileModelMgr: public QObject
 {
     Q_OBJECT
 public:
-    FileModelContainer(QObject* parent = nullptr);
+    FileModelMgr(core::ConfigMgrPtr config, QObject* parent = nullptr);
     bool init();
-
-    bool isRemote(const QString &path);
-    QAbstractItemModel *setRootLocalPath(const QString &path);
-    QAbstractItemModel *setRootRemotePath(const QString &path, const QString &host);
-
+    void setRootPath(const QString &path, QTreeView* tree);
     QAbstractItemModel *getModel();
-    QSsh::SftpFileSystemModel *getRemoteModel()
-    {
-        return remoteFSModel_;
-    }
-    LogFileSystemModel *getLocalModel()
-    {
-        return localFSModel_;
-    }
+
 Q_SIGNALS:
     void directoryLoadedWrapper(const QString &path);
     void sftpOperationFailed(const QString &errorMessage);
@@ -47,12 +38,20 @@ private slots:
     void handleSftpOperationFailed(const QString &errorMessage);
     void handleSftpOperationFinished(QSsh::SftpJobId jobId, const QString &error);
     void handleConnectionError(const QString &errorMessage);
+
+private:
+    bool isRemote(const QString &path);
+    void setRootLocalPath(const QString& path, QTreeView* tree);
+    void setRootRemotePath(const QString &path, QTreeView* tree);
+    void setModelToTree(const QString& path, QTreeView* tree);
 private:
     FileModelType currentModeType_;
     bool isRemoteConnected_;
     LogFileSystemModel* localFSModel_;
     QSsh::SftpFileSystemModel* remoteFSModel_;
     QAbstractItemModel* currentModel_;
+    core::ConfigMgrPtr config_;
+
 };
 
 #endif // FILEMODELCONTAINER_H

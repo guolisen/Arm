@@ -10,25 +10,32 @@
 #include "FileInfoModel/uncompressfilecache.h"
 #include "folderopendialog.h"
 #include "settingdialog.h"
-#include "FileInfoModel/filemodelcontainer.h"
+#include "FileInfoModel/filemodelmgr.h"
 
-ArmWindow::ArmWindow(QWidget *parent) :
+ArmWindow::ArmWindow(core::ContextPtr context, QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::ArmWindow)
+    ui(new Ui::ArmWindow), context_(context),
+    modelMgr_(new FileModelMgr(context_->getComponent<core::IConfigMgr>(nullptr), this))
+
 {
     ui->setupUi(this);
-    setting_ = new QSettings;
+    init();
 }
 
 ArmWindow::~ArmWindow()
 {
     delete ui;
-    ::system("del cache*");
+    //::system("del cache*");
+
+    QProcess* proc = new QProcess();
+    proc->start("del cache*");
+    proc->close();
+    delete proc;
 }
 
 void ArmWindow::resizeColumn(const QString &path)
 {
-    QAbstractItemModel* model = modelContainer_->getModel();
+    QAbstractItemModel* model = modelMgr_->getModel();
     for (int column = 0; column < model->columnCount(); ++column)
         ui->treeView->resizeColumnToContents(column);
 }
@@ -52,8 +59,6 @@ void ArmWindow::handleConnectionError(const QString &errorMessage)
 void ArmWindow::init()
 {
     setWindowTitle("Arm v0.1");
-    modelContainer_ = new FileModelContainer(this);
-    modelContainer_->init();
 
     //ui->treeView->setModel(model_);
     ui->treeView->setAnimated(false);
@@ -62,66 +67,45 @@ void ArmWindow::init()
     ui->treeView->setWindowTitle(QObject::tr("Arm"));
 
     connect(ui->comboBox, &QComboBox::editTextChanged, this, &ArmWindow::findStringProcess);
-    connect(modelContainer_, &FileModelContainer::directoryLoadedWrapper, this, &ArmWindow::resizeColumn);
+    connect(modelMgr_, &FileModelMgr::directoryLoadedWrapper, this, &ArmWindow::resizeColumn);
 
-    //void sftpOperationFailed(const QString &errorMessage);
-    //void sftpOperationFinished(const QString &error);
-    //void connectionError(const QString &errorMessage);
-
-    connect(modelContainer_, SIGNAL(sftpOperationFailed(QString)),
+    connect(modelMgr_, SIGNAL(sftpOperationFailed(QString)),
         SLOT(handleSftpOperationFailed(QString)));
-    connect(modelContainer_, SIGNAL(connectionError(QString)), SLOT(handleConnectionError(QString)));
-    connect(modelContainer_, SIGNAL(sftpOperationFinished(QString)),
+    connect(modelMgr_, SIGNAL(connectionError(QString)), SLOT(handleConnectionError(QString)));
+    connect(modelMgr_, SIGNAL(sftpOperationFinished(QString)),
         SLOT(handleSftpOperationFinished(QString)));
 
     createMenu();
 
-    editorPath_ = setting_->value("Arm/Setting/editorPath").toString();
-    if (editorPath_.isEmpty())
-        editorPath_ = QDir::cleanPath("C:/Program Files (x86)/Notepad++/notepad++.exe");
+    //editorPath_ = setting_->value("Arm/Setting/editorPath").toString();
+    //if (editorPath_.isEmpty())
+    //    editorPath_ = QDir::cleanPath("C:/Program Files (x86)/Notepad++/notepad++.exe");
 }
 
 void ArmWindow::findStringProcess(const QString& s)
 {
-    QAbstractItemModel* model = modelContainer_->getModel();
+    QAbstractItemModel* model = modelMgr_->getModel();
     LogFileSystemModel* localFsModel = dynamic_cast<LogFileSystemModel*>(model);
-    if (localFsModel)
-    {
-        localFsModel->setFilter(QDir::Files | QDir::Dirs);
-        localFsModel->setNameFilters({s});
-    }
+    if (!localFsModel)
+        return;
+    localFsModel->setFilter(QDir::Files | QDir::Dirs);
+    localFsModel->setNameFilters({s});
 }
 
 void ArmWindow::open()
 {
     FolderOpenDialog folderDialog(this);
-    if (folderDialog.exec() == QDialog::Accepted)
-    {
-        qDebug() << "fffffffffffffffffffffffffffffffff";
-        QString fileName;
-        fileName = folderDialog.getFileName();
-        if (fileName.isEmpty())
-            return;
-        qDebug() << fileName;
-        if (modelContainer_->isRemote(fileName))
-            modelContainer_->setRootRemotePath(QDir::cleanPath(fileName), "10.207.141.30");
-        else
-            modelContainer_->setRootLocalPath(QDir::cleanPath(fileName));
+    if (folderDialog.exec() != QDialog::Accepted)
+        return;
 
-        ui->treeView->setModel(modelContainer_->getModel());
+    QString fileName;
+    fileName = folderDialog.getFileName();
+    if (fileName.isEmpty())
+        return;
+    qDebug() << fileName;
 
-        QModelIndex rootIndex;
-        QAbstractItemModel* model = modelContainer_->getModel();
-        LogFileSystemModel* localFsModel = dynamic_cast<LogFileSystemModel*>(model);
-        if (localFsModel)
-        {
-            rootIndex = localFsModel->index(QDir::cleanPath(fileName));
-            ui->treeView->setRootIndex(rootIndex);
-            ui->treeView->update();
-        }
-
-        setWindowTitle("Arm v0.1 " + fileName);
-    }
+    modelMgr_->setRootPath(QDir::cleanPath(fileName), ui->treeView);
+    setWindowTitle("Arm v0.1 " + fileName);
 }
 
 void ArmWindow::setting()
@@ -129,9 +113,9 @@ void ArmWindow::setting()
     SettingDialog settingDialog(this);
     if (settingDialog.exec() == QDialog::Accepted)
     {
-        editorPath_ = setting_->value("Arm/Setting/editorPath").toString();
-        if (editorPath_.isEmpty())
-            editorPath_ = QDir::cleanPath("C:/Program Files (x86)/Notepad++/notepad++.exe");
+        //editorPath_ = setting_->value("Arm/Setting/editorPath").toString();
+        //if (editorPath_.isEmpty())
+        //    editorPath_ = QDir::cleanPath("C:/Program Files (x86)/Notepad++/notepad++.exe");
     }
 }
 
@@ -174,6 +158,7 @@ void ArmWindow::createMenu()
 
 void ArmWindow::on_treeView_doubleClicked(const QModelIndex &index)
 {
+    //TODO:
     LogFileSystemModel* m = (LogFileSystemModel*)index.model();
     QString activeFileName = m->filePath(index);
     UncompressFileCache fileCache;
