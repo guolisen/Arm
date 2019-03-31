@@ -42,7 +42,8 @@ QString LocalFileModel::getLogStartTimeStr(const QModelIndex &index)
     std::shared_ptr<LocalReadTimeJob> readTimeJobPtr = std::make_shared<LocalReadTimeJob>(
                 index, fi.filePath(), fileTypeObj, setCacheFunc);
 
-    //connect(readTimeJobPtr.get(), &JobT::dataChanged, this, &LogFileSystemModel::dataTrigger);
+    connect(readTimeJobPtr.get(), &LocalReadTimeJob::dataChanged, this,
+            [this](const QModelIndex& index, LocalReadTimeJob* jobObj){ emit dataChanged(index); });
     pool_->attach(std::bind(&threadWrapper, std::placeholders::_1, readTimeJobPtr), 1);
 
     return "Loading";

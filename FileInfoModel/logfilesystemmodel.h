@@ -24,7 +24,8 @@ public:
     explicit LogFileSystemModel(core::ContextPtr context, FileModelPtr fileModel = nullptr, QObject *parent = nullptr):
         BaseModel(parent), fileModel_((IFileModel*)new ModelT(context, this, this)), context_(context)
     {
-        //connect(fileModel_.get(), &ModelT::dataChanged, this, &LogFileSystemModel::dataTrigger);
+        connect(fileModel_, &ModelT::dataChanged, this,
+                [this](const QModelIndex &index){ emit BaseModel::dataChanged(index, index);});
         //setReadOnly(true);
     }
     virtual ~LogFileSystemModel()

@@ -11,10 +11,8 @@
 FileModelMgr::FileModelMgr(core::ContextPtr context, QObject* parent):  QObject(parent),
     currentModeType_(LocalFileSystemModel),
     isRemoteConnected_(false),
-    localFSModel_(new fileinfomodel::LogFileSystemModel<
-                  fileinfomodel::LocalFileModel>(context, nullptr, this)),
-    remoteFSModel_(new fileinfomodel::LogFileSystemModel<
-                   fileinfomodel::SftpFileModel>(context, nullptr, this)),
+    localFSModel_(new LocalFileModelType(context, nullptr, this)),
+    remoteFSModel_(new RemoteFileModelType(context, nullptr, this)),
     currentModel_(nullptr), context_(context)
 {
     init();
@@ -34,8 +32,12 @@ bool FileModelMgr::init()
 {
     //localFSModel_->init();
 
-    //connect(localFSModel_, &LogFileSystemModel::directoryLoaded,
-    //        this, &FileModelMgr::directoryLoaded);
+    connect(localFSModel_, &LocalFileModelType::dataChanged,
+            this, [this](const QModelIndex &topLeft, const QModelIndex &bottomRight)
+    {
+        QFileInfo fi = localFSModel_->fileInfo(topLeft);
+        directoryLoaded(fi.filePath());
+    });
     //connect(remoteFSModel_, &QSsh::SftpFileSystemModel::sftpOperationFinished,
     //        this, &FileModelMgr::operationFinished);
 

@@ -8,5 +8,10 @@ SftpFileModel::SftpFileModel(core::ContextPtr context, QAbstractItemModel* model
 
 }
 
+QString SftpFileModel::getLogStartTimeStr(const QModelIndex &index)
+{
+    return "";
+}
+
 
 }

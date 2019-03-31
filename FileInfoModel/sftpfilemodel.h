@@ -8,10 +8,12 @@
 
 namespace fileinfomodel {
 
-class SftpFileModel
+class SftpFileModel: public IFileModel
 {
 public:
     SftpFileModel(core::ContextPtr context, QAbstractItemModel* model, QObject* parent);
+
+    virtual QString getLogStartTimeStr(const QModelIndex &index);
 };
 
 template<>

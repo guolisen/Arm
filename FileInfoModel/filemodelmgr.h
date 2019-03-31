@@ -15,6 +15,9 @@ enum FileModelType
     RemoteFileSystemModel
 };
 
+typedef fileinfomodel::LogFileSystemModel<fileinfomodel::LocalFileModel> LocalFileModelType;
+typedef fileinfomodel::LogFileSystemModel<fileinfomodel::SftpFileModel> RemoteFileModelType;
+
 class FileModelMgr: public QObject
 {
     Q_OBJECT
@@ -46,8 +49,8 @@ private:
 private:
     FileModelType currentModeType_;
     bool isRemoteConnected_;
-    fileinfomodel::LogFileSystemModel<fileinfomodel::LocalFileModel>* localFSModel_;
-    fileinfomodel::LogFileSystemModel<fileinfomodel::SftpFileModel>* remoteFSModel_;
+    LocalFileModelType* localFSModel_;
+    RemoteFileModelType* remoteFSModel_;
     QAbstractItemModel* currentModel_;
     core::ContextPtr context_;
 };

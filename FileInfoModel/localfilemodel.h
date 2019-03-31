@@ -17,7 +17,7 @@
 
 namespace fileinfomodel
 {
-class LocalFileModel: IFileModel
+class LocalFileModel: public IFileModel
 {
 public:
     LocalFileModel(core::ContextPtr context, QAbstractItemModel* model, QObject* parent = nullptr);
