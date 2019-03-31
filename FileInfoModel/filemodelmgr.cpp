@@ -2,15 +2,19 @@
 #include <QDebug>
 #include "logfilesystemmodel.h"
 #include "filemodelmgr.h"
-
 #include <ssh/sftpfilesystemmodel.h>
 #include <ssh/sshconnection.h>
+#include "logfilesystemmodel.h"
+#include "localfilemodel.h"
+#include "sftpfilemodel.h"
 
 FileModelMgr::FileModelMgr(core::ConfigMgrPtr config, QObject* parent):  QObject(parent),
     currentModeType_(LocalFileSystemModel),
     isRemoteConnected_(false),
-    localFSModel_(new LogFileSystemModel(this)),
-    remoteFSModel_(new QSsh::SftpFileSystemModel(this)),
+    localFSModel_(new fileinfomodel::LogFileSystemModel<
+                  fileinfomodel::LocalFileModel>(nullptr, this)),
+    remoteFSModel_(new fileinfomodel::LogFileSystemModel<
+                   fileinfomodel::SftpFileModel>(nullptr, this)),
     currentModel_(nullptr), config_(config)
 {
     init();
@@ -28,12 +32,12 @@ void FileModelMgr::operationFinished(QSsh::SftpJobId, const QString &error)
 
 bool FileModelMgr::init()
 {
-    localFSModel_->init();
+    //localFSModel_->init();
 
-    connect(localFSModel_, &LogFileSystemModel::directoryLoaded,
-            this, &FileModelMgr::directoryLoaded);
-    connect(remoteFSModel_, &QSsh::SftpFileSystemModel::sftpOperationFinished,
-            this, &FileModelMgr::operationFinished);
+    //connect(localFSModel_, &LogFileSystemModel::directoryLoaded,
+    //        this, &FileModelMgr::directoryLoaded);
+    //connect(remoteFSModel_, &QSsh::SftpFileSystemModel::sftpOperationFinished,
+    //        this, &FileModelMgr::operationFinished);
 
     return true;
 }
@@ -75,12 +79,13 @@ void FileModelMgr::setModelToTree(const QString& path, QTreeView* tree)
     tree->setModel(currentModel_);
     QModelIndex rootIndex;
     rootIndex = localFSModel_->index(QDir::cleanPath(path));
-    //tree->setRootIndex(rootIndex);
+    tree->setRootIndex(rootIndex);
     tree->update();
 }
 
 void FileModelMgr::setRootRemotePath(const QString& path, QTreeView* tree)
 {
+#if 0
     if(!isRemoteConnected_)
     {
         QSsh::SshConnectionParameters sshParams;
@@ -109,6 +114,8 @@ void FileModelMgr::setRootRemotePath(const QString& path, QTreeView* tree)
     currentModel_ = remoteFSModel_;
     setModelToTree(path, tree);
     qDebug() << "FileModelContainer::setRootRemotePath " << path;
+
+#endif
 }
 
 void FileModelMgr::handleSftpOperationFailed(const QString &errorMessage)

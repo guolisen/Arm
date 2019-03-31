@@ -4,9 +4,9 @@
 #include <QTime>
 #include <QDateTime>
 #include <quagzipfile.h>
-#include "readtimejob.h"
+#include "localreadtimejob.h"
 
-ReadTimeJob::ReadTimeJob(const QModelIndex& index,
+LocalReadTimeJob::LocalReadTimeJob(const QModelIndex& index,
                          const QString& fullFileName,
                          fileIdentifier::FileObjectPtr typeObj,
                          SetCacheCallBack setCache):
@@ -21,13 +21,13 @@ ReadTimeJob::ReadTimeJob(const QModelIndex& index,
     }
 }
 
-ReadTimeJob::~ReadTimeJob()
+LocalReadTimeJob::~LocalReadTimeJob()
 {
     //if(file_->isOpen())
      //   file_->close();
 }
 
-void ReadTimeJob::operator()(int)
+void LocalReadTimeJob::operator()(int)
 {
     QString lineStr;
     while (1)
@@ -53,7 +53,7 @@ void ReadTimeJob::operator()(int)
     }
 }
 
-bool ReadTimeJob::readLine(QString& line)
+bool LocalReadTimeJob::readLine(QString& line)
 {
     line = "";
     char buf[10000] = {0};

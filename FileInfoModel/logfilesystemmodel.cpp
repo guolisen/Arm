@@ -10,7 +10,7 @@
 #include "Script/detail/ScriptCenterImpl.h"
 #include <QDebug>
 #include "logfilesystemmodel.h"
-#include "readtimejob.h"
+#include "localreadtimejob.h"
 #include <QMutex>
 
 LogFileSystemModel::~LogFileSystemModel()
@@ -70,15 +70,12 @@ void LogFileSystemModel::init()
     setReadOnly(true);
 }
 
-static void threadWrapper(unsigned int id, std::shared_ptr<ReadTimeJob> job)
-{
-    (*job)(id);
-}
 
-void LogFileSystemModel::dataTriger(const QModelIndex &index, ReadTimeJob* jobObj)
+
+void LogFileSystemModel::dataTrigger(const QModelIndex &index, LocalReadTimeJob* jobObj)
 {
     emit dataChanged(index, index);
-    disconnect(jobObj, &ReadTimeJob::dataChanged, this, &LogFileSystemModel::dataTriger);
+    disconnect(jobObj, &LocalReadTimeJob::dataChanged, this, &LogFileSystemModel::dataTrigger);
 }
 
 QString LogFileSystemModel::logStartTime(const QModelIndex &index, const QFileInfo &fi) const
@@ -97,10 +94,10 @@ QString LogFileSystemModel::logStartTime(const QModelIndex &index, const QFileIn
     setCache(fi.filePath(), "Loading");
     auto setCacheFunc = std::bind(&LogFileSystemModel::setCache, this,
                                   std::placeholders::_1, std::placeholders::_2);
-    std::shared_ptr<ReadTimeJob> readTimeJobPtr =
-            std::make_shared<ReadTimeJob>(index, fi.filePath(), fileTypeObj,
+    std::shared_ptr<LocalReadTimeJob> readTimeJobPtr =
+            std::make_shared<LocalReadTimeJob>(index, fi.filePath(), fileTypeObj,
                                           setCacheFunc);
-    connect(readTimeJobPtr.get(), &ReadTimeJob::dataChanged, this, &LogFileSystemModel::dataTriger);
+    connect(readTimeJobPtr.get(), &LocalReadTimeJob::dataChanged, this, &LogFileSystemModel::dataTrigger);
     pool_->attach(std::bind(threadWrapper, std::placeholders::_1, readTimeJobPtr), 1);
 
     return "Loading";

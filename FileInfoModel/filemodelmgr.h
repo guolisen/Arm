@@ -5,17 +5,15 @@
 #include <ssh/sftpfilesystemmodel.h>
 #include <Core/iconfigmgr.h>
 #include <QTreeView>
+#include "logfilesystemmodel.h"
+#include "localfilemodel.h"
+#include "sftpfilemodel.h"
 
 enum FileModelType
 {
     LocalFileSystemModel,
     RemoteFileSystemModel
 };
-
-class LogFileSystemModel;
-namespace QSsh {
-class SftpFileSystemModel;
-}
 
 class FileModelMgr: public QObject
 {
@@ -44,11 +42,12 @@ private:
     void setRootLocalPath(const QString& path, QTreeView* tree);
     void setRootRemotePath(const QString &path, QTreeView* tree);
     void setModelToTree(const QString& path, QTreeView* tree);
+
 private:
     FileModelType currentModeType_;
     bool isRemoteConnected_;
-    LogFileSystemModel* localFSModel_;
-    QSsh::SftpFileSystemModel* remoteFSModel_;
+    fileinfomodel::LogFileSystemModel<fileinfomodel::LocalFileModel>* localFSModel_;
+    fileinfomodel::LogFileSystemModel<fileinfomodel::SftpFileModel>* remoteFSModel_;
     QAbstractItemModel* currentModel_;
     core::ConfigMgrPtr config_;
 

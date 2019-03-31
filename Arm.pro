@@ -73,11 +73,13 @@ SOURCES += \
     Thirdparty/Lua/src/lutf8lib.c \
     Thirdparty/Lua/src/lvm.c \
     Thirdparty/Lua/src/lzio.c \
-    FileInfoModel/logfilesystemmodel.cpp \
-    FileInfoModel/readtimejob.cpp \
     FileInfoModel/uncompressfilecache.cpp \
     Core/configmgr.cpp \
-    FileInfoModel/filemodelmgr.cpp
+    FileInfoModel/filemodelmgr.cpp \
+    FileInfoModel/sftpreadtimejob.cpp \
+    FileInfoModel/localreadtimejob.cpp \
+    FileInfoModel/localfilemodel.cpp \
+    FileInfoModel/sftpfilemodel.cpp
 
 
 HEADERS += \
@@ -139,11 +141,17 @@ HEADERS += \
     Thirdparty/Lua/src/lvm.h \
     Thirdparty/Lua/src/lzio.h \
     FileInfoModel/logfilesystemmodel.h \
-    FileInfoModel/readtimejob.h \
     FileInfoModel/uncompressfilecache.h \
     Core/configmgr.h \
     Core/iconfigmgr.h \
-    FileInfoModel/filemodelmgr.h
+    FileInfoModel/filemodelmgr.h \
+    FileInfoModel/sftpreadtimejob.h \
+    FileInfoModel/localreadtimejob.h \
+    FileInfoModel/ireadtimejob.h \
+    FileInfoModel/ifilemodelmgr.h \
+    FileInfoModel/ifilemodel.h \
+    FileInfoModel/localfilemodel.h \
+    FileInfoModel/sftpfilemodel.h
 
 FORMS += \
     armwindow.ui \

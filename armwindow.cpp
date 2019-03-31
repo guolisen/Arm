@@ -84,12 +84,14 @@ void ArmWindow::init()
 
 void ArmWindow::findStringProcess(const QString& s)
 {
+#if 0
     QAbstractItemModel* model = modelMgr_->getModel();
     LogFileSystemModel* localFsModel = dynamic_cast<LogFileSystemModel*>(model);
     if (!localFsModel)
         return;
     localFsModel->setFilter(QDir::Files | QDir::Dirs);
     localFsModel->setNameFilters({s});
+#endif
 }
 
 void ArmWindow::open()
@@ -158,6 +160,7 @@ void ArmWindow::createMenu()
 
 void ArmWindow::on_treeView_doubleClicked(const QModelIndex &index)
 {
+#if 0
     //TODO:
     LogFileSystemModel* m = (LogFileSystemModel*)index.model();
     QString activeFileName = m->filePath(index);
@@ -182,4 +185,5 @@ void ArmWindow::on_treeView_doubleClicked(const QModelIndex &index)
         return;
     }
     proc->start(editorPath_, {cacheFileName});
+#endif
 }

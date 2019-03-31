@@ -1,41 +1,68 @@
 #ifndef LOGFILESYSTEMMODEL_H
 #define LOGFILESYSTEMMODEL_H
 
+#include <memory>
 #include <QMap>
+#include <QDebug>
 #include <QString>
-#include <QFileSystemModel>
 #include <QMutex>
 #include <QMutexLocker>
-#include <FileIdentifier/ifileidentifier.h>
-#include <Core/IThreadPool.h>
+
+#include "localfilemodel.h"
+
+namespace fileinfomodel
+{
 
 typedef QMap<QString, QString> LogTimeCache;
-class ReadTimeJob;
-class LogFileSystemModel : public QFileSystemModel
-{
-    Q_OBJECT
-public:
-    explicit LogFileSystemModel(QObject *parent = nullptr):
-        QFileSystemModel(parent) {}
-    virtual ~LogFileSystemModel();
-public:
-    enum Roles  {
-        LogStartTimeRole = Qt::UserRole + 4,
-    };
-    Q_ENUM(Roles)
 
-    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+template <typename ModelT>
+class LogFileSystemModel : public FileModelTrait<ModelT>::ModelBaseType
+{
+    //Q_OBJECT
+    typedef typename FileModelTrait<ModelT>::ModelBaseType BaseModel;
+public:
+    explicit LogFileSystemModel(FileModelPtr fileModel = nullptr, QObject *parent = nullptr):
+        BaseModel(parent), fileModel_((IFileModel*)new ModelT(this, this))
+    {
+        //connect(fileModel_.get(), &ModelT::dataChanged, this, &LogFileSystemModel::dataTrigger);
+        //setReadOnly(true);
+    }
+    virtual ~LogFileSystemModel()
+    {
+        //pool_->complete(-1);
+    }
+public:
+
+    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override
+    {
+        if(!index.isValid())
+        {
+            return FileModelTrait<ModelT>::ModelBaseType::data(index, role);
+        }
+        if(index.column() == columnCount() - 1)
+        {
+            switch(role)
+            {
+               case(Qt::DisplayRole):
+                   return logStartTime(index);
+               case(Qt::TextAlignmentRole):
+                   return static_cast<int>(Qt::AlignLeft | Qt::AlignHCenter);
+               default:
+                   break;
+            }
+        }
+        return FileModelTrait<ModelT>::ModelBaseType::data(index,role);
+    }
     int columnCount(const QModelIndex& parent = QModelIndex()) const override
     {
-        return QFileSystemModel::columnCount()+1;
+        return FileModelTrait<ModelT>::ModelBaseType::columnCount()+1;
     }
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override
     {
-        if (section == 4 && orientation == Qt::Horizontal && role == Qt::DisplayRole)
+        if (section == columnCount() && orientation == Qt::Horizontal && role == Qt::DisplayRole)
             return tr("LogStartTime");
-        return QFileSystemModel::headerData(section, orientation, role);
+        return FileModelTrait<ModelT>::ModelBaseType::headerData(section, orientation, role);
     }
-    void init();
 
     void setCache(QString key, QString value) const
     {
@@ -53,14 +80,22 @@ public:
     }
 
 public slots:
-    void dataTriger(const QModelIndex &index, ReadTimeJob* jobObj);
+    void dataTrigger(const QModelIndex &index)
+    {
+        emit dataChanged(index, index);
+    }
 
 private:
-    QString logStartTime(const QModelIndex &index, const QFileInfo &fi) const;
+    QString logStartTime(const QModelIndex &index) const
+    {
+        return fileModel_->getLogStartTimeStr(index);
+    }
+
+private:
+    FileModelPtr fileModel_;
     mutable LogTimeCache logCache_;
-    fileIdentifier::FileIdentifierPtr fileIdentifier_;
-    core::ThreadPoolPtr pool_;
     mutable QMutex cacheMutex_;
 };
 
+}
 #endif // LOGFILESYSTEMMODEL_H
