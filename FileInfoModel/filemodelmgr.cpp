@@ -8,14 +8,14 @@
 #include "localfilemodel.h"
 #include "sftpfilemodel.h"
 
-FileModelMgr::FileModelMgr(core::ConfigMgrPtr config, QObject* parent):  QObject(parent),
+FileModelMgr::FileModelMgr(core::ContextPtr context, QObject* parent):  QObject(parent),
     currentModeType_(LocalFileSystemModel),
     isRemoteConnected_(false),
     localFSModel_(new fileinfomodel::LogFileSystemModel<
-                  fileinfomodel::LocalFileModel>(nullptr, this)),
+                  fileinfomodel::LocalFileModel>(context, nullptr, this)),
     remoteFSModel_(new fileinfomodel::LogFileSystemModel<
-                   fileinfomodel::SftpFileModel>(nullptr, this)),
-    currentModel_(nullptr), config_(config)
+                   fileinfomodel::SftpFileModel>(context, nullptr, this)),
+    currentModel_(nullptr), context_(context)
 {
     init();
 }

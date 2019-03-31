@@ -19,7 +19,7 @@ class FileModelMgr: public QObject
 {
     Q_OBJECT
 public:
-    FileModelMgr(core::ConfigMgrPtr config, QObject* parent = nullptr);
+    FileModelMgr(core::ContextPtr context, QObject* parent = nullptr);
     bool init();
     void setRootPath(const QString &path, QTreeView* tree);
     QAbstractItemModel *getModel();
@@ -49,8 +49,7 @@ private:
     fileinfomodel::LogFileSystemModel<fileinfomodel::LocalFileModel>* localFSModel_;
     fileinfomodel::LogFileSystemModel<fileinfomodel::SftpFileModel>* remoteFSModel_;
     QAbstractItemModel* currentModel_;
-    core::ConfigMgrPtr config_;
-
+    core::ContextPtr context_;
 };
 
 #endif // FILEMODELCONTAINER_H

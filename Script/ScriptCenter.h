@@ -11,6 +11,7 @@ namespace script
 {
 class ScriptCenter : public IScriptCenter
 {
+    Q_OBJECT
 public:
     ScriptCenter(ScriptCenterPtr impl) : impl_(impl) {}
     virtual ~ScriptCenter() = default;

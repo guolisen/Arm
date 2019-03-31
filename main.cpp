@@ -29,8 +29,7 @@ int main(int argc, char *argv[])
     context->addComponent(configMgrPtr);
 
     // ThreadPool
-    core::ThreadPoolPtr pool;
-    pool = std::make_shared<core::ThreadPool>(
+    core::ThreadPoolPtr pool = std::make_shared<core::ThreadPool>(
                 core::detail::Thread::getFactory());
     pool->createThreads(5);
     context->addComponent(pool);
@@ -58,8 +57,8 @@ int main(int argc, char *argv[])
             container->registerLuaFileType(fileName.toStdString());
     }
 
-    fileIdentifier::FileIdentifierPtr fileIdentifier;
-    fileIdentifier = std::make_shared<fileIdentifier::FileIdentifier>(container);
+    fileIdentifier::FileIdentifierPtr fileIdentifier = std::make_shared<
+            fileIdentifier::FileIdentifier>(container);
     context->addComponent(fileIdentifier);
 
     ArmWindow w(context);

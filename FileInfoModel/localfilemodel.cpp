@@ -1,24 +1,29 @@
+#include <QFileInfo>
+#include "logfilesystemmodel.h"
 #include "localfilemodel.h"
+#include "localreadtimejob.h"
 
 namespace fileinfomodel
 {
-
-LocalFileModel::LocalFileModel(QAbstractItemModel* model, QObject* parent): IFileModel(parent),
-    model_(model)
+typedef fileinfomodel::LogFileSystemModel<
+            fileinfomodel::LocalFileModel> LocalFileSystemType;
+LocalFileModel::LocalFileModel(core::ContextPtr context, QAbstractItemModel* model, QObject* parent): IFileModel(parent),
+    context_(context), model_(model),
+    fileIdentifier_(context->getComponent<fileIdentifier::IFileIdentifier>(nullptr)),
+    pool_(context->getComponent<core::IThreadPool>(nullptr))
 {
 
 }
 
-#if 0
-void threadWrapper(unsigned int id, std::shared_ptr<JobT> job)
+static void threadWrapper(unsigned int id, std::shared_ptr<LocalReadTimeJob> job)
 {
     (*job)(id);
 }
-#endif
 
 QString LocalFileModel::getLogStartTimeStr(const QModelIndex &index)
 {
-#if 0
+    LocalFileSystemType* fileSystem = dynamic_cast<LocalFileSystemType*>(model_);
+    QFileInfo fi = fileSystem->fileInfo(index);
     if (!fi.isFile())
         return QString();
 
@@ -26,19 +31,20 @@ QString LocalFileModel::getLogStartTimeStr(const QModelIndex &index)
     if(!fileTypeObj)
         return QString();
 
-    auto cacheTime = findCache(fi.filePath());
+    auto cacheTime = fileSystem->findCache(fi.filePath());
     if (!cacheTime.isEmpty())
         return cacheTime;
 
-    setCache(fi.filePath(), "Loading");
-    auto setCacheFunc = std::bind(&LogFileSystemModel::setCache, this,
+    fileSystem->setCache(fi.filePath(), "Loading");
+
+    auto setCacheFunc = std::bind(&LocalFileSystemType::setCache, fileSystem,
                                   std::placeholders::_1, std::placeholders::_2);
-    std::shared_ptr<JobT> readTimeJobPtr =
-            std::make_shared<JobT>(index, fi.filePath(), fileTypeObj,
-                                          setCacheFunc);
-    connect(readTimeJobPtr.get(), &JobT::dataChanged, this, &LogFileSystemModel::dataTrigger);
-    pool_->attach(std::bind(LogFileSystemModel<JobT>::threadWrapper, std::placeholders::_1, readTimeJobPtr), 1);
-#endif
+    std::shared_ptr<LocalReadTimeJob> readTimeJobPtr = std::make_shared<LocalReadTimeJob>(
+                index, fi.filePath(), fileTypeObj, setCacheFunc);
+
+    //connect(readTimeJobPtr.get(), &JobT::dataChanged, this, &LogFileSystemModel::dataTrigger);
+    pool_->attach(std::bind(&threadWrapper, std::placeholders::_1, readTimeJobPtr), 1);
+
     return "Loading";
 }
 

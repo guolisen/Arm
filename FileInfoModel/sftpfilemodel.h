@@ -4,13 +4,14 @@
 #include <QAbstractItemModel>
 #include <ssh/sftpfilesystemmodel.h>
 #include "ifilemodel.h"
+#include <Core/appcontext.h>
 
 namespace fileinfomodel {
 
 class SftpFileModel
 {
 public:
-    SftpFileModel(QAbstractItemModel* model, QObject* parent);
+    SftpFileModel(core::ContextPtr context, QAbstractItemModel* model, QObject* parent);
 };
 
 template<>

@@ -10,12 +10,12 @@
 #include "ireadtimejob.h"
 
 class QIODevice;
-typedef std::function<void(QString, QString&)> SetCacheCallBack;
+typedef std::function<void(QString, QString)> SetCacheCallBack;
 class LocalReadTimeJob: public QObject
 {
     Q_OBJECT
 public:
-    LocalReadTimeJob(const QModelIndex& index,const QString& fullFileName, fileIdentifier::FileObjectPtr typeObj,
+    LocalReadTimeJob(const QModelIndex& index, const QString& fullFileName, fileIdentifier::FileObjectPtr typeObj,
                 SetCacheCallBack setCache);
     ~LocalReadTimeJob();
 

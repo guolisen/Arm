@@ -20,14 +20,16 @@ namespace fileinfomodel
 class LocalFileModel: IFileModel
 {
 public:
-    LocalFileModel(QAbstractItemModel* model, QObject* parent = nullptr);
+    LocalFileModel(core::ContextPtr context, QAbstractItemModel* model, QObject* parent = nullptr);
 
     virtual QString getLogStartTimeStr(const QModelIndex &index);
 
 private:
+    core::ContextPtr context_;
     QAbstractItemModel* model_;
     fileIdentifier::FileIdentifierPtr fileIdentifier_;
     core::ThreadPoolPtr pool_;
+
 };
 
 template<>

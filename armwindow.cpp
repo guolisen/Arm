@@ -15,7 +15,7 @@
 ArmWindow::ArmWindow(core::ContextPtr context, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::ArmWindow), context_(context),
-    modelMgr_(new FileModelMgr(context_->getComponent<core::IConfigMgr>(nullptr), this))
+    modelMgr_(new FileModelMgr(context_, this))
 
 {
     ui->setupUi(this);

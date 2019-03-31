@@ -10,7 +10,7 @@
 namespace fileIdentifier {
 
 class FileTypeContainer: public IFileTypeContainer
-{
+{    
 public:
     FileTypeContainer(ILuaFileObjectWrapper::Factory factory,
                   script::ScriptCenterPtr scriptCenter);

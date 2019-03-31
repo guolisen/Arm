@@ -7,7 +7,7 @@
 #include <QString>
 #include <QMutex>
 #include <QMutexLocker>
-
+#include <Core/appcontext.h>
 #include "localfilemodel.h"
 
 namespace fileinfomodel
@@ -21,8 +21,8 @@ class LogFileSystemModel : public FileModelTrait<ModelT>::ModelBaseType
     //Q_OBJECT
     typedef typename FileModelTrait<ModelT>::ModelBaseType BaseModel;
 public:
-    explicit LogFileSystemModel(FileModelPtr fileModel = nullptr, QObject *parent = nullptr):
-        BaseModel(parent), fileModel_((IFileModel*)new ModelT(this, this))
+    explicit LogFileSystemModel(core::ContextPtr context, FileModelPtr fileModel = nullptr, QObject *parent = nullptr):
+        BaseModel(parent), fileModel_((IFileModel*)new ModelT(context, this, this)), context_(context)
     {
         //connect(fileModel_.get(), &ModelT::dataChanged, this, &LogFileSystemModel::dataTrigger);
         //setReadOnly(true);
@@ -92,9 +92,10 @@ private:
     }
 
 private:
-    FileModelPtr fileModel_;
+    IFileModel* fileModel_;
     mutable LogTimeCache logCache_;
     mutable QMutex cacheMutex_;
+    core::ContextPtr context_;
 };
 
 }

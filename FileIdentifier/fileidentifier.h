@@ -8,6 +8,7 @@ namespace fileIdentifier {
 
 class FileIdentifier: public IFileIdentifier
 {
+    Q_OBJECT
 public:
     explicit FileIdentifier(FileTypeContainerPtr fileContainer);
 

@@ -3,7 +3,7 @@
 
 namespace fileinfomodel {
 
-SftpFileModel::SftpFileModel(QAbstractItemModel* model, QObject* parent)
+SftpFileModel::SftpFileModel(core::ContextPtr context, QAbstractItemModel* model, QObject* parent)
 {
 
 }
