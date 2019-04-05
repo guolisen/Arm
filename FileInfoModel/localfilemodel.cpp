@@ -1,4 +1,5 @@
 #include <QFileInfo>
+#include <QTreeView>
 #include "logfilesystemmodel.h"
 #include "localfilemodel.h"
 #include "localreadtimejob.h"
@@ -47,6 +48,16 @@ QString LocalFileModel::getLogStartTimeStr(const QModelIndex &index)
     pool_->attach(std::bind(&threadWrapper, std::placeholders::_1, readTimeJobPtr), 1);
 
     return "Loading";
+}
+
+void LocalFileModel::setCurrentDir(const QString &path, QTreeView *tree)
+{
+    LocalFileSystemType* fileSystem = dynamic_cast<LocalFileSystemType*>(model_);
+    fileSystem->setRootPath(path);
+
+    QModelIndex rootIndex = fileSystem->index(QDir::cleanPath(path));
+    tree->setRootIndex(rootIndex);
+    tree->update();
 }
 
 }

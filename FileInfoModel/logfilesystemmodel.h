@@ -7,6 +7,7 @@
 #include <QString>
 #include <QMutex>
 #include <QMutexLocker>
+#include <QTreeView>
 #include <Core/appcontext.h>
 #include "localfilemodel.h"
 
@@ -78,6 +79,10 @@ public:
         return "";
     }
 
+    void setCurrentDir(const QString& path, QTreeView* tree)
+    {
+        fileModel_->setCurrentDir(path, tree);
+    }
 public slots:
     void dataTrigger(const QModelIndex &index)
     {

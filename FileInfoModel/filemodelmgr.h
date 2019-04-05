@@ -39,12 +39,12 @@ private slots:
     void handleSftpOperationFailed(const QString &errorMessage);
     void handleSftpOperationFinished(QSsh::SftpJobId jobId, const QString &error);
     void handleConnectionError(const QString &errorMessage);
+    void handleConnectionSuccess();
 
 private:
     bool isRemote(const QString &path);
     void setRootLocalPath(const QString& path, QTreeView* tree);
     void setRootRemotePath(const QString &path, QTreeView* tree);
-    void setModelToTree(const QString& path, QTreeView* tree);
 
 private:
     FileModelType currentModeType_;
@@ -53,6 +53,8 @@ private:
     RemoteFileModelType* remoteFSModel_;
     QAbstractItemModel* currentModel_;
     core::ContextPtr context_;
+    QString rootPath_;
+    QTreeView* treeView_;
 };
 
 #endif // FILEMODELCONTAINER_H
