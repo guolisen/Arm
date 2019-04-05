@@ -80,19 +80,6 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_7">
-        <property name="font">
-         <font>
-          <family>Courier New</family>
-          <pointsize>10</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>Github: github.com/guolisen/Arm</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QLabel" name="label_3">
         <property name="font">
          <font>

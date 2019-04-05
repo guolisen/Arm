@@ -32,11 +32,10 @@ bool FileModelMgr::init()
 {
     //localFSModel_->init();
 
-    connect(localFSModel_, &LocalFileModelType::dataChanged,
-            this, [this](const QModelIndex &topLeft, const QModelIndex &bottomRight)
+    connect(localFSModel_, &LocalFileModelType::directoryLoaded,
+            this, [this](const QString& path)
     {
-        QFileInfo fi = localFSModel_->fileInfo(topLeft);
-        directoryLoaded(fi.filePath());
+        directoryLoaded(path);
     });
     //connect(remoteFSModel_, &QSsh::SftpFileSystemModel::sftpOperationFinished,
     //        this, &FileModelMgr::operationFinished);
