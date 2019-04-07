@@ -15,7 +15,7 @@
 ArmWindow::ArmWindow(core::ContextPtr context, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::ArmWindow), context_(context),
-    modelMgr_(new FileModelMgr(context_, this))
+    modelMgr_(new fileinfomodel::FileModelMgr(context_, this))
 
 {
     ui->setupUi(this);
@@ -67,7 +67,7 @@ void ArmWindow::init()
     ui->treeView->setWindowTitle(QObject::tr("Arm"));
 
     connect(ui->comboBox, &QComboBox::editTextChanged, this, &ArmWindow::findStringProcess);
-    connect(modelMgr_, &FileModelMgr::directoryLoadedWrapper, this, &ArmWindow::resizeColumn);
+    connect(modelMgr_, &fileinfomodel::FileModelMgr::directoryLoadedWrapper, this, &ArmWindow::resizeColumn);
 
     connect(modelMgr_, SIGNAL(sftpOperationFailed(QString)),
         SLOT(handleSftpOperationFailed(QString)));

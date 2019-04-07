@@ -6,6 +6,8 @@
 #include <quagzipfile.h>
 #include "localreadtimejob.h"
 
+namespace fileinfomodel
+{
 LocalReadTimeJob::LocalReadTimeJob(const QModelIndex& index,
                          const QString& fullFileName,
                          fileIdentifier::FileObjectPtr typeObj,
@@ -48,7 +50,7 @@ void LocalReadTimeJob::operator()(int)
         QDateTime dt(date, time);
         lineStr = dt.toString(Qt::SystemLocaleLongDate);
         setCache_(fullFileName_, lineStr);
-        emit dataChanged(index_, this);
+        emit dataChanged(index_);
         return;
     }
 }
@@ -63,4 +65,5 @@ bool LocalReadTimeJob::readLine(QString& line)
 
     line = QString::fromLatin1(buf);
     return true;
+}
 }

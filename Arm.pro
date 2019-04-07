@@ -79,7 +79,8 @@ SOURCES += \
     FileInfoModel/sftpreadtimejob.cpp \
     FileInfoModel/localreadtimejob.cpp \
     FileInfoModel/localfilemodel.cpp \
-    FileInfoModel/sftpfilemodel.cpp
+    FileInfoModel/sftpfilemodel.cpp \
+    FileInfoModel/sftpmgr.cpp
 
 
 HEADERS += \
@@ -151,7 +152,8 @@ HEADERS += \
     FileInfoModel/ifilemodelmgr.h \
     FileInfoModel/ifilemodel.h \
     FileInfoModel/localfilemodel.h \
-    FileInfoModel/sftpfilemodel.h
+    FileInfoModel/sftpfilemodel.h \
+    FileInfoModel/sftpmgr.h
 
 FORMS += \
     armwindow.ui \

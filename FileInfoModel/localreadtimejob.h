@@ -6,10 +6,12 @@
 #include <QString>
 #include <QModelIndex>
 #include <QFileSystemModel>
+#include <quagzipfile.h>
 #include <FileIdentifier/ifileObject.h>
 #include "ireadtimejob.h"
 
-class QIODevice;
+namespace fileinfomodel
+{
 typedef std::function<void(QString, QString)> SetCacheCallBack;
 class LocalReadTimeJob: public QObject
 {
@@ -24,7 +26,7 @@ public:
     bool readLine(QString &line);
 
 Q_SIGNALS:
-    void dataChanged(const QModelIndex& index, LocalReadTimeJob* jobObj);
+    void dataChanged(const QModelIndex& index);
 
 private:
     QString fullFileName_;
@@ -40,5 +42,5 @@ struct JobTrait<LocalReadTimeJob>
     typedef QFileSystemModel ModelBaseType;
     const int logStartTimeColNum = 4;
 };
-
+}
 #endif // READTIMEJOB_H

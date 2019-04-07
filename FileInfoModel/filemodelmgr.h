@@ -9,14 +9,17 @@
 #include "localfilemodel.h"
 #include "sftpfilemodel.h"
 
+namespace fileinfomodel
+{
+
 enum FileModelType
 {
     LocalFileSystemModel,
     RemoteFileSystemModel
 };
 
-typedef fileinfomodel::LogFileSystemModel<fileinfomodel::LocalFileModel> LocalFileModelType;
-typedef fileinfomodel::LogFileSystemModel<fileinfomodel::SftpFileModel> RemoteFileModelType;
+typedef LogFileSystemModel<LocalFileModel> LocalFileModelType;
+typedef LogFileSystemModel<SftpFileModel> RemoteFileModelType;
 
 class FileModelMgr: public QObject
 {
@@ -33,9 +36,8 @@ Q_SIGNALS:
     void sftpOperationFinished(const QString &error);
     void connectionError(const QString &errorMessage);
 
-private slots:
+public slots:
     void directoryLoaded(const QString &path);
-    void operationFinished(QSsh::SftpJobId, const QString &error);
     void handleSftpOperationFailed(const QString &errorMessage);
     void handleSftpOperationFinished(QSsh::SftpJobId jobId, const QString &error);
     void handleConnectionError(const QString &errorMessage);
@@ -57,4 +59,5 @@ private:
     QTreeView* treeView_;
 };
 
+}
 #endif // FILEMODELCONTAINER_H

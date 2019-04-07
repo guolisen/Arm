@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
     // ThreadPool
     core::ThreadPoolPtr pool = std::make_shared<core::ThreadPool>(
                 core::detail::Thread::getFactory());
-    pool->createThreads(5);
+    pool->createThreads(1);
     context->addComponent(pool);
 
     // ScriptCenter

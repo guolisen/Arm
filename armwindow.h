@@ -4,6 +4,7 @@
 #include <QDebug>
 #include <QMainWindow>
 #include <Core/appcontext.h>
+#include <FileInfoModel/filemodelmgr.h>
 
 namespace Ui {
 class ArmWindow;
@@ -11,7 +12,6 @@ class ArmWindow;
 
 class QProcess;
 class QSettings;
-class FileModelMgr;
 class ArmWindow : public QMainWindow
 {
     Q_OBJECT
@@ -37,7 +37,7 @@ private:
 
     Ui::ArmWindow *ui;
     core::ContextPtr context_;
-    FileModelMgr* modelMgr_;
+    fileinfomodel::FileModelMgr* modelMgr_;
     QString editorPath_;
 };
 

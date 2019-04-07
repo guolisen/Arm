@@ -1,6 +1,9 @@
 #ifndef IREADTIMEJOB_H
 #define IREADTIMEJOB_H
 
+namespace fileinfomodel
+{
+
 template<typename T>
 struct JobTrait
 {
@@ -8,4 +11,5 @@ struct JobTrait
     typedef NoDefineBaseType ModelBaseType;
 };
 
+}
 #endif // IREADTIMEJOB_H

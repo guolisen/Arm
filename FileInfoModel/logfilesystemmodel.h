@@ -55,7 +55,7 @@ public:
     }
     int columnCount(const QModelIndex& parent = QModelIndex()) const override
     {
-        return FileModelTrait<ModelT>::ModelBaseType::columnCount()+1;
+        return FileModelTrait<ModelT>::ModelBaseType::columnCount() + 1;
     }
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override
     {
@@ -83,6 +83,7 @@ public:
     {
         fileModel_->setCurrentDir(path, tree);
     }
+
 public slots:
     void dataTrigger(const QModelIndex &index)
     {
