@@ -4,7 +4,7 @@ function Cemtrace_isMyType(filename)
     filestr = string.match(filename, "^cemtracer_*")
     if (filestr ~= nil) then 
         return true
-    end    
+    end
     filestr = string.match(filename, "^cemtracer_core_provisioning.log*")
     if (filestr ~= nil) then 
         return true
