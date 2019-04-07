@@ -10,14 +10,10 @@ typedef fileinfomodel::LogFileSystemModel<
 SftpFileModel::SftpFileModel(core::ContextPtr context, QAbstractItemModel* model, QObject* parent): IFileModel(parent),
     context_(context), model_(model),
     fileIdentifier_(context->getComponent<fileIdentifier::IFileIdentifier>(nullptr)),
-    pool_(context->getComponent<core::IThreadPool>(nullptr)), buffer_(new QBuffer(this))
+    pool_(new QThreadPool(this)), buffer_(new QBuffer(this))
 {
-
-}
-
-static void threadWrapper(unsigned int id, std::shared_ptr<SftpReadTimeJob> job)
-{
-    (*job)(id);
+    buffer_->open(QBuffer::ReadWrite);
+    pool_->setMaxThreadCount(5);
 }
 
 QString SftpFileModel::getLogStartTimeStr(const QModelIndex &index)
@@ -37,29 +33,17 @@ QString SftpFileModel::getLogStartTimeStr(const QModelIndex &index)
 
     fileSystem->setCache(fn->path, "Loading");
 
-    //buffer_->open(QBuffer::ReadWrite);
-    //fileSystem->downloadFile(index, buffer_, 200);
-
-#if 0
-    //Sleep(4000);
-    //if (buffer_->waitForReadyRead(3000))
-    {
-        QString message1;
-        QString s = QString::fromLatin1(buffer_->buffer());
-        message1 = tr("!!!!!!!!!!!!Result: %1").arg(s);
-        qDebug() << message1;
-    }
-#endif
-#if 1
     auto setCacheFunc = std::bind(&RemoteFileSystemType::setCache, fileSystem,
                                   std::placeholders::_1, std::placeholders::_2);
-    std::shared_ptr<SftpReadTimeJob> readTimeJobPtr = std::make_shared<SftpReadTimeJob>(model_,
+    SftpReadTimeJob* readTimeJobPtr = new SftpReadTimeJob(model_,
                 index, fn->path, fileTypeObj, setCacheFunc);
 
-    connect(readTimeJobPtr.get(), &SftpReadTimeJob::dataChanged, this,
+    connect(readTimeJobPtr, &SftpReadTimeJob::dataChanged, this,
             [this](const QModelIndex& index){ emit dataChanged(index); });
-    pool_->attach(std::bind(&threadWrapper, std::placeholders::_1, readTimeJobPtr), 1);
-#endif
+
+    readTimeJobPtr->start();
+    //pool_->start(readTimeJobPtr);
+
     return "Loading";
 }
 

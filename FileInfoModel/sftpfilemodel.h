@@ -3,6 +3,7 @@
 
 #include <QAbstractItemModel>
 #include <QBuffer>
+#include <QThreadPool>
 #include <ssh/sftpfilesystemmodel.h>
 #include "FileIdentifier/ifileObject.h"
 #include <FileIdentifier/fileidentifier.h>
@@ -30,7 +31,7 @@ private:
     core::ContextPtr context_;
     QAbstractItemModel* model_;
     fileIdentifier::FileIdentifierPtr fileIdentifier_;
-    core::ThreadPoolPtr pool_;
+    QThreadPool* pool_;
     QSharedPointer<QBuffer> buffer_;
 };
 
