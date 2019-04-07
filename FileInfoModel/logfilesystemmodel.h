@@ -59,7 +59,7 @@ public:
     }
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override
     {
-        if (section == columnCount() && orientation == Qt::Horizontal && role == Qt::DisplayRole)
+        if (section == (columnCount() - 1) && orientation == Qt::Horizontal && role == Qt::DisplayRole)
             return tr("LogStartTime");
         return FileModelTrait<ModelT>::ModelBaseType::headerData(section, orientation, role);
     }
