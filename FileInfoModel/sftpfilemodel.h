@@ -25,7 +25,6 @@ public:
 
     virtual QString getLogStartTimeStr(const QModelIndex &index);
     virtual void setCurrentDir(const QString& path, QTreeView* tree);
-
 private:
     core::ContextPtr context_;
     QAbstractItemModel* model_;

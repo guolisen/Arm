@@ -158,8 +158,10 @@ void ArmWindow::createMenu()
     helpMenu->addAction(aboutAct);
 }
 
+#if 0
 void ArmWindow::on_treeView_doubleClicked(const QModelIndex &index)
 {
+    modelMgr_->createCacheFile(index);
 #if 0
     //TODO:
     LogFileSystemModel* m = (LogFileSystemModel*)index.model();
@@ -186,4 +188,27 @@ void ArmWindow::on_treeView_doubleClicked(const QModelIndex &index)
     }
     proc->start(editorPath_, {cacheFileName});
 #endif
+}
+#endif
+
+void ArmWindow::on_treeView_doubleClicked(const QModelIndex &index)
+{
+     QString cacheFile = modelMgr_->createCacheFile(index);
+
+     QProcess* proc = new QProcess(this);
+     connect(proc, static_cast<void(QProcess::*)(int)>(&QProcess::finished),
+           [proc, cacheFile, this](int){
+           // QString command = "del " + QDir::cleanPath(cacheFileName);
+           //::system(command.toStdString().c_str());
+           // qWarning()<< command << " Clean cache"<< proc.use_count() << " " << test.use_count();
+           proc->close();
+     });
+
+     qDebug() << "cacheFileName: " << cacheFile;
+     if (editorPath_.isEmpty())
+     {
+         QMessageBox::information(this, tr("Warning"), tr("Cannot Find Editor Path"));
+         return;
+     }
+     proc->start(editorPath_, {cacheFile});
 }

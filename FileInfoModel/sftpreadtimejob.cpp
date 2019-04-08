@@ -86,7 +86,6 @@ void SftpReadTimeJob::handleSftpOperationFinished(QSsh::SftpJobId jobId, QString
 {
     QString message1;
     QString s = QString::fromLatin1(buffer_->buffer());
-    //message1 = tr("SftpReadTimeJob::handleSftpOperationFinished Result: %1").arg(s);
     qDebug() << "SftpReadTimeJob::handleSftpOperationFinished Result: " << s;
 
     std::string lineStr;
@@ -153,8 +152,6 @@ void SftpReadTimeJob::run()
     sshParams.timeout = 5000;
 
     sftpMgr_ = new SftpMgr(sshParams);
-    //sftpMgr_->moveToThread(QApplication::instance()->thread());
-    //RemoteFileSystemType* fileSystem = dynamic_cast<RemoteFileSystemType*>(model_);
     connect(sftpMgr_, &SftpMgr::connectHostSuccess, this, &SftpReadTimeJob::connectHostProcess);
     connect(sftpMgr_, &SftpMgr::jobFinished, this,
         &SftpReadTimeJob::handleSftpOperationFinished);

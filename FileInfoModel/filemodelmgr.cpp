@@ -1,5 +1,7 @@
 #include <QMessageBox>
 #include <QDebug>
+#include <QEventLoop>
+#include <QProcess>
 #include "logfilesystemmodel.h"
 #include "filemodelmgr.h"
 #include <ssh/sftpfilesystemmodel.h>
@@ -7,6 +9,7 @@
 #include "logfilesystemmodel.h"
 #include "localfilemodel.h"
 #include "sftpfilemodel.h"
+#include "FileInfoModel/uncompressfilecache.h"
 
 namespace fileinfomodel
 {
@@ -15,7 +18,7 @@ FileModelMgr::FileModelMgr(core::ContextPtr context, QObject* parent):  QObject(
     isRemoteConnected_(false),
     localFSModel_(new LocalFileModelType(context, nullptr, this)),
     remoteFSModel_(new RemoteFileModelType(context, nullptr, this)),
-    currentModel_(nullptr), context_(context)
+    currentModel_(nullptr), context_(context), downloadId_(0)
 {
     init();
 }
@@ -41,7 +44,6 @@ bool FileModelMgr::init()
 #endif
     connect(remoteFSModel_, SIGNAL(sftpOperationFinished(QSsh::SftpJobId,QString)),
         SLOT(handleSftpOperationFinished(QSsh::SftpJobId,QString)));
-
     connect(remoteFSModel_, SIGNAL(sftpOperationFailed(QString)), SLOT(handleSftpOperationFailed(QString)));
     connect(remoteFSModel_, SIGNAL(connectionError(QString)), SLOT(handleConnectionError(QString)));
     connect(remoteFSModel_, SIGNAL(connectionSuccess()), SLOT(handleConnectionSuccess()));
@@ -52,9 +54,13 @@ bool FileModelMgr::init()
 void FileModelMgr::setRootPath(const QString &path, QTreeView* tree)
 {
     if (isRemote(path))
+    {
         setRootRemotePath(path, tree);
+    }
     else
+    {
         setRootLocalPath(path, tree);
+    }
 }
 
 bool FileModelMgr::isRemote(const QString& path)
@@ -134,6 +140,14 @@ void FileModelMgr::handleSftpOperationFinished(QSsh::SftpJobId jobId, const QStr
 
     qDebug() << "FileModelContainer::handleSftpOperationFinished " << message;
 
+    if(downloadId_ == jobId)
+    {
+        qDebug() << "1downloadAsync OK! " << error;
+        downloadError_ = error;
+        emit downloadFinished();
+        return;
+    }
+
     directoryLoaded("");
 }
 
@@ -143,4 +157,67 @@ void FileModelMgr::handleConnectionError(const QString &errorMessage)
     qDebug() << "FileModelContainer::handleConnectionError " << errorMessage;
     emit connectionError(errorMessage);
 }
+
+int FileModelMgr::downloadAsync(const QModelIndex &index, const QString &targetFilePath)
+{
+    downloadId_ = remoteFSModel_->downloadFile(index, targetFilePath);
+    QEventLoop loop;
+    connect(this, &FileModelMgr::downloadFinished, &loop, &QEventLoop::quit);
+    loop.exec();
+
+    if (!downloadError_.isEmpty())
+        return -1;
+    return 0;
+}
+
+QString FileModelMgr::createCacheFile(const QModelIndex &index)
+{
+    if (currentModeType_ == RemoteFileSystemModel)
+    {
+        const RemoteFileModelType* remoteModel =
+                dynamic_cast<const RemoteFileModelType*>(index.model());
+        QSsh::SftpFileNode* fn = static_cast<QSsh::SftpFileNode *>(index.internalPointer());
+        UncompressFileCache fileCache;
+        QString localCacheFile = fileCache.getCacheFileName(fn->fileInfo.name);
+
+        if (downloadAsync(index, localCacheFile) < 0)
+        {
+            return "";
+        }
+
+        qDebug() << "downloadAsync OK!";
+        QString cacheFileName = fileCache.createUncompressCacheFile(localCacheFile);
+        if(cacheFileName.isEmpty())
+           return "";
+    }
+
+#if 0
+    //TODO:
+    LogFileSystemModel* m = (LogFileSystemModel*)index.model();
+    QString activeFileName = m->filePath(index);
+    UncompressFileCache fileCache;
+    QString cacheFileName = fileCache.createUncompressCacheFile(activeFileName);
+    if(cacheFileName.isEmpty())
+        return;
+
+    QProcess* proc = new QProcess(this);
+    connect(proc, static_cast<void(QProcess::*)(int)>(&QProcess::finished),
+          [proc, cacheFileName, this](int){
+          // QString command = "del " + QDir::cleanPath(cacheFileName);
+          //::system(command.toStdString().c_str());
+          // qWarning()<< command << " Clean cache"<< proc.use_count() << " " << test.use_count();
+          proc->close();
+    });
+
+    qDebug() << "cacheFileName: " << cacheFileName;
+    if (editorPath_.isEmpty())
+    {
+        QMessageBox::information(this, tr("Warning"), tr("Cannot Find Editor Path"));
+        return;
+    }
+    proc->start(editorPath_, {cacheFileName});
+#endif
+    return "";
+}
+
 }

@@ -8,8 +8,6 @@ namespace fileinfomodel
 SftpMgr::SftpMgr(QSsh::SshConnectionParameters sshParams, QObject *parent) : QObject(parent),
     sshParams_(sshParams)
 {
-    //moveToThread(QApplication::instance()->thread());
-    //m_connection->moveToThread(QApplication::instance()->thread());
 }
 
 void SftpMgr::startToConnect()
@@ -41,7 +39,6 @@ void SftpMgr::disconnectToHost()
 void SftpMgr::handleConnected()
 {
     qDebug() << "Connected. Initializing SFTP channel...";
-    //QMetaObject::invokeMethod(this, std::bind(&fileinfomodel::SftpMgr::download, sftpMgr_, fileNode->path, buffer_, 200));
     m_channel = m_connection->createSftpChannel();
     qDebug() << "1...";
     connect(m_channel.data(), SIGNAL(initialized()), this,
@@ -56,7 +53,6 @@ void SftpMgr::handleConnected()
     connect(m_channel.data(), SIGNAL(closed()), this,
         SLOT(handleChannelClosed()));
 
-    //QMetaObject::invokeMethod(this, std::bind(&QSsh::SftpChannel::initialize, m_channel));
     m_channel->initialize();
     qDebug() << "12...";
 }

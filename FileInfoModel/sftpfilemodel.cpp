@@ -41,7 +41,6 @@ QString SftpFileModel::getLogStartTimeStr(const QModelIndex &index)
             [this](const QModelIndex& index){ emit dataChanged(index); });
 
     pool_->start(readTimeJobPtr);
-
     return "Loading";
 }
 

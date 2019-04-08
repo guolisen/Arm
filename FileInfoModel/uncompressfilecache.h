@@ -9,9 +9,9 @@ public:
     UncompressFileCache();
 
     QString createUncompressCacheFile(const QString& fullFilePath);
-
-private:
     QString getCacheFileName(const QString &fullFilePath);
+private:
+
     QString getNewFileName(const QString &oldFileName);
     QString getCompressFile(const QString &fullFilePath);
 

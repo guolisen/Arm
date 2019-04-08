@@ -29,8 +29,10 @@ private slots:
 
     void findStringProcess(const QString &s);
     void resizeColumn(const QString &path);
-    void on_treeView_doubleClicked(const QModelIndex &index);
+    //void on_treeView_doubleClicked(const QModelIndex &index);
     void setting();
+
+    void on_treeView_doubleClicked(const QModelIndex &index);
 
 private:
     void createMenu();
