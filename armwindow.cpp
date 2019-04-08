@@ -77,9 +77,9 @@ void ArmWindow::init()
 
     createMenu();
 
-    //editorPath_ = setting_->value("Arm/Setting/editorPath").toString();
-    //if (editorPath_.isEmpty())
-    //    editorPath_ = QDir::cleanPath("C:/Program Files (x86)/Notepad++/notepad++.exe");
+    editorPath_ = setting_.value("Arm/Setting/editorPath").toString();
+    if (editorPath_.isEmpty())
+        editorPath_ = QDir::cleanPath("C:/Program Files (x86)/Notepad++/notepad++.exe");
 }
 
 void ArmWindow::findStringProcess(const QString& s)
@@ -115,9 +115,9 @@ void ArmWindow::setting()
     SettingDialog settingDialog(this);
     if (settingDialog.exec() == QDialog::Accepted)
     {
-        //editorPath_ = setting_->value("Arm/Setting/editorPath").toString();
-        //if (editorPath_.isEmpty())
-        //    editorPath_ = QDir::cleanPath("C:/Program Files (x86)/Notepad++/notepad++.exe");
+        editorPath_ = setting_.value("Arm/Setting/editorPath").toString();
+        if (editorPath_.isEmpty())
+            editorPath_ = QDir::cleanPath("C:/Program Files (x86)/Notepad++/notepad++.exe");
     }
 }
 
@@ -157,39 +157,6 @@ void ArmWindow::createMenu()
     });
     helpMenu->addAction(aboutAct);
 }
-
-#if 0
-void ArmWindow::on_treeView_doubleClicked(const QModelIndex &index)
-{
-    modelMgr_->createCacheFile(index);
-#if 0
-    //TODO:
-    LogFileSystemModel* m = (LogFileSystemModel*)index.model();
-    QString activeFileName = m->filePath(index);
-    UncompressFileCache fileCache;
-    QString cacheFileName = fileCache.createUncompressCacheFile(activeFileName);
-    if(cacheFileName.isEmpty())
-        return;
-
-    QProcess* proc = new QProcess(this);
-    connect(proc, static_cast<void(QProcess::*)(int)>(&QProcess::finished),
-          [proc, cacheFileName, this](int){
-          // QString command = "del " + QDir::cleanPath(cacheFileName);
-          //::system(command.toStdString().c_str());
-          // qWarning()<< command << " Clean cache"<< proc.use_count() << " " << test.use_count();
-          proc->close();
-    });
-
-    qDebug() << "cacheFileName: " << cacheFileName;
-    if (editorPath_.isEmpty())
-    {
-        QMessageBox::information(this, tr("Warning"), tr("Cannot Find Editor Path"));
-        return;
-    }
-    proc->start(editorPath_, {cacheFileName});
-#endif
-}
-#endif
 
 void ArmWindow::on_treeView_doubleClicked(const QModelIndex &index)
 {

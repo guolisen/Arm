@@ -5,6 +5,7 @@
 #include <QMainWindow>
 #include <Core/appcontext.h>
 #include <FileInfoModel/filemodelmgr.h>
+#include <QSettings>
 
 namespace Ui {
 class ArmWindow;
@@ -41,6 +42,7 @@ private:
     core::ContextPtr context_;
     fileinfomodel::FileModelMgr* modelMgr_;
     QString editorPath_;
+    QSettings setting_;
 };
 
 #endif // ARMWINDOW_H

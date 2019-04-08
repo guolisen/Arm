@@ -142,7 +142,7 @@ QByteArray SftpReadTimeJob::uncompressData()
 void SftpReadTimeJob::run()
 {
     QSsh::SshConnectionParameters sshParams;
-    sshParams.host = "192.168.0.107";
+    sshParams.host = "192.168.0.101";
     sshParams.userName = "guolisen";
     sshParams.authenticationType = QSsh::SshConnectionParameters::AuthenticationByPassword;
     //sshParams.privateKeyFile = "C:/Users/qq/.ssh/id_rsa";

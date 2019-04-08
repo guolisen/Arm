@@ -97,7 +97,7 @@ void FileModelMgr::setRootRemotePath(const QString& path, QTreeView* tree)
     if(!isRemoteConnected_)
     {
         QSsh::SshConnectionParameters sshParams;
-        sshParams.host = "192.168.0.107";
+        sshParams.host = "192.168.0.101";
         sshParams.userName = "guolisen";
         sshParams.authenticationType = QSsh::SshConnectionParameters::AuthenticationByPassword;
         //sshParams.privateKeyFile = "C:/Users/qq/.ssh/id_rsa";
@@ -172,52 +172,31 @@ int FileModelMgr::downloadAsync(const QModelIndex &index, const QString &targetF
 
 QString FileModelMgr::createCacheFile(const QModelIndex &index)
 {
+    QString localFile;
+    UncompressFileCache fileCache;
     if (currentModeType_ == RemoteFileSystemModel)
     {
         const RemoteFileModelType* remoteModel =
                 dynamic_cast<const RemoteFileModelType*>(index.model());
         QSsh::SftpFileNode* fn = static_cast<QSsh::SftpFileNode *>(index.internalPointer());
-        UncompressFileCache fileCache;
-        QString localCacheFile = fileCache.getCacheFileName(fn->fileInfo.name);
-
-        if (downloadAsync(index, localCacheFile) < 0)
+        localFile = fileCache.getCacheFileName(fn->fileInfo.name);
+        if (downloadAsync(index, localFile) < 0)
         {
             return "";
         }
 
         qDebug() << "downloadAsync OK!";
-        QString cacheFileName = fileCache.createUncompressCacheFile(localCacheFile);
-        if(cacheFileName.isEmpty())
-           return "";
     }
-
-#if 0
-    //TODO:
-    LogFileSystemModel* m = (LogFileSystemModel*)index.model();
-    QString activeFileName = m->filePath(index);
-    UncompressFileCache fileCache;
-    QString cacheFileName = fileCache.createUncompressCacheFile(activeFileName);
-    if(cacheFileName.isEmpty())
-        return;
-
-    QProcess* proc = new QProcess(this);
-    connect(proc, static_cast<void(QProcess::*)(int)>(&QProcess::finished),
-          [proc, cacheFileName, this](int){
-          // QString command = "del " + QDir::cleanPath(cacheFileName);
-          //::system(command.toStdString().c_str());
-          // qWarning()<< command << " Clean cache"<< proc.use_count() << " " << test.use_count();
-          proc->close();
-    });
-
-    qDebug() << "cacheFileName: " << cacheFileName;
-    if (editorPath_.isEmpty())
+    else
     {
-        QMessageBox::information(this, tr("Warning"), tr("Cannot Find Editor Path"));
-        return;
+        LocalFileModelType* localModel = (LocalFileModelType*)index.model();
+        localFile = localModel->filePath(index);
     }
-    proc->start(editorPath_, {cacheFileName});
-#endif
-    return "";
+
+    QString cacheFileName = fileCache.createUncompressCacheFile(localFile);
+    if(cacheFileName.isEmpty())
+       return "";
+    return cacheFileName;
 }
 
 }
