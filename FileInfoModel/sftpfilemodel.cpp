@@ -10,9 +10,8 @@ typedef fileinfomodel::LogFileSystemModel<
 SftpFileModel::SftpFileModel(core::ContextPtr context, QAbstractItemModel* model, QObject* parent): IFileModel(parent),
     context_(context), model_(model),
     fileIdentifier_(context->getComponent<fileIdentifier::IFileIdentifier>(nullptr)),
-    pool_(new QThreadPool(this)), buffer_(new QBuffer(this))
+    pool_(new QThreadPool(this))
 {
-    buffer_->open(QBuffer::ReadWrite);
     pool_->setMaxThreadCount(5);
 }
 
@@ -41,8 +40,7 @@ QString SftpFileModel::getLogStartTimeStr(const QModelIndex &index)
     connect(readTimeJobPtr, &SftpReadTimeJob::dataChanged, this,
             [this](const QModelIndex& index){ emit dataChanged(index); });
 
-    readTimeJobPtr->start();
-    //pool_->start(readTimeJobPtr);
+    pool_->start(readTimeJobPtr);
 
     return "Loading";
 }

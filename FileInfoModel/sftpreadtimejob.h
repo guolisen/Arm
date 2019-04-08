@@ -14,17 +14,14 @@
 namespace fileinfomodel
 {
 
-class QIODevice;
 typedef std::function<void(QString, QString)> SetCacheCallBack;
-class SftpReadTimeJob : public QThread
+class SftpReadTimeJob : public QObject, public QRunnable
 {
     Q_OBJECT
 public:
     SftpReadTimeJob(QAbstractItemModel* model, const QModelIndex& index, const QString& fullFileName, fileIdentifier::FileObjectPtr typeObj,
                 SetCacheCallBack setCache);
     virtual void run();
-
-    bool readLine(QString &line);
 
 public slots:
     void handleSftpOperationFinished(QSsh::SftpJobId jobId, QString error);
@@ -36,6 +33,7 @@ Q_SIGNALS:
 private:
     bool isCompressFile();
     QByteArray uncompressData();
+
 private:
     QAbstractItemModel* model_;
     QString fullFileName_;
@@ -45,7 +43,6 @@ private:
     QSharedPointer<QBuffer> buffer_;
     QSsh::SftpJobId currentId_;
     SftpMgr* sftpMgr_;
-
 };
 
 template<>

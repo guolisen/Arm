@@ -2,7 +2,6 @@
 #define SFTPFILEMODEL_H
 
 #include <QAbstractItemModel>
-#include <QBuffer>
 #include <QThreadPool>
 #include <ssh/sftpfilesystemmodel.h>
 #include "FileIdentifier/ifileObject.h"
@@ -32,7 +31,6 @@ private:
     QAbstractItemModel* model_;
     fileIdentifier::FileIdentifierPtr fileIdentifier_;
     QThreadPool* pool_;
-    QSharedPointer<QBuffer> buffer_;
 };
 
 template<>

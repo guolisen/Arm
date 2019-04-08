@@ -32,7 +32,13 @@ bool FileModelMgr::init()
     {
         directoryLoaded(path);
     });
-
+#if 1
+    connect(remoteFSModel_, &RemoteFileModelType::dataChanged,
+            this, [this](const QModelIndex &srcindex, const QModelIndex &destindex)
+    {
+        directoryLoaded("");
+    });
+#endif
     connect(remoteFSModel_, SIGNAL(sftpOperationFinished(QSsh::SftpJobId,QString)),
         SLOT(handleSftpOperationFinished(QSsh::SftpJobId,QString)));
 
@@ -85,7 +91,7 @@ void FileModelMgr::setRootRemotePath(const QString& path, QTreeView* tree)
     if(!isRemoteConnected_)
     {
         QSsh::SshConnectionParameters sshParams;
-        sshParams.host = "192.168.0.105";
+        sshParams.host = "192.168.0.107";
         sshParams.userName = "guolisen";
         sshParams.authenticationType = QSsh::SshConnectionParameters::AuthenticationByPassword;
         //sshParams.privateKeyFile = "C:/Users/qq/.ssh/id_rsa";

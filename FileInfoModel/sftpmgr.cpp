@@ -33,6 +33,11 @@ QSsh::SftpJobId SftpMgr::download(const QString &remoteFilePath, QSharedPointer<
     return id;
 }
 
+void SftpMgr::disconnectToHost()
+{
+    earlyDisconnectFromHost();
+}
+
 void SftpMgr::handleConnected()
 {
     qDebug() << "Connected. Initializing SFTP channel...";
@@ -107,7 +112,10 @@ void SftpMgr::earlyDisconnectFromHost()
 {
     qDebug() << "earlyDisconnectFromHost ";
     if (m_channel)
+    {
+        m_channel->closeChannel();
         disconnect(m_channel.data(), 0, this, 0);
+    }
     m_connection->disconnectFromHost();
 }
 

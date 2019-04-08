@@ -84,7 +84,6 @@ public:
         fileModel_->setCurrentDir(path, tree);
     }
 
-public slots:
     void dataTrigger(const QModelIndex &index)
     {
         emit dataChanged(index, index);

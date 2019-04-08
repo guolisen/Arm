@@ -24,6 +24,7 @@ public:
     virtual ~SftpMgr() = default;
     void startToConnect();
     QSsh::SftpJobId download(const QString &remoteFilePath, QSharedPointer<QIODevice> localFile, quint32 size);
+    void disconnectToHost();
 Q_SIGNALS:
     void connectHostSuccess();
     void jobFinished(QSsh::SftpJobId job, const QString &error);

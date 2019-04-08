@@ -63,7 +63,7 @@ SftpReadTimeJob::SftpReadTimeJob(QAbstractItemModel* model,
                                  setCache_(setCache), index_(index), buffer_(new QBuffer()),
                                  currentId_(0)
 {
-
+    setAutoDelete(true);
 }
 
 bool SftpReadTimeJob::isCompressFile()
@@ -79,41 +79,39 @@ void SftpReadTimeJob::connectHostProcess()
     buffer_->open(QBuffer::ReadWrite);
 
     QSsh::SftpFileNode* fileNode = static_cast<QSsh::SftpFileNode *>(index_.internalPointer());
-
-    QMetaObject::invokeMethod(sftpMgr_, std::bind(&fileinfomodel::SftpMgr::download, sftpMgr_, fileNode->path, buffer_, 200));
+    QMetaObject::invokeMethod(sftpMgr_, std::bind(&fileinfomodel::SftpMgr::download, sftpMgr_, fileNode->path, buffer_, 500));
 }
 
 void SftpReadTimeJob::handleSftpOperationFinished(QSsh::SftpJobId jobId, QString error)
 {
-    qDebug() << tr("@!!SftpReadTimeJob::handleSftpOperationFinished %1 %2").arg(currentId_).arg(jobId);
-
     QString message1;
     QString s = QString::fromLatin1(buffer_->buffer());
-    message1 = tr("SftpReadTimeJob::handleSftpOperationFinished Result: %1").arg(s);
-    qDebug() << message1;
+    //message1 = tr("SftpReadTimeJob::handleSftpOperationFinished Result: %1").arg(s);
+    qDebug() << "SftpReadTimeJob::handleSftpOperationFinished Result: " << s;
 
     std::string lineStr;
     if (isCompressFile())
     {
-       QByteArray compressData = uncompressData();
-       if (compressData.isEmpty())
-       {
+        QByteArray compressData = uncompressData();
+        if (compressData.isEmpty())
+        {
            qDebug() << "Uncompress error " << fullFileName_;
+           emit jobfinished();
            return;
-       }
-       lineStr = compressData.toStdString();
+        }
+        lineStr = compressData.toStdString();
     }
     else
     {
-       lineStr = s.toStdString();
+        lineStr = s.toStdString();
     }
-
 
     fileIdentifier::DateEntry dateEntry = typeObj_->getLineTime(lineStr);
     if (!dateEntry.exist)
     {
         lineStr = "No Time Info";
         setCache_(fullFileName_, QString::fromStdString(lineStr));
+        emit jobfinished();
         return;
     }
 
@@ -135,7 +133,7 @@ QByteArray SftpReadTimeJob::uncompressData()
 
     if(gzdecompress((Bytef*)srcBuf, srcSize, (Bytef*)buf, &destSize) != Z_OK)
     {
-        printf("uncompress failed!\n");
+        qDebug() << "uncompress failed!";
         return QByteArray();
     }
     qDebug() << "UnCompress: " << (char*)buf;
@@ -145,7 +143,7 @@ QByteArray SftpReadTimeJob::uncompressData()
 void SftpReadTimeJob::run()
 {
     QSsh::SshConnectionParameters sshParams;
-    sshParams.host = "192.168.0.105";
+    sshParams.host = "192.168.0.107";
     sshParams.userName = "guolisen";
     sshParams.authenticationType = QSsh::SshConnectionParameters::AuthenticationByPassword;
     //sshParams.privateKeyFile = "C:/Users/qq/.ssh/id_rsa";
@@ -163,32 +161,11 @@ void SftpReadTimeJob::run()
 
     sftpMgr_->startToConnect();
 
-#if 0
-    QString lineStr;
-
-    if(!readLine(lineStr) || lineStr.isEmpty())
-    {
-        lineStr = "No Time Info";
-        setCache_(fullFileName_, lineStr);
-        return;
-    }
-
-    fileIdentifier::DateEntry dateEntry = typeObj_->getLineTime(lineStr.toStdString());
-    if (!dateEntry.exist)
-        continue;
-
-    QDate date(dateEntry.year, dateEntry.month, dateEntry.day);
-    QTime time(dateEntry.hour, dateEntry.minute, dateEntry.second, dateEntry.mSecond/1000);
-    QDateTime dt(date, time);
-    lineStr = dt.toString(Qt::SystemLocaleLongDate);
-    setCache_(fullFileName_, lineStr);
-    emit dataChanged(index_, this);
-    return;
-#endif
     QEventLoop loop;
     connect(this, &SftpReadTimeJob::jobfinished, &loop, &QEventLoop::quit);
     loop.exec();
     emit dataChanged(index_);
+    sftpMgr_->disconnectToHost();
     qDebug() << "Thread Out!";
 }
 }
