@@ -65,6 +65,7 @@ private:
     QSsh::SftpJobId downloadId_;
     QString downloadError_;
     QProgressDialog* pd_;
+    void createProgressBar();
 };
 
 }

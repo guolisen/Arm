@@ -118,6 +118,7 @@ void RemoteProcess::handleProcessStdout()
         return;
     } else {
         m_remoteStdout += m_remoteRunner->readAllStandardOutput();
+        emit processStdout(m_remoteStdout);
     }
 }
 
@@ -133,6 +134,7 @@ void RemoteProcess::handleProcessStderr()
         return;
     } else {
         m_remoteStderr += m_remoteRunner->readAllStandardError();
+        emit processStderr(m_remoteStderr);
     }
 }
 
@@ -149,22 +151,21 @@ void RemoteProcess::handleProcessClosed(int exitStatus)
             const int exitCode = m_remoteRunner->processExitCode();
             if (exitCode != 0) {
                  qDebug() << "Error: exit code is " << exitCode
-                    << ", expected zero."  ;
-
+                    << ", expected zero.";
+                earlyDisconnectFromHost();
                 return;
             }
             if (m_remoteStdout.isEmpty()) {
-                 qDebug() << "Error: Command did not produce output."
-                     ;
-
+                 qDebug() << "Error: Command did not produce output.";
+                earlyDisconnectFromHost();
                 return;
             }
 
             qDebug() << "Ok.\nTesting unsuccessful remote process... "  ;
             m_state = TestingFailure;
             m_started = false;
-            m_timeoutTimer->start();
-            m_remoteRunner->run("top -n 1", m_sshParams); // Does not succeed without terminal.
+            //m_timeoutTimer->start();
+            //m_remoteRunner->run("top -n 1", m_sshParams); // Does not succeed without terminal.
             break;
         }
         case TestingFailure: {
@@ -172,12 +173,12 @@ void RemoteProcess::handleProcessClosed(int exitStatus)
             if (exitCode == 0) {
                  qDebug() << "Error: exit code is zero, expected non-zero."
                      ;
-
+                earlyDisconnectFromHost();
                 return;
             }
             if (m_remoteStderr.isEmpty()) {
                  qDebug() << "Error: Command did not produce error output."  ;
-
+                earlyDisconnectFromHost();
                 return;
             }
 
@@ -192,10 +193,11 @@ void RemoteProcess::handleProcessClosed(int exitStatus)
             if (m_remoteRunner->processExitCode() == 0) {
                  qDebug() << "Error: Successful exit from process that was "
                     "supposed to crash."  ;
-                return;
+                 earlyDisconnectFromHost();
+                 return;
             } else {
                 // Some shells (e.g. mksh) don't report "killed", but just a non-zero exit code.
-                handleSuccessfulCrashTest();
+                 handleSuccessfulCrashTest();
             }
             break;
         case TestingTerminal: {
@@ -203,13 +205,13 @@ void RemoteProcess::handleProcessClosed(int exitStatus)
             if (exitCode != 0) {
                  qDebug() << "Error: exit code is " << exitCode
                     << ", expected zero."  ;
-
+                earlyDisconnectFromHost();
                 return;
             }
             if (m_remoteStdout.isEmpty()) {
                  qDebug() << "Error: Command did not produce output."
                      ;
-
+                earlyDisconnectFromHost();
                 return;
             }
             qDebug() << "Ok.\nTesting I/O device functionality... "  ;
@@ -274,10 +276,33 @@ void RemoteProcess::handleProcessClosed(int exitStatus)
         }
     }
 }
+void RemoteProcess::earlyDisconnectFromHost()
+{
+    qDebug() << "earlyDisconnectFromHost ";
+   // m_remoteRunner->cancel();
+    if (m_catProcess)
+    {
+        m_catProcess->close();
+    }
+    if (m_catProcess)
+    {
+        m_catProcess->close();
+    }
+    if (m_echoProcess)
+    {
+        m_echoProcess->close();
+    }
+    if (m_sshConnection)
+    {
+        m_sshConnection->disconnectFromHost();
+    }
+
+    m_timeoutTimer->stop();
+}
 
 void RemoteProcess::handleTimeout()
 {
-     qDebug() << "Error: Timeout waiting for progress."  ;
+     //qDebug() << "Error: Timeout waiting for progress."  ;
     return;
 }
 
@@ -306,7 +331,7 @@ void RemoteProcess::handleReadyRead()
         if (data != testString()) {
              qDebug() << "Testing of QIODevice functionality failed: Expected '"
                 << qPrintable(testString()) << "', got '" << qPrintable(data) << "'."  ;
-            qApp->exit(1);
+            return;
         }
         QSsh::SshRemoteProcessRunner * const killer = new QSsh::SshRemoteProcessRunner(this);
         killer->run("pkill -9 cat", m_sshParams);
@@ -314,6 +339,7 @@ void RemoteProcess::handleReadyRead()
     }
     case TestingProcessChannels:
         m_remoteData += m_echoProcess->readAll();
+        emit readyRead(m_remoteData);
         break;
     default:
         qFatal("%s: Unexpected state %d.", Q_FUNC_INFO, m_state);
@@ -326,7 +352,7 @@ void RemoteProcess::handleReadyReadStdout()
     Q_ASSERT(m_state == TestingProcessChannels);
 
      qDebug() << "Error: Received unexpected stdout data."  ;
-    qApp->exit(EXIT_FAILURE);
+    //qApp->exit(EXIT_FAILURE);
 }
 
 void RemoteProcess::handleReadyReadStderr()

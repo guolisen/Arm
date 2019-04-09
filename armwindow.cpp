@@ -12,12 +12,13 @@
 #include "settingdialog.h"
 #include "FileInfoModel/filemodelmgr.h"
 #include "FileInfoModel/remoteprocess.h"
+#include "consoledialog.h"
 
 ArmWindow::ArmWindow(core::ContextPtr context, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::ArmWindow), context_(context),
-    modelMgr_(new fileinfomodel::FileModelMgr(context_, this))
-
+    modelMgr_(new fileinfomodel::FileModelMgr(context_, this)),
+    consoleDialog_(new ConsoleDialog(this))
 {
     ui->setupUi(this);
     init();
@@ -57,11 +58,30 @@ void ArmWindow::handleConnectionError(const QString &errorMessage)
         tr("Fatal SSH error: %1").arg(errorMessage));
 }
 
+void ArmWindow::createRemoteProcess()
+{
+    QSsh::SshConnectionParameters sshParams;
+    sshParams.host = "192.168.0.101";
+    sshParams.userName = "guolisen";
+    sshParams.authenticationType = QSsh::SshConnectionParameters::AuthenticationByPassword;
+    //sshParams.privateKeyFile = "C:/Users/qq/.ssh/id_rsa";
+
+    sshParams.password = "lifesgood";
+    sshParams.port = 22;
+    sshParams.timeout = 100;
+
+    remoteProcess_ = new RemoteProcess(sshParams);
+    void readyRead(QByteArray data);
+    void processStdout(QByteArray data);
+    void processStderr(QByteArray data);
+    connect(remoteProcess_, &RemoteProcess::readyRead, this, &ArmWindow::handleReadyRead);
+    connect(remoteProcess_, &RemoteProcess::processStdout, this, &ArmWindow::handleStdOut);
+    connect(remoteProcess_, &RemoteProcess::processStderr, this, &ArmWindow::handleStdOut);
+}
+
 void ArmWindow::init()
 {
     setWindowTitle("Arm v0.1");
-
-    //ui->treeView->setModel(model_);
     ui->treeView->setAnimated(false);
     ui->treeView->setIndentation(20);
     ui->treeView->setSortingEnabled(false);
@@ -78,21 +98,21 @@ void ArmWindow::init()
 
     createMenu();
     createPopMenu();
+    createRemoteProcess();
 
-    QSsh::SshConnectionParameters sshParams;
-    sshParams.host = "192.168.0.101";
-    sshParams.userName = "guolisen";
-    sshParams.authenticationType = QSsh::SshConnectionParameters::AuthenticationByPassword;
-    //sshParams.privateKeyFile = "C:/Users/qq/.ssh/id_rsa";
-
-    sshParams.password = "lifesgood";
-    sshParams.port = 22;
-    sshParams.timeout = 100;
-
-    remoteProcess_ = new RemoteProcess(sshParams);
     editorPath_ = setting_.value("Arm/Setting/editorPath").toString();
     if (editorPath_.isEmpty())
         editorPath_ = QDir::cleanPath("C:/Program Files (x86)/Notepad++/notepad++.exe");
+}
+
+void ArmWindow::handleStdOut(QByteArray data)
+{
+    consoleDialog_->setMessageToEditor(QString::fromStdString(data.toStdString()));
+}
+
+void ArmWindow::handleReadyRead(QByteArray data)
+{
+//consoleDialog_->setMessageToEditor(QString::fromStdString(data.toStdString()));
 }
 
 void ArmWindow::findStringProcess(const QString& s)
@@ -144,7 +164,7 @@ void ArmWindow::uncompressInRemote()
     qDebug() << "uncompressInRemote: ";
     QModelIndex index = ui->treeView->currentIndex();
     QSsh::SftpFileNode* fn = static_cast<QSsh::SftpFileNode *>(index.internalPointer());
-
+    consoleDialog_->show();
     QString command = tr("dir %1").arg(fn->path);
     remoteProcess_->run(command);
 }
@@ -188,30 +208,34 @@ void ArmWindow::createMenu()
 
 void ArmWindow::on_treeView_doubleClicked(const QModelIndex &index)
 {
-     QString cacheFile = modelMgr_->createCacheFile(index);
+    if ( qApp->mouseButtons() == Qt::RightButton)
+        return;
 
-     QProcess* proc = new QProcess(this);
-     connect(proc, static_cast<void(QProcess::*)(int)>(&QProcess::finished),
-           [proc, cacheFile, this](int){
-           // QString command = "del " + QDir::cleanPath(cacheFileName);
-           //::system(command.toStdString().c_str());
-           // qWarning()<< command << " Clean cache"<< proc.use_count() << " " << test.use_count();
-           proc->close();
-     });
+    QString cacheFile = modelMgr_->createCacheFile(index);
 
-     qDebug() << "cacheFileName: " << cacheFile;
-     if (editorPath_.isEmpty())
-     {
-         QMessageBox::information(this, tr("Warning"), tr("Cannot Find Editor Path"));
-         return;
-     }
-     proc->start(editorPath_, {cacheFile});
+    QProcess* proc = new QProcess(this);
+    connect(proc, static_cast<void(QProcess::*)(int)>(&QProcess::finished),
+       [proc, cacheFile, this](int){
+       // QString command = "del " + QDir::cleanPath(cacheFileName);
+       //::system(command.toStdString().c_str());
+       // qWarning()<< command << " Clean cache"<< proc.use_count() << " " << test.use_count();
+       proc->close();
+    });
+
+    qDebug() << "cacheFileName: " << cacheFile;
+    if (editorPath_.isEmpty())
+    {
+        QMessageBox::information(this, tr("Warning"), tr("Cannot Find Editor Path"));
+        return;
+    }
+    proc->start(editorPath_, {cacheFile});
 }
 
 
 void ArmWindow::on_treeView_customContextMenuRequested(const QPoint &pos)
 {
+    if ( qApp->mouseButtons() == Qt::LeftButton)
+        return;
     qDebug() << "on_treeView_customContextMenuRequested: ";
-    rightPopMenu_->exec(mapToGlobal(pos));
-    //rightPopMenu_->exec(pos);
+    rightPopMenu_->popup(QCursor::pos());
 }

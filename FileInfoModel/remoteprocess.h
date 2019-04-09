@@ -46,6 +46,11 @@ public:
     ~RemoteProcess();
     void run(const QString& command);
 
+Q_SIGNALS:
+    void readyRead(QByteArray data);
+    void processStdout(QByteArray data);
+    void processStderr(QByteArray data);
+
 private slots:
     void handleConnectionError();
     void handleProcessStarted();
@@ -67,6 +72,7 @@ private:
     QString testString() const;
     void handleSuccessfulCrashTest();
     void handleSuccessfulIoTest();
+    void earlyDisconnectFromHost();
 
     const QSsh::SshConnectionParameters m_sshParams;
     QTimer * const m_timeoutTimer;
@@ -80,6 +86,7 @@ private:
     QByteArray m_remoteData;
     State m_state;
     bool m_started;
+
 };
 
 

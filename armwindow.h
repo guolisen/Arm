@@ -15,6 +15,7 @@ class ArmWindow;
 
 class QProcess;
 class QSettings;
+class ConsoleDialog;
 class ArmWindow : public QMainWindow
 {
     Q_OBJECT
@@ -29,17 +30,15 @@ public slots:
 
 private slots:
     void open();
-
+    void handleReadyRead(QByteArray data);
     void findStringProcess(const QString &s);
     void resizeColumn(const QString &path);
-    //void on_treeView_doubleClicked(const QModelIndex &index);
     void setting();
     void createPopMenu();
     void uncompressInRemote();
     void on_treeView_doubleClicked(const QModelIndex &index);
-
     void on_treeView_customContextMenuRequested(const QPoint &pos);
-
+    void handleStdOut(QByteArray data);
 private:
     void createMenu();
 
@@ -50,6 +49,8 @@ private:
     QSettings setting_;
     QMenu* rightPopMenu_;
     RemoteProcess* remoteProcess_;
+    ConsoleDialog* consoleDialog_;
+    void createRemoteProcess();
 };
 
 #endif // ARMWINDOW_H
