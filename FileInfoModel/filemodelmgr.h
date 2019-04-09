@@ -10,6 +10,7 @@
 #include "localfilemodel.h"
 #include "sftpfilemodel.h"
 
+class QProgressDialog;
 namespace fileinfomodel
 {
 
@@ -44,7 +45,7 @@ public slots:
     void handleSftpOperationFinished(QSsh::SftpJobId jobId, const QString &error);
     void handleConnectionError(const QString &errorMessage);
     void handleConnectionSuccess();
-
+    void handleDownloadPrograss(quint64 current, quint64 total);
 private:
     bool isRemote(const QString &path);
     void setRootLocalPath(const QString& path, QTreeView* tree);
@@ -63,6 +64,7 @@ private:
     QTreeView* treeView_;
     QSsh::SftpJobId downloadId_;
     QString downloadError_;
+    QProgressDialog* pd_;
 };
 
 }

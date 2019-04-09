@@ -80,7 +80,8 @@ SOURCES += \
     FileInfoModel/localreadtimejob.cpp \
     FileInfoModel/localfilemodel.cpp \
     FileInfoModel/sftpfilemodel.cpp \
-    FileInfoModel/sftpmgr.cpp
+    FileInfoModel/sftpmgr.cpp \
+    FileInfoModel/remoteprocess.cpp
 
 
 HEADERS += \
@@ -153,7 +154,8 @@ HEADERS += \
     FileInfoModel/ifilemodel.h \
     FileInfoModel/localfilemodel.h \
     FileInfoModel/sftpfilemodel.h \
-    FileInfoModel/sftpmgr.h
+    FileInfoModel/sftpmgr.h \
+    FileInfoModel/remoteprocess.h
 
 FORMS += \
     armwindow.ui \

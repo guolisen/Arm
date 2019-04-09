@@ -10,6 +10,7 @@
 #include "localfilemodel.h"
 #include "sftpfilemodel.h"
 #include "FileInfoModel/uncompressfilecache.h"
+#include <QProgressDialog>
 
 namespace fileinfomodel
 {
@@ -28,6 +29,18 @@ void FileModelMgr::directoryLoaded(const QString &path)
     emit directoryLoadedWrapper(path);
 }
 
+void FileModelMgr::createProgressBar()
+{
+    pd_ = new QProgressDialog("", "", 0, 100);
+    pd_->reset();
+    pd_->setWindowModality(Qt::WindowModal);
+    pd_->setMinimumDuration(5);
+    pd_->setWindowTitle("Downloading...");
+    pd_->setAutoClose(true);
+    pd_->setModal(true);
+    pd_->setCancelButton(nullptr);
+}
+
 bool FileModelMgr::init()
 {
     connect(localFSModel_, &LocalFileModelType::directoryLoaded,
@@ -35,20 +48,28 @@ bool FileModelMgr::init()
     {
         directoryLoaded(path);
     });
-#if 1
+
     connect(remoteFSModel_, &RemoteFileModelType::dataChanged,
             this, [this](const QModelIndex &srcindex, const QModelIndex &destindex)
     {
         directoryLoaded("");
     });
-#endif
+
     connect(remoteFSModel_, SIGNAL(sftpOperationFinished(QSsh::SftpJobId,QString)),
         SLOT(handleSftpOperationFinished(QSsh::SftpJobId,QString)));
     connect(remoteFSModel_, SIGNAL(sftpOperationFailed(QString)), SLOT(handleSftpOperationFailed(QString)));
     connect(remoteFSModel_, SIGNAL(connectionError(QString)), SLOT(handleConnectionError(QString)));
     connect(remoteFSModel_, SIGNAL(connectionSuccess()), SLOT(handleConnectionSuccess()));
+    connect(remoteFSModel_, SIGNAL(downloadPrograss(quint64, quint64)), SLOT(handleDownloadPrograss(quint64, quint64)));
+
+    createProgressBar();
 
     return true;
+}
+void FileModelMgr::handleDownloadPrograss(quint64 current, quint64 total)
+{
+    qDebug() << "handleDownloadPrograss " << current << " " << total;
+    pd_->setValue(current);
 }
 
 void FileModelMgr::setRootPath(const QString &path, QTreeView* tree)
@@ -143,6 +164,7 @@ void FileModelMgr::handleSftpOperationFinished(QSsh::SftpJobId jobId, const QStr
     if(downloadId_ == jobId)
     {
         qDebug() << "1downloadAsync OK! " << error;
+        pd_->hide();
         downloadError_ = error;
         emit downloadFinished();
         return;
@@ -179,6 +201,10 @@ QString FileModelMgr::createCacheFile(const QModelIndex &index)
         const RemoteFileModelType* remoteModel =
                 dynamic_cast<const RemoteFileModelType*>(index.model());
         QSsh::SftpFileNode* fn = static_cast<QSsh::SftpFileNode *>(index.internalPointer());
+        pd_->setMaximum(fn->fileInfo.size);
+        pd_->setMinimum(0);
+        pd_->setLabelText(fn->fileInfo.name);
+        pd_->show();
         localFile = fileCache.getCacheFileName(fn->fileInfo.name);
         if (downloadAsync(index, localFile) < 0)
         {

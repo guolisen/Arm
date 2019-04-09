@@ -11,6 +11,7 @@
 #include "folderopendialog.h"
 #include "settingdialog.h"
 #include "FileInfoModel/filemodelmgr.h"
+#include "FileInfoModel/remoteprocess.h"
 
 ArmWindow::ArmWindow(core::ContextPtr context, QWidget *parent) :
     QMainWindow(parent),
@@ -76,7 +77,19 @@ void ArmWindow::init()
         SLOT(handleSftpOperationFinished(QString)));
 
     createMenu();
+    createPopMenu();
 
+    QSsh::SshConnectionParameters sshParams;
+    sshParams.host = "192.168.0.101";
+    sshParams.userName = "guolisen";
+    sshParams.authenticationType = QSsh::SshConnectionParameters::AuthenticationByPassword;
+    //sshParams.privateKeyFile = "C:/Users/qq/.ssh/id_rsa";
+
+    sshParams.password = "lifesgood";
+    sshParams.port = 22;
+    sshParams.timeout = 100;
+
+    remoteProcess_ = new RemoteProcess(sshParams);
     editorPath_ = setting_.value("Arm/Setting/editorPath").toString();
     if (editorPath_.isEmpty())
         editorPath_ = QDir::cleanPath("C:/Program Files (x86)/Notepad++/notepad++.exe");
@@ -119,6 +132,21 @@ void ArmWindow::setting()
         if (editorPath_.isEmpty())
             editorPath_ = QDir::cleanPath("C:/Program Files (x86)/Notepad++/notepad++.exe");
     }
+}
+void ArmWindow::createPopMenu()
+{
+    rightPopMenu_ = new QMenu(this);
+    rightPopMenu_->addAction(tr("&Uncompress on Site"), this, SLOT(uncompressInRemote()));
+}
+
+void ArmWindow::uncompressInRemote()
+{
+    qDebug() << "uncompressInRemote: ";
+    QModelIndex index = ui->treeView->currentIndex();
+    QSsh::SftpFileNode* fn = static_cast<QSsh::SftpFileNode *>(index.internalPointer());
+
+    QString command = tr("dir %1").arg(fn->path);
+    remoteProcess_->run(command);
 }
 
 void ArmWindow::createMenu()
@@ -178,4 +206,12 @@ void ArmWindow::on_treeView_doubleClicked(const QModelIndex &index)
          return;
      }
      proc->start(editorPath_, {cacheFile});
+}
+
+
+void ArmWindow::on_treeView_customContextMenuRequested(const QPoint &pos)
+{
+    qDebug() << "on_treeView_customContextMenuRequested: ";
+    rightPopMenu_->exec(mapToGlobal(pos));
+    //rightPopMenu_->exec(pos);
 }

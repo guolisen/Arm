@@ -2,10 +2,12 @@
 #define ARMWINDOW_H
 
 #include <QDebug>
+#include <QMenu>
 #include <QMainWindow>
 #include <Core/appcontext.h>
 #include <FileInfoModel/filemodelmgr.h>
 #include <QSettings>
+#include "FileInfoModel/remoteprocess.h"
 
 namespace Ui {
 class ArmWindow;
@@ -32,8 +34,11 @@ private slots:
     void resizeColumn(const QString &path);
     //void on_treeView_doubleClicked(const QModelIndex &index);
     void setting();
-
+    void createPopMenu();
+    void uncompressInRemote();
     void on_treeView_doubleClicked(const QModelIndex &index);
+
+    void on_treeView_customContextMenuRequested(const QPoint &pos);
 
 private:
     void createMenu();
@@ -43,6 +48,8 @@ private:
     fileinfomodel::FileModelMgr* modelMgr_;
     QString editorPath_;
     QSettings setting_;
+    QMenu* rightPopMenu_;
+    RemoteProcess* remoteProcess_;
 };
 
 #endif // ARMWINDOW_H
