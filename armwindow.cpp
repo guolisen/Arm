@@ -18,7 +18,8 @@ ArmWindow::ArmWindow(core::ContextPtr context, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::ArmWindow), context_(context),
     modelMgr_(new fileinfomodel::FileModelMgr(context_, this)),
-    consoleDialog_(new ConsoleDialog(this))
+    consoleDialog_(new ConsoleDialog(this)),
+    configMgrPtr_(context->getComponent<core::IConfigMgr>(nullptr))
 {
     ui->setupUi(this);
     init();
@@ -60,15 +61,8 @@ void ArmWindow::handleConnectionError(const QString &errorMessage)
 
 void ArmWindow::createRemoteProcess()
 {
-    QSsh::SshConnectionParameters sshParams;
-    sshParams.host = "192.168.0.101";
-    sshParams.userName = "guolisen";
-    sshParams.authenticationType = QSsh::SshConnectionParameters::AuthenticationByPassword;
-    //sshParams.privateKeyFile = "C:/Users/qq/.ssh/id_rsa";
-
-    sshParams.password = "lifesgood";
-    sshParams.port = 22;
-    sshParams.timeout = 100;
+    core::ConfigMgrPtr config = context_->getComponent<core::IConfigMgr>(nullptr);
+    QSsh::SshConnectionParameters sshParams = config->getSshParameters();
 
     remoteProcess_ = new RemoteProcess(sshParams);
     void readyRead(QByteArray data);
@@ -100,7 +94,7 @@ void ArmWindow::init()
     createPopMenu();
     createRemoteProcess();
 
-    editorPath_ = setting_.value("Arm/Setting/editorPath").toString();
+    editorPath_ = configMgrPtr_->getConfigInfo("Arm/Setting/editorPath").toString();
     if (editorPath_.isEmpty())
         editorPath_ = QDir::cleanPath("C:/Program Files (x86)/Notepad++/notepad++.exe");
 }
@@ -145,10 +139,10 @@ void ArmWindow::open()
 
 void ArmWindow::setting()
 {
-    SettingDialog settingDialog(this);
+    SettingDialog settingDialog(context_, this);
     if (settingDialog.exec() == QDialog::Accepted)
     {
-        editorPath_ = setting_.value("Arm/Setting/editorPath").toString();
+        editorPath_ = configMgrPtr_->getConfigInfo("Arm/Setting/editorPath").toString();
         if (editorPath_.isEmpty())
             editorPath_ = QDir::cleanPath("C:/Program Files (x86)/Notepad++/notepad++.exe");
     }

@@ -4,6 +4,8 @@
 #include <memory>
 #include <QObject>
 #include <QVariant>
+#include <ssh/sftpfilesystemmodel.h>
+#include <ssh/sshconnection.h>
 
 namespace core
 {
@@ -17,6 +19,7 @@ public:
 
     virtual QVariant getConfigInfo(const QString& key) = 0;
     virtual void setConfigInfo(const QString& key, const QVariant& value) = 0;
+    virtual QSsh::SshConnectionParameters getSshParameters() = 0;
 };
 
 typedef std::shared_ptr<IConfigMgr> ConfigMgrPtr;

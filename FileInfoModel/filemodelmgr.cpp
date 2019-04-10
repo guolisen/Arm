@@ -39,6 +39,7 @@ void FileModelMgr::createProgressBar()
     pd_->setAutoClose(true);
     pd_->setModal(true);
     pd_->setCancelButton(nullptr);
+    pd_->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
 }
 
 bool FileModelMgr::init()
@@ -117,16 +118,8 @@ void FileModelMgr::setRootRemotePath(const QString& path, QTreeView* tree)
 
     if(!isRemoteConnected_)
     {
-        QSsh::SshConnectionParameters sshParams;
-        sshParams.host = "192.168.0.101";
-        sshParams.userName = "guolisen";
-        sshParams.authenticationType = QSsh::SshConnectionParameters::AuthenticationByPassword;
-        //sshParams.privateKeyFile = "C:/Users/qq/.ssh/id_rsa";
-
-        sshParams.password = "lifesgood";
-        sshParams.port = 22;
-        sshParams.timeout = 100;
-
+        core::ConfigMgrPtr config = context_->getComponent<core::IConfigMgr>(nullptr);
+        QSsh::SshConnectionParameters sshParams = config->getSshParameters();
         remoteFSModel_->setSshConnection(sshParams);
         isRemoteConnected_ = true;
     }

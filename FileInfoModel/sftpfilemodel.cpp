@@ -12,7 +12,7 @@ SftpFileModel::SftpFileModel(core::ContextPtr context, QAbstractItemModel* model
     fileIdentifier_(context->getComponent<fileIdentifier::IFileIdentifier>(nullptr)),
     pool_(new QThreadPool(this))
 {
-    pool_->setMaxThreadCount(5);
+    pool_->setMaxThreadCount(3);
 }
 
 QString SftpFileModel::getLogStartTimeStr(const QModelIndex &index)
@@ -34,7 +34,7 @@ QString SftpFileModel::getLogStartTimeStr(const QModelIndex &index)
 
     auto setCacheFunc = std::bind(&RemoteFileSystemType::setCache, fileSystem,
                                   std::placeholders::_1, std::placeholders::_2);
-    SftpReadTimeJob* readTimeJobPtr = new SftpReadTimeJob(model_,
+    SftpReadTimeJob* readTimeJobPtr = new SftpReadTimeJob(context_, model_,
                 index, fn->path, fileTypeObj, setCacheFunc);
 
     connect(readTimeJobPtr, &SftpReadTimeJob::dataChanged, this,

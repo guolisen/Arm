@@ -3,6 +3,8 @@
 
 #include <QObject>
 #include "iconfigmgr.h"
+#include <ssh/sftpfilesystemmodel.h>
+#include <ssh/sshconnection.h>
 
 class QSettings;
 namespace core
@@ -17,6 +19,7 @@ public:
     virtual QVariant getConfigInfo(const QString& key);
     virtual void setConfigInfo(const QString& key, const QVariant& value);
 
+    virtual QSsh::SshConnectionParameters getSshParameters();
 private:
     QSettings* setting_;
 };

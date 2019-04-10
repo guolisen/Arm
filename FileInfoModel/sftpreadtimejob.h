@@ -19,7 +19,7 @@ class SftpReadTimeJob : public QObject, public QRunnable
 {
     Q_OBJECT
 public:
-    SftpReadTimeJob(QAbstractItemModel* model, const QModelIndex& index, const QString& fullFileName, fileIdentifier::FileObjectPtr typeObj,
+    SftpReadTimeJob(core::ContextPtr context, QAbstractItemModel* model, const QModelIndex& index, const QString& fullFileName, fileIdentifier::FileObjectPtr typeObj,
                 SetCacheCallBack setCache);
     virtual void run();
 
@@ -35,6 +35,7 @@ private:
     QByteArray uncompressData();
 
 private:
+    core::ContextPtr context_;
     QAbstractItemModel* model_;
     QString fullFileName_;
     fileIdentifier::FileObjectPtr typeObj_;

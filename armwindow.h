@@ -41,16 +41,16 @@ private slots:
     void handleStdOut(QByteArray data);
 private:
     void createMenu();
+    void createRemoteProcess();
 
     Ui::ArmWindow *ui;
     core::ContextPtr context_;
     fileinfomodel::FileModelMgr* modelMgr_;
     QString editorPath_;
-    QSettings setting_;
     QMenu* rightPopMenu_;
     RemoteProcess* remoteProcess_;
     ConsoleDialog* consoleDialog_;
-    void createRemoteProcess();
+    core::ConfigMgrPtr configMgrPtr_;
 };
 
 #endif // ARMWINDOW_H

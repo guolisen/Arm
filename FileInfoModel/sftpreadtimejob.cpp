@@ -11,6 +11,8 @@
 #include <quagzipfile.h>
 #include "sftpreadtimejob.h"
 #include <zlib.h>
+#include <Core/appcontext.h>
+#include <Core/iconfigmgr.h>
 
 namespace fileinfomodel
 {
@@ -54,11 +56,11 @@ static int gzdecompress(Byte *zdata, uLong nzdata,
     return 0;
 }
 
-SftpReadTimeJob::SftpReadTimeJob(QAbstractItemModel* model,
+SftpReadTimeJob::SftpReadTimeJob(core::ContextPtr context, QAbstractItemModel* model,
                                  const QModelIndex& index,
                                  const QString& fullFileName,
                                  fileIdentifier::FileObjectPtr typeObj,
-                                 SetCacheCallBack setCache):
+                                 SetCacheCallBack setCache): context_(context),
                                  model_(model), fullFileName_(fullFileName), typeObj_(typeObj),
                                  setCache_(setCache), index_(index), buffer_(new QBuffer()),
                                  currentId_(0)
@@ -141,15 +143,8 @@ QByteArray SftpReadTimeJob::uncompressData()
 
 void SftpReadTimeJob::run()
 {
-    QSsh::SshConnectionParameters sshParams;
-    sshParams.host = "192.168.0.101";
-    sshParams.userName = "guolisen";
-    sshParams.authenticationType = QSsh::SshConnectionParameters::AuthenticationByPassword;
-    //sshParams.privateKeyFile = "C:/Users/qq/.ssh/id_rsa";
-
-    sshParams.password = "lifesgood";
-    sshParams.port = 22;
-    sshParams.timeout = 5000;
+    core::ConfigMgrPtr config = context_->getComponent<core::IConfigMgr>(nullptr);
+    QSsh::SshConnectionParameters sshParams = config->getSshParameters();
 
     sftpMgr_ = new SftpMgr(sshParams);
     connect(sftpMgr_, &SftpMgr::connectHostSuccess, this, &SftpReadTimeJob::connectHostProcess);

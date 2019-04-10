@@ -39,7 +39,7 @@
          <bool>true</bool>
         </property>
         <property name="currentText">
-         <string>*ktrace*</string>
+         <string/>
         </property>
         <item>
          <property name="text">
