@@ -19,7 +19,7 @@ FileModelMgr::FileModelMgr(core::ContextPtr context, QObject* parent):  QObject(
     isRemoteConnected_(false),
     localFSModel_(new LocalFileModelType(context, nullptr, this)),
     remoteFSModel_(new RemoteFileModelType(context, nullptr, this)),
-    currentModel_(nullptr), context_(context), downloadId_(0)
+    currentModel_(nullptr), context_(context), downloadId_(0), rootPath_("/")
 {
     init();
 }
@@ -75,6 +75,8 @@ void FileModelMgr::handleDownloadPrograss(quint64 current, quint64 total)
 
 void FileModelMgr::setRootPath(const QString &path, QTreeView* tree)
 {
+    rootPath_ = path;
+    treeView_ = tree;
     if (isRemote(path))
     {
         setRootRemotePath(path, tree);
@@ -111,8 +113,6 @@ void FileModelMgr::setRootLocalPath(const QString& path, QTreeView* tree)
 
 void FileModelMgr::setRootRemotePath(const QString& path, QTreeView* tree)
 {
-    rootPath_ = path;
-    treeView_ = tree;
     currentModel_ = remoteFSModel_;
     tree->setModel(currentModel_);
 

@@ -13,6 +13,7 @@
 #include "FileInfoModel/filemodelmgr.h"
 #include "FileInfoModel/remoteprocess.h"
 #include "consoledialog.h"
+#include "remotecommanddialog.h"
 
 ArmWindow::ArmWindow(core::ContextPtr context, QWidget *parent) :
     QMainWindow(parent),
@@ -158,8 +159,32 @@ void ArmWindow::uncompressInRemote()
     qDebug() << "uncompressInRemote: ";
     QModelIndex index = ui->treeView->currentIndex();
     QSsh::SftpFileNode* fn = static_cast<QSsh::SftpFileNode *>(index.internalPointer());
+    QString rootPath = modelMgr_->getRootPath();
+    RemoteCommandDialog remoteDialog(this);
+    if (fn->fileInfo.name.contains(".gz"))
+    {
+        remoteDialog.setCommand("gunzip " + rootPath + fn->path);
+    }
+    else if (fn->fileInfo.name.contains(".zip"))
+    {
+        remoteDialog.setCommand("unzip -o -d ./ " + rootPath + fn->path);
+    }
+    else if (fn->fileInfo.name.contains(".tar"))
+    {
+        remoteDialog.setCommand("tar xvf " + rootPath + fn->path);
+    }
+    else if (fn->fileInfo.name.contains(".tgz"))
+    {
+        remoteDialog.setCommand("tar xvzf " + rootPath + fn->path);
+    }
+
+    if (remoteDialog.exec() != QDialog::Accepted)
+    {
+        return;
+    }
+
+    QString command = remoteDialog.getCommand();
     consoleDialog_->show();
-    QString command = tr("dir %1").arg(fn->path);
     remoteProcess_->run(command);
 }
 
@@ -231,5 +256,13 @@ void ArmWindow::on_treeView_customContextMenuRequested(const QPoint &pos)
     if ( qApp->mouseButtons() == Qt::LeftButton)
         return;
     qDebug() << "on_treeView_customContextMenuRequested: ";
-    rightPopMenu_->popup(QCursor::pos());
+    QModelIndex index = ui->treeView->currentIndex();
+    QSsh::SftpFileNode* fn = static_cast<QSsh::SftpFileNode *>(index.internalPointer());
+
+    if (fn->fileInfo.name.contains(".gz") || fn->fileInfo.name.contains(".zip") ||
+            fn->fileInfo.name.contains(".tar") ||
+            fn->fileInfo.name.contains(".tgz"))
+    {
+        rightPopMenu_->popup(QCursor::pos());
+    }
 }

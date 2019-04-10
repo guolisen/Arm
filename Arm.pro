@@ -82,7 +82,8 @@ SOURCES += \
     FileInfoModel/sftpfilemodel.cpp \
     FileInfoModel/sftpmgr.cpp \
     FileInfoModel/remoteprocess.cpp \
-    consoledialog.cpp
+    consoledialog.cpp \
+    remotecommanddialog.cpp
 
 
 HEADERS += \
@@ -157,14 +158,16 @@ HEADERS += \
     FileInfoModel/sftpfilemodel.h \
     FileInfoModel/sftpmgr.h \
     FileInfoModel/remoteprocess.h \
-    consoledialog.h
+    consoledialog.h \
+    remotecommanddialog.h
 
 FORMS += \
     armwindow.ui \
     aboutdialog.ui \
     folderopendialog.ui \
     settingdialog.ui \
-    consoledialog.ui
+    consoledialog.ui \
+    remotecommanddialog.ui
 
 #INCLUDEPATH += Thirdparty/Lua/src \
 #               C:/Code/qt/Quazip/quazip/quazip \

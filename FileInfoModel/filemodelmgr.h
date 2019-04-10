@@ -30,6 +30,10 @@ public:
     FileModelMgr(core::ContextPtr context, QObject* parent = nullptr);
     bool init();
     void setRootPath(const QString &path, QTreeView* tree);
+    QString getRootPath() const
+    {
+        return rootPath_;
+    }
     QAbstractItemModel *getModel();
     QString createCacheFile(const QModelIndex &index);
 Q_SIGNALS:
@@ -52,7 +56,7 @@ private:
     void setRootRemotePath(const QString &path, QTreeView* tree);
 
     int downloadAsync(const QModelIndex &index, const QString &targetFilePath);
-
+    void createProgressBar();
 private:
     FileModelType currentModeType_;
     bool isRemoteConnected_;
@@ -65,7 +69,6 @@ private:
     QSsh::SftpJobId downloadId_;
     QString downloadError_;
     QProgressDialog* pd_;
-    void createProgressBar();
 };
 
 }
