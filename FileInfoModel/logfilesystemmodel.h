@@ -32,7 +32,7 @@ public:
         //pool_->complete(-1);
     }
 public:
-
+    mutable int columnSize_;
     virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override
     {
         if(!index.isValid())
@@ -86,10 +86,6 @@ public:
         fileModel_->setCurrentDir(path, tree);
     }
 
-    void dataTrigger(const QModelIndex &index)
-    {
-        emit dataChanged(index, index);
-    }
     IFileModel* getModel()
     {
         return fileModel_;

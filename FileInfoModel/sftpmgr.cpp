@@ -40,7 +40,6 @@ void SftpMgr::handleConnected()
 {
     qDebug() << "Connected. Initializing SFTP channel...";
     m_channel = m_connection->createSftpChannel();
-    qDebug() << "1...";
     connect(m_channel.data(), SIGNAL(initialized()), this,
        SLOT(handleChannelInitialized()));
     connect(m_channel.data(), SIGNAL(initializationFailed(QString)), this,
@@ -54,7 +53,6 @@ void SftpMgr::handleConnected()
         SLOT(handleChannelClosed()));
 
     m_channel->initialize();
-    qDebug() << "12...";
 }
 
 void SftpMgr::handleError()

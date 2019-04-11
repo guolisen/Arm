@@ -51,6 +51,15 @@ RemoteProcess::RemoteProcess(const SshConnectionParameters &params)
 {
     m_timeoutTimer->setInterval(5000);
     connect(m_timeoutTimer, SIGNAL(timeout()), SLOT(handleTimeout()));
+
+    connect(m_remoteRunner, SIGNAL(connectionError()),
+        SLOT(handleConnectionError()));
+    connect(m_remoteRunner, SIGNAL(processStarted()),
+        SLOT(handleProcessStarted()));
+    connect(m_remoteRunner, SIGNAL(readyReadStandardOutput()), SLOT(handleProcessStdout()));
+    connect(m_remoteRunner, SIGNAL(readyReadStandardError()), SLOT(handleProcessStderr()));
+    connect(m_remoteRunner, SIGNAL(processClosed(int)),
+        SLOT(handleProcessClosed(int)));
 }
 
 RemoteProcess::~RemoteProcess()
@@ -60,20 +69,10 @@ RemoteProcess::~RemoteProcess()
 
 void RemoteProcess::run(const QString& command)
 {
-    connect(m_remoteRunner, SIGNAL(connectionError()),
-        SLOT(handleConnectionError()));
-    connect(m_remoteRunner, SIGNAL(processStarted()),
-        SLOT(handleProcessStarted()));
-    connect(m_remoteRunner, SIGNAL(readyReadStandardOutput()), SLOT(handleProcessStdout()));
-    connect(m_remoteRunner, SIGNAL(readyReadStandardError()), SLOT(handleProcessStderr()));
-    connect(m_remoteRunner, SIGNAL(processClosed(int)),
-        SLOT(handleProcessClosed(int)));
-
-    qDebug() << "Testing successful remote process... "  ;
+    qDebug() << "Starting remote process... " << QByteArray::fromStdString(command.toStdString());
     m_state = TestingSuccess;
     m_started = false;
     m_timeoutTimer->start();
-
     m_remoteRunner->run(QByteArray::fromStdString(command.toStdString()), m_sshParams);
 }
 

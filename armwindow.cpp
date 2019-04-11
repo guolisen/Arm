@@ -39,23 +39,18 @@ ArmWindow::~ArmWindow()
 
 void ArmWindow::resizeColumn(const QString &path)
 {
-    qDebug() << "1111111111111111111111111111111111111";
-        QAbstractItemModel* model = modelMgr_->getModel();
-
-
+    if (modelMgr_->getCurrentModeType() == fileinfomodel::RemoteFileSystemModel)
+        return;
+    qDebug() << "resizeColumn";
+    QAbstractItemModel* model = modelMgr_->getModel();
     for (int column = 0; column < model->columnCount(); ++column)
         ui->treeView->resizeColumnToContents(column);
-    ui->treeView->update();
 }
 
-
-void ArmWindow::updateColumn(const QString &path)
+void ArmWindow::updateColumn(const QModelIndex& index)
 {
-    qDebug() << "22222222222222222222222222222222222222222 ";
-        QAbstractItemModel* model = modelMgr_->getModel();
-
-    //ui->treeView->resizeColumnToContents(model->columnCount());
-    //ui->treeView->update();
+    qDebug() << "updateColumn" << index.column();
+    ui->treeView->resizeColumnToContents(index.column());
 }
 
 void ArmWindow::handleSftpOperationFailed(const QString &errorMessage)
@@ -65,6 +60,7 @@ void ArmWindow::handleSftpOperationFailed(const QString &errorMessage)
 
 void ArmWindow::handleSftpOperationFinished(const QString &error)
 {
+    ui->treeView->resizeColumnToContents(0);
     statusBar()->showMessage(error);
 }
 
@@ -93,7 +89,7 @@ void ArmWindow::init()
     setWindowTitle("Arm v0.1");
     ui->treeView->setAnimated(false);
     ui->treeView->setIndentation(20);
-    ui->treeView->setSortingEnabled(false);
+    ui->treeView->setSortingEnabled(true);
     ui->treeView->setWindowTitle(QObject::tr("Arm"));
 
     connect(ui->comboBox, &QComboBox::editTextChanged, this, &ArmWindow::findStringProcess);
@@ -150,7 +146,7 @@ void ArmWindow::open()
     qDebug() << fileName;
 
     modelMgr_->setRootPath(QDir::cleanPath(fileName), ui->treeView);
-    setWindowTitle("Arm v0.1 " + fileName);
+    setWindowTitle("Arm v0.2 " + fileName);
 }
 
 void ArmWindow::setting()
@@ -262,6 +258,12 @@ void ArmWindow::on_treeView_doubleClicked(const QModelIndex &index)
         QMessageBox::information(this, tr("Warning"), tr("Cannot Find Editor Path"));
         return;
     }
+    QFileInfo editorFi(editorPath_);
+    if (!editorFi.isExecutable())
+    {
+        QMessageBox::information(this, tr("Warning"), tr("The Editor doesn't exist, Please set again in Setting Panel."));
+        return;
+    }
     proc->start(editorPath_, {cacheFile});
 }
 
@@ -271,7 +273,8 @@ void ArmWindow::on_treeView_customContextMenuRequested(const QPoint &pos)
     if ( qApp->mouseButtons() == Qt::LeftButton)
         return;
     qDebug() << "on_treeView_customContextMenuRequested: ";
-    QModelIndex index = ui->treeView->currentIndex();
+    //QModelIndex index = ui->treeView->currentIndex();
+    QModelIndex index = ui->treeView->indexAt(pos);
     QSsh::SftpFileNode* fn = static_cast<QSsh::SftpFileNode *>(index.internalPointer());
 
     if (fn->fileInfo.name.contains(".gz") || fn->fileInfo.name.contains(".zip") ||

@@ -81,7 +81,7 @@ void SftpReadTimeJob::connectHostProcess()
     buffer_->open(QBuffer::ReadWrite);
 
     QSsh::SftpFileNode* fileNode = static_cast<QSsh::SftpFileNode *>(index_.internalPointer());
-    QMetaObject::invokeMethod(sftpMgr_, std::bind(&fileinfomodel::SftpMgr::download, sftpMgr_, fileNode->path, buffer_, 500));
+    QMetaObject::invokeMethod(sftpMgr_, std::bind(&fileinfomodel::SftpMgr::download, sftpMgr_, fileNode->path, buffer_, 150));
 }
 
 void SftpReadTimeJob::handleSftpOperationFinished(QSsh::SftpJobId jobId, QString error)
@@ -156,9 +156,8 @@ void SftpReadTimeJob::run()
     QEventLoop loop;
     connect(this, &SftpReadTimeJob::jobfinished, &loop, &QEventLoop::quit);
     loop.exec();
-    RemoteFileSystemType* remoteModel = dynamic_cast<RemoteFileSystemType*>(model_);
+
     emit dataChanged(index_);
-    //remoteModel->dataTrigger(index_);
     sftpMgr_->disconnectToHost();
     qDebug() << "Thread Out!";
 }

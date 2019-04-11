@@ -19,8 +19,10 @@ void MessageOutput(QtMsgType type,const QMessageLogContext& context,const QStrin
 {
     QMutexLocker locker(&messageMutex);
     QString txtMessage;
-    txtMessage += QString("[%1][%2][%3]")
+
+    txtMessage += QString("[%1][%2][%3][%4]")
             .arg(QTime::currentTime().toString("hh:mm:ss.zzz"))
+            .arg((int)QThread::currentThreadId())
             .arg(context.file)
             .arg(context.function);
     switch (type) {

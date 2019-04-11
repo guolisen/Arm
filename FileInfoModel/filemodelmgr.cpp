@@ -49,17 +49,14 @@ bool FileModelMgr::init()
     {
         emit directoryLoadedWrapper(path);
     });
-
     connect(remoteFSModel_->getModel(), &IFileModel::dataChanged,
             this, [this](const QModelIndex &index)
     {
-        emit directoryUpdateWrapper("");
+        emit directoryUpdateWrapper(index);
     });
-
-    connect(remoteFSModel_, &RemoteFileModelType::layoutChanged,
+    connect(remoteFSModel_, &QAbstractItemModel::layoutChanged,
             this, [this]()
     {
-        qDebug() << "RemoteFileModelType::layoutChanged: ";
         emit directoryLoadedWrapper("");
     });
 
@@ -135,7 +132,6 @@ void FileModelMgr::setRootRemotePath(const QString& path, QTreeView* tree)
         remoteFSModel_->setCurrentDir(rootPath_, treeView_);
     }
 
-    // /disks/USD_dumps21/ARs/0992000-0992999/992710
     qDebug() << "FileModelContainer::setRootRemotePath " << path;
 }
 
@@ -159,18 +155,19 @@ void FileModelMgr::handleSftpOperationFinished(QSsh::SftpJobId jobId, const QStr
     else
         message = tr("Operation %1 failed: %2.").arg(jobId).arg(error);
 
-    qDebug() << "FileModelContainer::handleSftpOperationFinished " << message;
+    qDebug() << "FileModelMgr::handleSftpOperationFinished " << message;
 
     if(downloadId_ == jobId)
     {
         qDebug() << "1downloadAsync OK! " << error;
         pd_->hide();
         downloadError_ = error;
+        downloadId_ = 0;
         emit downloadFinished();
         return;
     }
 
-    emit directoryLoadedWrapper("");
+    emit sftpOperationFinished(error);
 }
 
 void FileModelMgr::handleConnectionError(const QString &errorMessage)
