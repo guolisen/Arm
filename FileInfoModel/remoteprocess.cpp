@@ -283,10 +283,6 @@ void RemoteProcess::earlyDisconnectFromHost()
     {
         m_catProcess->close();
     }
-    if (m_catProcess)
-    {
-        m_catProcess->close();
-    }
     if (m_echoProcess)
     {
         m_echoProcess->close();
