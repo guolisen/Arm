@@ -39,9 +39,23 @@ ArmWindow::~ArmWindow()
 
 void ArmWindow::resizeColumn(const QString &path)
 {
-    QAbstractItemModel* model = modelMgr_->getModel();
+    qDebug() << "1111111111111111111111111111111111111";
+        QAbstractItemModel* model = modelMgr_->getModel();
+
+
     for (int column = 0; column < model->columnCount(); ++column)
         ui->treeView->resizeColumnToContents(column);
+    ui->treeView->update();
+}
+
+
+void ArmWindow::updateColumn(const QString &path)
+{
+    qDebug() << "22222222222222222222222222222222222222222 ";
+        QAbstractItemModel* model = modelMgr_->getModel();
+
+    //ui->treeView->resizeColumnToContents(model->columnCount());
+    //ui->treeView->update();
 }
 
 void ArmWindow::handleSftpOperationFailed(const QString &errorMessage)
@@ -84,6 +98,7 @@ void ArmWindow::init()
 
     connect(ui->comboBox, &QComboBox::editTextChanged, this, &ArmWindow::findStringProcess);
     connect(modelMgr_, &fileinfomodel::FileModelMgr::directoryLoadedWrapper, this, &ArmWindow::resizeColumn);
+    connect(modelMgr_, &fileinfomodel::FileModelMgr::directoryUpdateWrapper, this, &ArmWindow::updateColumn);
 
     connect(modelMgr_, SIGNAL(sftpOperationFailed(QString)),
         SLOT(handleSftpOperationFailed(QString)));

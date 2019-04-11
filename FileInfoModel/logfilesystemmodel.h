@@ -44,7 +44,7 @@ public:
             switch(role)
             {
                case(Qt::DisplayRole):
-                   return logStartTime(index);
+                return logStartTime(index);
                case(Qt::TextAlignmentRole):
                    return static_cast<int>(Qt::AlignLeft | Qt::AlignHCenter);
                default:
@@ -67,7 +67,9 @@ public:
     void setCache(QString key, QString value) const
     {
         QMutexLocker locker(&cacheMutex_);
+        //beginResetModel();
         logCache_.insert(key, value);
+        //endResetModel();
     }
 
     QString findCache(const QString& key) const
@@ -88,7 +90,10 @@ public:
     {
         emit dataChanged(index, index);
     }
-
+    IFileModel* getModel()
+    {
+        return fileModel_;
+    }
 private:
     QString logStartTime(const QModelIndex &index) const
     {

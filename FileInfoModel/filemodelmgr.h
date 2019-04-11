@@ -37,6 +37,7 @@ public:
     QAbstractItemModel *getModel();
     QString createCacheFile(const QModelIndex &index);
 Q_SIGNALS:
+    void directoryUpdateWrapper(const QString &path);
     void directoryLoadedWrapper(const QString &path);
     void sftpOperationFailed(const QString &errorMessage);
     void sftpOperationFinished(const QString &error);

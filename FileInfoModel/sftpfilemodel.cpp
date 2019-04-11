@@ -12,7 +12,7 @@ SftpFileModel::SftpFileModel(core::ContextPtr context, QAbstractItemModel* model
     fileIdentifier_(context->getComponent<fileIdentifier::IFileIdentifier>(nullptr)),
     pool_(new QThreadPool(this))
 {
-    pool_->setMaxThreadCount(3);
+    pool_->setMaxThreadCount(5);
 }
 
 QString SftpFileModel::getLogStartTimeStr(const QModelIndex &index)

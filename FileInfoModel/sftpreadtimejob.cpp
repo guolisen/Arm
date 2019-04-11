@@ -156,7 +156,9 @@ void SftpReadTimeJob::run()
     QEventLoop loop;
     connect(this, &SftpReadTimeJob::jobfinished, &loop, &QEventLoop::quit);
     loop.exec();
+    RemoteFileSystemType* remoteModel = dynamic_cast<RemoteFileSystemType*>(model_);
     emit dataChanged(index_);
+    //remoteModel->dataTrigger(index_);
     sftpMgr_->disconnectToHost();
     qDebug() << "Thread Out!";
 }

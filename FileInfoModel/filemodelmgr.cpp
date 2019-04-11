@@ -47,13 +47,20 @@ bool FileModelMgr::init()
     connect(localFSModel_, &LocalFileModelType::directoryLoaded,
             this, [this](const QString& path)
     {
-        directoryLoaded(path);
+        emit directoryLoadedWrapper(path);
     });
 
-    connect(remoteFSModel_, &RemoteFileModelType::dataChanged,
-            this, [this](const QModelIndex &srcindex, const QModelIndex &destindex)
+    connect(remoteFSModel_->getModel(), &IFileModel::dataChanged,
+            this, [this](const QModelIndex &index)
     {
-        directoryLoaded("");
+        emit directoryUpdateWrapper("");
+    });
+
+    connect(remoteFSModel_, &RemoteFileModelType::layoutChanged,
+            this, [this]()
+    {
+        qDebug() << "RemoteFileModelType::layoutChanged: ";
+        emit directoryLoadedWrapper("");
     });
 
     connect(remoteFSModel_, SIGNAL(sftpOperationFinished(QSsh::SftpJobId,QString)),
@@ -163,7 +170,7 @@ void FileModelMgr::handleSftpOperationFinished(QSsh::SftpJobId jobId, const QStr
         return;
     }
 
-    directoryLoaded("");
+    emit directoryLoadedWrapper("");
 }
 
 void FileModelMgr::handleConnectionError(const QString &errorMessage)

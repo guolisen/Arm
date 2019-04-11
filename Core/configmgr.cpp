@@ -26,7 +26,6 @@ void ConfigMgr::setConfigInfo(const QString &key, const QVariant &value)
 QSsh::SshConnectionParameters ConfigMgr::getSshParameters()
 {
     QSsh::SshConnectionParameters sshParams;
-    sshParams.authenticationType = QSsh::SshConnectionParameters::AuthenticationByPassword;
 
     //IP
     QString siteIp = getConfigInfo("Arm/Setting/siteIp").toString();
@@ -57,6 +56,18 @@ QSsh::SshConnectionParameters ConfigMgr::getSshParameters()
     if (timeOut.isEmpty())
         timeOut = "99999";
     sshParams.timeout = timeOut.toInt();
+
+    //keyFile
+    QString keyFile = getConfigInfo("Arm/Setting/keyFile").toString();
+    if (keyFile.isEmpty())
+        keyFile = "0";
+    if (keyFile.toInt())
+    {
+        sshParams.authenticationType = QSsh::SshConnectionParameters::AuthenticationByKey;
+        sshParams.privateKeyFile = "";
+    }
+    else
+        sshParams.authenticationType = QSsh::SshConnectionParameters::AuthenticationByPassword;
 
     return sshParams;
 }

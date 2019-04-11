@@ -1,7 +1,7 @@
 #include "armwindow.h"
 #include <QApplication>
 #include <QDir>
-
+#include <QTime>
 #include <FileIdentifier/ifileObject.h>
 #include <FileIdentifier/fileidentifier.h>
 #include <FileIdentifier/filetypecontainer.h>
@@ -14,9 +14,49 @@
 #include <Script/ScriptCenter.h>
 #include <Script/detail/ScriptCenterImpl.h>
 
+QMutex messageMutex;
+void MessageOutput(QtMsgType type,const QMessageLogContext& context,const QString& msg)
+{
+    QMutexLocker locker(&messageMutex);
+    QString txtMessage;
+    txtMessage += QString("[%1][%2][%3]")
+            .arg(QTime::currentTime().toString("hh:mm:ss.zzz"))
+            .arg(context.file)
+            .arg(context.function);
+    switch (type) {
+    case QtDebugMsg:
+        txtMessage += QString("[Debug] %1").arg(msg);
+        break;
+    case QtWarningMsg:
+        txtMessage += QString("[Warning] %1").arg(msg);
+        break;
+    case QtCriticalMsg:
+        txtMessage += QString("[Critical] %1").arg(msg);
+        break;
+    case QtFatalMsg:
+        txtMessage += QString("[Fatal] %1").arg(msg);
+        break;
+    default:
+        txtMessage += QString("[UnKnown] %1").arg(msg);
+        break;
+    }
+    txtMessage += QString(",{%1}").arg(context.line);
+    txtMessage += QString("\r\n");
+
+    QFile file("ArmLog.log");
+    if(file.open(QIODevice::WriteOnly | QIODevice::Append))
+    {
+        QTextStream out(&file);
+        out<<txtMessage;
+    }
+    file.flush();
+    file.close();
+}
+
 
 int main(int argc, char *argv[])
 {
+    qInstallMessageHandler(MessageOutput);
     QApplication a(argc, argv);
 
     QCoreApplication::setOrganizationName("DELLEMC");

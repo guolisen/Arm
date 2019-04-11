@@ -21,16 +21,14 @@ public:
 
 private slots:
     void on_pushButton_clicked();
-
     void on_buttonBox_accepted();
-
+    void on_keyFileBrower_clicked();
+    void init();
 private:
     Ui::SettingDialog *ui;
     core::ContextPtr context_;
     core::ConfigMgrPtr configMgr_;
     QSettings settings_;
-    QString editorPath_;
-    void init();
 };
 
 #endif // SETTINGDIALOG_H

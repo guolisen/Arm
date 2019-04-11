@@ -39,6 +39,7 @@ private slots:
     void on_treeView_doubleClicked(const QModelIndex &index);
     void on_treeView_customContextMenuRequested(const QPoint &pos);
     void handleStdOut(QByteArray data);
+    void updateColumn(const QString &path);
 private:
     void createMenu();
     void createRemoteProcess();

@@ -20,10 +20,15 @@ SettingDialog::~SettingDialog()
 
 void SettingDialog::init()
 {
-    editorPath_ = configMgr_->getConfigInfo("Arm/Setting/EditorPath").toString();
-    if (editorPath_.isEmpty())
-        editorPath_ = QDir::cleanPath("C:/Program Files (x86)/Notepad++/notepad++.exe");
-    ui->lineEdit->setText(editorPath_);
+    QString editorPath = configMgr_->getConfigInfo("Arm/Setting/EditorPath").toString();
+    if (editorPath.isEmpty())
+        editorPath = QDir::cleanPath("C:/Program Files (x86)/Notepad++/notepad++.exe");
+    ui->lineEdit->setText(editorPath);
+
+    QString keyFilePath = configMgr_->getConfigInfo("Arm/Setting/keyFilePath").toString();
+    if (keyFilePath.isEmpty())
+        keyFilePath = "";
+    ui->keyEdit->setText(keyFilePath);
 
     //IP
     QString siteIp = configMgr_->getConfigInfo("Arm/Setting/siteIp").toString();
@@ -54,26 +59,31 @@ void SettingDialog::init()
     if (timeOut.isEmpty())
         timeOut = "";
     ui->timeoutEdit->setText(timeOut);
+
+    //keyFile
+    QString keyFile = configMgr_->getConfigInfo("Arm/Setting/keyFile").toString();
+    if (keyFile.isEmpty())
+        keyFile = "0";
+    ui->KeyCheckBox->setCheckState((Qt::CheckState)keyFile.toInt());
 }
 
 void SettingDialog::on_pushButton_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(
-                this, tr("Editor Path"), editorPath_, tr("*.exe"));
+                this, tr("Editor Path"), ui->lineEdit->text(), tr("*.exe"));
     if (!fileName.isEmpty())
     {
-        editorPath_ = QDir::cleanPath(fileName);
-        ui->lineEdit->setText(editorPath_);
+        ui->lineEdit->setText(QDir::cleanPath(fileName));
     }
 }
 
 void SettingDialog::on_buttonBox_accepted()
 {
-    editorPath_ = ui->lineEdit->text();
-    QFileInfo info(QDir::cleanPath(editorPath_));
-    if (!info.exists())
-        editorPath_ = "";
-    configMgr_->setConfigInfo("Arm/Setting/EditorPath", editorPath_);
+    QString editorPath = QDir::cleanPath(ui->lineEdit->text());
+    configMgr_->setConfigInfo("Arm/Setting/EditorPath", editorPath);
+
+    QString keyFilePath = QDir::cleanPath(ui->keyEdit->text());
+    configMgr_->setConfigInfo("Arm/Setting/keyFilePath", keyFilePath);
 
     QString siteIp = ui->ipEdit->text();
     configMgr_->setConfigInfo("Arm/Setting/siteIp", siteIp);
@@ -90,5 +100,19 @@ void SettingDialog::on_buttonBox_accepted()
     QString timeOut = ui->timeoutEdit->text();
     configMgr_->setConfigInfo("Arm/Setting/timeOut", timeOut);
 
+    Qt::CheckState state = ui->KeyCheckBox->checkState();
+    configMgr_->setConfigInfo("Arm/Setting/keyFile", state);
+
     close();
+}
+
+
+void SettingDialog::on_keyFileBrower_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(
+                this, tr("Key File Path"), ui->keyEdit->text(), tr("*.*"));
+    if (!fileName.isEmpty())
+    {
+        ui->keyEdit->setText(QDir::cleanPath(fileName));
+    }
 }
