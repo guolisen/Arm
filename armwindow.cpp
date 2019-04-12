@@ -29,12 +29,12 @@ ArmWindow::ArmWindow(core::ContextPtr context, QWidget *parent) :
 ArmWindow::~ArmWindow()
 {
     delete ui;
-    //::system("del cache*");
+    ::system("del cache*");
 
-    QProcess* proc = new QProcess();
-    proc->start("del cache*");
-    proc->close();
-    delete proc;
+    //QProcess* proc = new QProcess();
+    //proc->start("del cache*");
+    //proc->close();
+    //delete proc;
 }
 
 void ArmWindow::resizeColumn(const QString &path)
@@ -262,7 +262,7 @@ void ArmWindow::on_treeView_doubleClicked(const QModelIndex &index)
         return;
     }
     QFileInfo editorFi(editorPath_);
-    if (!editorFi.isExecutable())
+    if (!editorFi.isFile())
     {
         QMessageBox::information(this, tr("Warning"), tr("The Editor doesn't exist, Please set again in Setting Panel."));
         return;
@@ -273,16 +273,18 @@ void ArmWindow::on_treeView_doubleClicked(const QModelIndex &index)
 
 void ArmWindow::on_treeView_customContextMenuRequested(const QPoint &pos)
 {
+    qDebug() << "on_treeView_customContextMenuRequested: ";
     if ( qApp->mouseButtons() == Qt::LeftButton)
         return;
-    qDebug() << "on_treeView_customContextMenuRequested: ";
-    //QModelIndex index = ui->treeView->currentIndex();
+    if (modelMgr_->getCurrentModeType() != fileinfomodel::RemoteFileSystemModel)
+        return;
+
     QModelIndex index = ui->treeView->indexAt(pos);
     QSsh::SftpFileNode* fn = static_cast<QSsh::SftpFileNode *>(index.internalPointer());
 
-    if (fn->fileInfo.name.contains(".gz") || fn->fileInfo.name.contains(".zip") ||
+    if (fn && (fn->fileInfo.name.contains(".gz") || fn->fileInfo.name.contains(".zip") ||
             fn->fileInfo.name.contains(".tar") ||
-            fn->fileInfo.name.contains(".tgz"))
+            fn->fileInfo.name.contains(".tgz")))
     {
         rightPopMenu_->popup(QCursor::pos());
     }
