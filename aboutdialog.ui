@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>377</width>
-    <height>182</height>
+    <width>792</width>
+    <height>186</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -75,7 +75,7 @@
          </font>
         </property>
         <property name="text">
-         <string>A kind of Log Helper! May help for you! </string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic; color:#333333; &quot;&gt;Fifty years from now, when you're looking back at you life,&lt;/span&gt;&lt;br/&gt;&lt;span style=&quot; font-style:italic; color:#333333; &quot;&gt;don't you want to be able to say you had the guts to get in the car?&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
        </widget>
       </item>

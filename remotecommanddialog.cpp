@@ -6,6 +6,7 @@ RemoteCommandDialog::RemoteCommandDialog(QWidget *parent) :
     ui(new Ui::RemoteCommandDialog)
 {
     ui->setupUi(this);
+    setWindowTitle("Remote Command");
 }
 
 RemoteCommandDialog::~RemoteCommandDialog()

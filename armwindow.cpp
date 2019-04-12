@@ -62,6 +62,8 @@ void ArmWindow::handleSftpOperationFinished(const QString &error)
 {
     ui->treeView->resizeColumnToContents(0);
     statusBar()->showMessage(error);
+    if (error.isEmpty())
+        statusBar()->showMessage("Process OK!");
 }
 
 void ArmWindow::handleConnectionError(const QString &errorMessage)

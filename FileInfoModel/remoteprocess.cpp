@@ -151,6 +151,9 @@ void RemoteProcess::handleProcessClosed(int exitStatus)
             if (exitCode != 0) {
                  qDebug() << "Error: exit code is " << exitCode
                     << ", expected zero.";
+                if (!m_remoteStdout.isEmpty()) {
+                    emit processStdout(m_remoteStdout);
+                }
                 earlyDisconnectFromHost();
                 return;
             }
@@ -160,7 +163,7 @@ void RemoteProcess::handleProcessClosed(int exitStatus)
                 return;
             }
 
-            qDebug() << "Ok.\nTesting unsuccessful remote process... "  ;
+            qDebug() << "Ok. unsuccessful remote process... "  ;
             m_state = TestingFailure;
             m_started = false;
             //m_timeoutTimer->start();
@@ -170,8 +173,10 @@ void RemoteProcess::handleProcessClosed(int exitStatus)
         case TestingFailure: {
             const int exitCode = m_remoteRunner->processExitCode();
             if (exitCode == 0) {
-                 qDebug() << "Error: exit code is zero, expected non-zero."
-                     ;
+                qDebug() << "Error: exit code is zero, expected non-zero.";
+                if (!m_remoteStdout.isEmpty()) {
+                    emit processStdout(m_remoteStdout);
+                }
                 earlyDisconnectFromHost();
                 return;
             }
@@ -203,7 +208,10 @@ void RemoteProcess::handleProcessClosed(int exitStatus)
             const int exitCode = m_remoteRunner->processExitCode();
             if (exitCode != 0) {
                  qDebug() << "Error: exit code is " << exitCode
-                    << ", expected zero."  ;
+                    << ", expected zero.";
+                 if (!m_remoteStdout.isEmpty()) {
+                     emit processStdout(m_remoteStdout);
+                 }
                 earlyDisconnectFromHost();
                 return;
             }
