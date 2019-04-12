@@ -10,6 +10,9 @@ FolderOpenDialog::FolderOpenDialog(QWidget *parent) :
     ui->setupUi(this);
     QSettings setting;
     filePath_ = setting.value("Arm/Setting/DefaultLogPath").toString();
+    Qt::WindowFlags flag = windowFlags();
+    flag = flag & (~Qt::WindowContextHelpButtonHint);
+    setWindowFlags(flag);
     ui->comboBox->setEditText(filePath_);
 }
 

@@ -39,7 +39,8 @@ void FileModelMgr::createProgressBar()
     pd_->setAutoClose(true);
     pd_->setModal(true);
     pd_->setCancelButton(nullptr);
-    pd_->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
+    //pd_->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
+    pd_->setWindowFlags(Qt::WindowTitleHint | Qt::CustomizeWindowHint);
 }
 
 bool FileModelMgr::init()

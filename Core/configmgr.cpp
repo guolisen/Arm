@@ -79,4 +79,9 @@ QSsh::SshConnectionParameters ConfigMgr::getSshParameters()
 
     return sshParams;
 }
+
+QString ConfigMgr::getCurrentVersion()
+{
+    return "0.2";
+}
 }

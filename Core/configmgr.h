@@ -20,6 +20,7 @@ public:
     virtual void setConfigInfo(const QString& key, const QVariant& value);
 
     virtual QSsh::SshConnectionParameters getSshParameters();
+    virtual QString getCurrentVersion();
 private:
     QSettings* setting_;
 };

@@ -7,6 +7,9 @@ RemoteCommandDialog::RemoteCommandDialog(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowTitle("Remote Command");
+    Qt::WindowFlags flag = windowFlags();
+    flag = flag & (~Qt::WindowContextHelpButtonHint);
+    setWindowFlags(flag);
 }
 
 RemoteCommandDialog::~RemoteCommandDialog()

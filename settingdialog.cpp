@@ -10,6 +10,9 @@ SettingDialog::SettingDialog(core::ContextPtr context, QWidget *parent) :
     configMgr_(context_->getComponent<core::IConfigMgr>(nullptr))
 {
     ui->setupUi(this);
+    Qt::WindowFlags flag = windowFlags();
+    flag = flag & (~Qt::WindowContextHelpButtonHint);
+    setWindowFlags(flag);
     init();
 }
 

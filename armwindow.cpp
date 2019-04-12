@@ -88,7 +88,8 @@ void ArmWindow::createRemoteProcess()
 
 void ArmWindow::init()
 {
-    setWindowTitle("Arm v0.1");
+    QString version = "Arm v" + configMgrPtr_->getCurrentVersion();
+    setWindowTitle(version);
     ui->treeView->setAnimated(false);
     ui->treeView->setIndentation(20);
     ui->treeView->setSortingEnabled(true);
@@ -231,7 +232,7 @@ void ArmWindow::createMenu()
     QAction *aboutAct = new QAction(infoIcon, tr("&About"), this);
     aboutAct->setStatusTip(tr("Open About"));
     connect(aboutAct, &QAction::triggered, this, [this](){
-        AboutDialog dialog(this);
+        AboutDialog dialog(this->context_, this);
         if (dialog.exec() != QDialog::Accepted)
             return;
     });

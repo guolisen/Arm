@@ -6,6 +6,9 @@ ConsoleDialog::ConsoleDialog(QWidget *parent) :
     ui(new Ui::ConsoleDialog)
 {
     ui->setupUi(this);
+    Qt::WindowFlags flag = windowFlags();
+    flag = flag & (~Qt::WindowContextHelpButtonHint);
+    setWindowFlags(flag);
 }
 
 ConsoleDialog::~ConsoleDialog()
