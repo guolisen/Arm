@@ -266,7 +266,7 @@ void ArmWindow::createMenu()
     fileMenu->addAction(quitAct);
     //-------------------------------------------
     QMenu *toolsMenu = menuBar()->addMenu(tr("&Tools"));
-    const QIcon runCommandIcon = QIcon::fromTheme("open", QIcon(":/folder.ico"));
+    const QIcon runCommandIcon = QIcon::fromTheme("open", QIcon(":/play2.ico"));
     QAction *runCommandAct = new QAction(runCommandIcon, tr("&Run Command"), this);
     runCommandAct->setStatusTip(tr("Run Command"));
     connect(runCommandAct, &QAction::triggered, this, [this](){
@@ -275,7 +275,7 @@ void ArmWindow::createMenu()
     });
     toolsMenu->addAction(runCommandAct);
 
-    const QIcon reloadLogIcon = QIcon::fromTheme("open", QIcon(":/folder.ico"));
+    const QIcon reloadLogIcon = QIcon::fromTheme("open", QIcon(":/reload.ico"));
     QAction *reloadLogAct = new QAction(reloadLogIcon, tr("&Reload Log Time"), this);
     reloadLogAct->setStatusTip(tr("Reload Log time"));
     connect(reloadLogAct, &QAction::triggered, this, [this](){

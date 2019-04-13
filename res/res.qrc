@@ -7,5 +7,7 @@
         <file>folder.ico</file>
         <file>info.ico</file>
         <file>setting.ico</file>
+        <file>play2.ico</file>
+        <file>reload.ico</file>
     </qresource>
 </RCC>
