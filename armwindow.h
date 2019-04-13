@@ -53,6 +53,7 @@ private:
     RemoteProcess* remoteProcess_;
     ConsoleDialog* consoleDialog_;
     core::ConfigMgrPtr configMgrPtr_;
+    QModelIndex needUpdateIndex_;
 };
 
 #endif // ARMWINDOW_H

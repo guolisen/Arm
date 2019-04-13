@@ -122,8 +122,8 @@ void ArmWindow::handleStdOut(QByteArray data)
     QString result = QString::fromStdString(data.toStdString());
     qDebug() << "Command result: " << result;
     consoleDialog_->setMessageToEditor(result);
-    //modelMgr_->update();
-    //ui->treeView->update();
+    modelMgr_->update(needUpdateIndex_);
+
 }
 
 void ArmWindow::handleReadyRead(QByteArray data)
@@ -342,6 +342,7 @@ void ArmWindow::on_treeView_customContextMenuRequested(const QPoint &pos)
             fn->fileInfo.name.contains(".tar") ||
             fn->fileInfo.name.contains(".tgz")))
     {
+        needUpdateIndex_ = index;
         rightPopMenu_->popup(QCursor::pos());
     }
 }

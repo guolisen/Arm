@@ -115,9 +115,9 @@ QAbstractItemModel* FileModelMgr::getModel()
     return currentModel_;
 }
 
-void FileModelMgr::update()
+void FileModelMgr::update(const QModelIndex& index)
 {
-    remoteFSModel_->update();
+    remoteFSModel_->update(index);
 }
 
 void FileModelMgr::clearCache()
