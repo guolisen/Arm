@@ -42,6 +42,8 @@ public:
     QAbstractItemModel *getModel();
     QString createCacheFile(const QModelIndex &index);
     FileModelType getCurrentModeType() const { return currentModeType_; }
+    void update();
+
 Q_SIGNALS:
     void directoryUpdateWrapper(const QModelIndex &index);
     void directoryLoadedWrapper(const QString &path);

@@ -110,6 +110,11 @@ QAbstractItemModel* FileModelMgr::getModel()
     return currentModel_;
 }
 
+void FileModelMgr::update()
+{
+    remoteFSModel_->update();
+}
+
 void FileModelMgr::setRootLocalPath(const QString& path, QTreeView* tree)
 {
     currentModel_ = localFSModel_;

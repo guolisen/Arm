@@ -1,4 +1,5 @@
 #include <QFileDialog>
+#include <QHeaderView>
 #include "armwindow.h"
 #include "ui_armwindow.h"
 #include "FileInfoModel/logfilesystemmodel.h"
@@ -61,6 +62,7 @@ void ArmWindow::handleSftpOperationFailed(const QString &errorMessage)
 void ArmWindow::handleSftpOperationFinished(const QString &error)
 {
     ui->treeView->resizeColumnToContents(0);
+    ui->treeView->sortByColumn(0);
     statusBar()->showMessage(error);
     if (error.isEmpty())
         statusBar()->showMessage("Process OK!");
@@ -95,6 +97,8 @@ void ArmWindow::init()
     ui->treeView->setSortingEnabled(true);
     ui->treeView->setWindowTitle(QObject::tr("Arm"));
 
+
+    //connect(ui->treeView->header(), &QHeaderView::sectionClicked, ui->treeView, &QTreeView::sortByColumn);
     connect(ui->comboBox, &QComboBox::editTextChanged, this, &ArmWindow::findStringProcess);
     connect(modelMgr_, &fileinfomodel::FileModelMgr::directoryLoadedWrapper, this, &ArmWindow::resizeColumn);
     connect(modelMgr_, &fileinfomodel::FileModelMgr::directoryUpdateWrapper, this, &ArmWindow::updateColumn);
@@ -117,6 +121,7 @@ void ArmWindow::init()
 void ArmWindow::handleStdOut(QByteArray data)
 {
     consoleDialog_->setMessageToEditor(QString::fromStdString(data.toStdString()));
+    modelMgr_->update();
 }
 
 void ArmWindow::handleReadyRead(QByteArray data)
