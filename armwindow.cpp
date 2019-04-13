@@ -30,7 +30,7 @@ ArmWindow::ArmWindow(core::ContextPtr context, QWidget *parent) :
 ArmWindow::~ArmWindow()
 {
     delete ui;
-    ::system("del cache*");
+    //::system("del cache*");
 
     QProcess* proc = new QProcess();
     proc->start("del", {"cache*"});
@@ -62,7 +62,7 @@ void ArmWindow::handleSftpOperationFailed(const QString &errorMessage)
 void ArmWindow::handleSftpOperationFinished(const QString &error)
 {
     ui->treeView->resizeColumnToContents(0);
-    ui->treeView->sortByColumn(0);
+    //ui->treeView->sortByColumn(0);
     statusBar()->showMessage(error);
     if (error.isEmpty())
         statusBar()->showMessage("Process OK!");
@@ -121,7 +121,8 @@ void ArmWindow::init()
 void ArmWindow::handleStdOut(QByteArray data)
 {
     consoleDialog_->setMessageToEditor(QString::fromStdString(data.toStdString()));
-    modelMgr_->update();
+    //modelMgr_->update();
+    //ui->treeView->update();
 }
 
 void ArmWindow::handleReadyRead(QByteArray data)
@@ -131,14 +132,23 @@ void ArmWindow::handleReadyRead(QByteArray data)
 
 void ArmWindow::findStringProcess(const QString& s)
 {
-#if 0
+    if (modelMgr_->getCurrentModeType() == fileinfomodel::RemoteFileSystemModel)
+        return;
     QAbstractItemModel* model = modelMgr_->getModel();
-    LogFileSystemModel* localFsModel = dynamic_cast<LogFileSystemModel*>(model);
+    fileinfomodel::LocalFileModelType* localFsModel =
+            dynamic_cast<fileinfomodel::LocalFileModelType*>(model);
     if (!localFsModel)
         return;
+    if(s.isEmpty())
+    {
+        localFsModel->setNameFilterDisables(true);
+    }
+    else
+    {
+        localFsModel->setNameFilterDisables(false);
+    }
     localFsModel->setFilter(QDir::Files | QDir::Dirs);
     localFsModel->setNameFilters({s});
-#endif
 }
 
 void ArmWindow::open()
@@ -239,6 +249,16 @@ void ArmWindow::createMenu()
     quitAct->setStatusTip(tr("Quit"));
     connect(quitAct, &QAction::triggered, this, [this](){close();});
     fileMenu->addAction(quitAct);
+    //-------------------------------------------
+    QMenu *toolsMenu = menuBar()->addMenu(tr("&Tools"));
+    const QIcon toolsIcon = QIcon::fromTheme("open", QIcon(":/folder.ico"));
+    QAction *runCommandAct = new QAction(openIcon, tr("&Run Command"), this);
+    runCommandAct->setStatusTip(tr("Run Command"));
+    connect(runCommandAct, &QAction::triggered, this, [this](){
+        modelMgr_->update();
+    });
+    toolsMenu->addAction(runCommandAct);
+
 
     QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
     const QIcon infoIcon = QIcon::fromTheme("info", QIcon(":/info.ico"));

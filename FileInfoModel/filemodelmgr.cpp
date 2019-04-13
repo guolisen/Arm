@@ -25,6 +25,11 @@ FileModelMgr::FileModelMgr(core::ContextPtr context, QObject* parent):  QObject(
     init();
 }
 
+FileModelMgr::~FileModelMgr()
+{
+    remoteFSModel_->shutDown();
+}
+
 void FileModelMgr::directoryLoaded(const QString &path)
 {
     emit directoryLoadedWrapper(path);

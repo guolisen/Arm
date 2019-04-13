@@ -33,6 +33,7 @@ class FileModelMgr: public QObject
     Q_OBJECT
 public:
     FileModelMgr(core::ContextPtr context, QObject* parent = nullptr);
+    virtual ~FileModelMgr();
     bool init();
     void setRootPath(const QString &path, QTreeView* tree);
     QString getRootPath() const
