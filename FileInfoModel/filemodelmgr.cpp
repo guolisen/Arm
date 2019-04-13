@@ -19,7 +19,8 @@ FileModelMgr::FileModelMgr(core::ContextPtr context, QObject* parent):  QObject(
     isRemoteConnected_(false),
     localFSModel_(new LocalFileModelType(context, nullptr, this)),
     remoteFSModel_(new RemoteFileModelType(context, nullptr, this)),
-    currentModel_(nullptr), context_(context), downloadId_(0), rootPath_("/")
+    currentModel_(nullptr), context_(context), downloadId_(0), rootPath_("/"),
+    remoteState_(RemoteStateConnectFinished)
 {
     init();
 }
@@ -123,10 +124,11 @@ void FileModelMgr::setRootRemotePath(const QString& path, QTreeView* tree)
 
     if(!isRemoteConnected_)
     {
+        //remoteState_ = RemoteStateConnecting;
+        remoteFSModel_->shutDown();
         core::ConfigMgrPtr config = context_->getComponent<core::IConfigMgr>(nullptr);
         QSsh::SshConnectionParameters sshParams = config->getSshParameters();
         remoteFSModel_->setSshConnection(sshParams);
-        isRemoteConnected_ = true;
     }
     else
     {
@@ -139,6 +141,7 @@ void FileModelMgr::setRootRemotePath(const QString& path, QTreeView* tree)
 void FileModelMgr::handleConnectionSuccess()
 {
     qDebug() << "FileModelContainer::handleConnectionSuccess ";
+    isRemoteConnected_ = true;
     remoteFSModel_->setCurrentDir(rootPath_, treeView_);
 }
 

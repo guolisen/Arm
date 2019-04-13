@@ -19,6 +19,11 @@ enum FileModelType
     LocalFileSystemModel,
     RemoteFileSystemModel
 };
+enum RemoteState
+{
+    RemoteStateConnecting,
+    RemoteStateConnectFinished
+};
 
 typedef LogFileSystemModel<LocalFileModel> LocalFileModelType;
 typedef LogFileSystemModel<SftpFileModel> RemoteFileModelType;
@@ -71,6 +76,7 @@ private:
     QSsh::SftpJobId downloadId_;
     QString downloadError_;
     QProgressDialog* pd_;
+    RemoteState remoteState_;
 };
 
 }

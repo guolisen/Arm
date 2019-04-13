@@ -149,7 +149,14 @@ void ArmWindow::open()
     qDebug() << fileName;
 
     modelMgr_->setRootPath(QDir::cleanPath(fileName), ui->treeView);
-    setWindowTitle("Arm v0.2 " + fileName);
+
+    QString version = "Arm v" + configMgrPtr_->getCurrentVersion();
+    setWindowTitle(version + " " + fileName);
+
+    if (modelMgr_->getCurrentModeType() == fileinfomodel::RemoteFileSystemModel)
+    {
+        statusBar()->showMessage("Connecting server...");
+    }
 }
 
 void ArmWindow::setting()
