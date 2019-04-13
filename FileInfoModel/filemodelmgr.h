@@ -44,7 +44,7 @@ public:
     QString createCacheFile(const QModelIndex &index);
     FileModelType getCurrentModeType() const { return currentModeType_; }
     void update();
-
+    void clearCache();
 Q_SIGNALS:
     void directoryUpdateWrapper(const QModelIndex &index);
     void directoryLoadedWrapper(const QString &path);

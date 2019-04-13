@@ -143,6 +143,7 @@ void RemoteProcess::handleProcessStderr()
 
 void RemoteProcess::handleProcessClosed(int exitStatus)
 {
+    emit processClosed(exitStatus);
     switch (exitStatus) {
     case SshRemoteProcess::NormalExit:
         if (!m_started) {

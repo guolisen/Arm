@@ -120,6 +120,11 @@ void FileModelMgr::update()
     remoteFSModel_->update();
 }
 
+void FileModelMgr::clearCache()
+{
+    remoteFSModel_->clearCache();
+}
+
 void FileModelMgr::setRootLocalPath(const QString& path, QTreeView* tree)
 {
     currentModel_ = localFSModel_;

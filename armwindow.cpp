@@ -74,18 +74,17 @@ void ArmWindow::handleConnectionError(const QString &errorMessage)
         tr("Fatal SSH error: %1").arg(errorMessage));
 }
 
-void ArmWindow::createRemoteProcess()
+RemoteProcess* ArmWindow::createRemoteProcess()
 {
     core::ConfigMgrPtr config = context_->getComponent<core::IConfigMgr>(nullptr);
     QSsh::SshConnectionParameters sshParams = config->getSshParameters();
 
-    remoteProcess_ = new RemoteProcess(sshParams);
-    void readyRead(QByteArray data);
-    void processStdout(QByteArray data);
-    void processStderr(QByteArray data);
-    connect(remoteProcess_, &RemoteProcess::readyRead, this, &ArmWindow::handleReadyRead);
-    connect(remoteProcess_, &RemoteProcess::processStdout, this, &ArmWindow::handleStdOut);
-    connect(remoteProcess_, &RemoteProcess::processStderr, this, &ArmWindow::handleStdOut);
+    RemoteProcess* remoteProcess = new RemoteProcess(sshParams);
+    connect(remoteProcess, &RemoteProcess::readyRead, this, &ArmWindow::handleReadyRead);
+    connect(remoteProcess, &RemoteProcess::processStdout, this, &ArmWindow::handleStdOut);
+    connect(remoteProcess, &RemoteProcess::processStderr, this, &ArmWindow::handleStdOut);
+
+    return remoteProcess;
 }
 
 void ArmWindow::init()
@@ -120,13 +119,17 @@ void ArmWindow::init()
 
 void ArmWindow::handleStdOut(QByteArray data)
 {
-    consoleDialog_->setMessageToEditor(QString::fromStdString(data.toStdString()));
+    QString result = QString::fromStdString(data.toStdString());
+    qDebug() << "Command result: " << result;
+    consoleDialog_->setMessageToEditor(result);
     //modelMgr_->update();
     //ui->treeView->update();
 }
 
 void ArmWindow::handleReadyRead(QByteArray data)
 {
+    QString result = QString::fromStdString(data.toStdString());
+    qDebug() << "handleReadyRead result: " << result;
     //consoleDialog_->setMessageToEditor(QString::fromStdString(data.toStdString()));
 }
 
@@ -187,42 +190,54 @@ void ArmWindow::setting()
 void ArmWindow::createPopMenu()
 {
     rightPopMenu_ = new QMenu(this);
-    rightPopMenu_->addAction(tr("&Uncompress on Site"), this, SLOT(uncompressInRemote()));
+    rightPopMenu_->addAction(tr("&Uncompress on Site"), this, SLOT(unCompressRemoteFile()));
 }
 
-void ArmWindow::uncompressInRemote()
+void ArmWindow::unCompressRemoteFile()
 {
     qDebug() << "uncompressInRemote: ";
     QModelIndex index = ui->treeView->currentIndex();
+    QString uncompressCommand = "";
     QSsh::SftpFileNode* fn = static_cast<QSsh::SftpFileNode *>(index.internalPointer());
-    QString rootPath = modelMgr_->getRootPath();
-    QString currentPath = fn->path.mid(0, fn->path.lastIndexOf("/"));
-    RemoteCommandDialog remoteDialog(this);
-    if (fn->fileInfo.name.contains(".gz"))
+    if (fn)
     {
-        remoteDialog.setCommand("gunzip " + fn->path);
-    }
-    else if (fn->fileInfo.name.contains(".zip"))
-    {
-        remoteDialog.setCommand("unzip -o " + fn->path + " -d " + currentPath);
-    }
-    else if (fn->fileInfo.name.contains(".tar"))
-    {
-        remoteDialog.setCommand("tar xvf " + fn->path + " -C " + currentPath);
-    }
-    else if (fn->fileInfo.name.contains(".tgz"))
-    {
-        remoteDialog.setCommand("tar xvzf " + fn->path + " -C " + currentPath);
+        QString currentPath = fn->path.mid(0, fn->path.lastIndexOf("/"));
+        if (fn->fileInfo.name.contains(".gz"))
+        {
+            uncompressCommand = "gunzip " + fn->path;
+        }
+        else if (fn->fileInfo.name.contains(".zip"))
+        {
+            uncompressCommand = "unzip -o " + fn->path + " -d " + currentPath;
+        }
+        else if (fn->fileInfo.name.contains(".tar"))
+        {
+            uncompressCommand = "tar xvf " + fn->path + " -C " + currentPath;
+        }
+        else if (fn->fileInfo.name.contains(".tgz"))
+        {
+            uncompressCommand = "tar xvzf " + fn->path + " -C " + currentPath;
+        }
     }
 
+    runRemoteCommand(uncompressCommand);
+}
+
+void ArmWindow::runRemoteCommand(const QString& defaultCommand)
+{
+    qDebug() << "runRemoteCommand default: " << defaultCommand;
+
+    RemoteCommandDialog remoteDialog(this);
+    remoteDialog.setCommand(defaultCommand);
     if (remoteDialog.exec() != QDialog::Accepted)
     {
         return;
     }
 
-    QString command = remoteDialog.getCommand();
+    QString commandfinal = remoteDialog.getCommand();
     consoleDialog_->show();
-    remoteProcess_->run(command);
+    RemoteProcess* rprocess = createRemoteProcess();
+    rprocess->run(commandfinal);
 }
 
 void ArmWindow::createMenu()
@@ -251,14 +266,22 @@ void ArmWindow::createMenu()
     fileMenu->addAction(quitAct);
     //-------------------------------------------
     QMenu *toolsMenu = menuBar()->addMenu(tr("&Tools"));
-    const QIcon toolsIcon = QIcon::fromTheme("open", QIcon(":/folder.ico"));
-    QAction *runCommandAct = new QAction(openIcon, tr("&Run Command"), this);
+    const QIcon runCommandIcon = QIcon::fromTheme("open", QIcon(":/folder.ico"));
+    QAction *runCommandAct = new QAction(runCommandIcon, tr("&Run Command"), this);
     runCommandAct->setStatusTip(tr("Run Command"));
     connect(runCommandAct, &QAction::triggered, this, [this](){
-        modelMgr_->update();
+        //modelMgr_->update();
+        runRemoteCommand("");
     });
     toolsMenu->addAction(runCommandAct);
 
+    const QIcon reloadLogIcon = QIcon::fromTheme("open", QIcon(":/folder.ico"));
+    QAction *reloadLogAct = new QAction(reloadLogIcon, tr("&Reload Log Time"), this);
+    reloadLogAct->setStatusTip(tr("Reload Log time"));
+    connect(reloadLogAct, &QAction::triggered, this, [this](){
+        modelMgr_->clearCache();
+    });
+    toolsMenu->addAction(reloadLogAct);
 
     QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
     const QIcon infoIcon = QIcon::fromTheme("info", QIcon(":/info.ico"));

@@ -35,14 +35,15 @@ private slots:
     void resizeColumn(const QString &path);
     void setting();
     void createPopMenu();
-    void uncompressInRemote();
+    void runRemoteCommand(const QString& defaultCommand);
     void on_treeView_doubleClicked(const QModelIndex &index);
     void on_treeView_customContextMenuRequested(const QPoint &pos);
     void handleStdOut(QByteArray data);
     void updateColumn(const QModelIndex& index);
+    void unCompressRemoteFile();
 private:
     void createMenu();
-    void createRemoteProcess();
+    RemoteProcess* createRemoteProcess();
 
     Ui::ArmWindow *ui;
     core::ContextPtr context_;

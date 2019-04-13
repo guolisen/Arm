@@ -90,6 +90,12 @@ public:
     {
         return fileModel_;
     }
+
+    void clearCache()
+    {
+        QMutexLocker locker(&cacheMutex_);
+        logCache_.clear();
+    }
 private:
     QString logStartTime(const QModelIndex &index) const
     {

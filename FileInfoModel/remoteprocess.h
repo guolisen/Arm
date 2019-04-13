@@ -45,13 +45,16 @@ public:
     RemoteProcess(const QSsh::SshConnectionParameters &params);
     ~RemoteProcess();
     void run(const QString& command);
-
+    void cancel()
+    {
+        m_remoteRunner->cancel();
+    }
     void clearStdout();
 Q_SIGNALS:
     void readyRead(QByteArray data);
     void processStdout(QByteArray data);
     void processStderr(QByteArray data);
-
+    void processClosed(int exitStatus);
 private slots:
     void handleConnectionError();
     void handleProcessStarted();
