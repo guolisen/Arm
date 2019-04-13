@@ -14,7 +14,7 @@ AboutDialog::AboutDialog(core::ContextPtr context, QWidget *parent) :
     flag = flag & (~Qt::WindowContextHelpButtonHint);
     setWindowFlags(flag);
     core::ConfigMgrPtr configMgrPtr_ = context_->getComponent<core::IConfigMgr>(nullptr);
-    QString version = "Version: " + configMgrPtr_->getCurrentVersion();
+    QString version = "Version: v" + configMgrPtr_->getCurrentVersion();
     ui->versionLabel->setText(version);
 }
 

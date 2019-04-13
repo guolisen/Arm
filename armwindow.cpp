@@ -31,10 +31,10 @@ ArmWindow::~ArmWindow()
     delete ui;
     ::system("del cache*");
 
-    //QProcess* proc = new QProcess();
-    //proc->start("del cache*");
-    //proc->close();
-    //delete proc;
+    QProcess* proc = new QProcess();
+    proc->start("del", {"cache*"});
+    proc->close();
+    delete proc;
 }
 
 void ArmWindow::resizeColumn(const QString &path)
