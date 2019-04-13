@@ -46,6 +46,7 @@ public:
     ~RemoteProcess();
     void run(const QString& command);
 
+    void clearStdout();
 Q_SIGNALS:
     void readyRead(QByteArray data);
     void processStdout(QByteArray data);

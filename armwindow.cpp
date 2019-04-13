@@ -121,7 +121,7 @@ void ArmWindow::handleStdOut(QByteArray data)
 
 void ArmWindow::handleReadyRead(QByteArray data)
 {
-//consoleDialog_->setMessageToEditor(QString::fromStdString(data.toStdString()));
+    //consoleDialog_->setMessageToEditor(QString::fromStdString(data.toStdString()));
 }
 
 void ArmWindow::findStringProcess(const QString& s)
@@ -174,22 +174,23 @@ void ArmWindow::uncompressInRemote()
     QModelIndex index = ui->treeView->currentIndex();
     QSsh::SftpFileNode* fn = static_cast<QSsh::SftpFileNode *>(index.internalPointer());
     QString rootPath = modelMgr_->getRootPath();
+    QString currentPath = fn->path.mid(0, fn->path.lastIndexOf("/"));
     RemoteCommandDialog remoteDialog(this);
     if (fn->fileInfo.name.contains(".gz"))
     {
-        remoteDialog.setCommand("gunzip " + rootPath + fn->path);
+        remoteDialog.setCommand("gunzip " + fn->path);
     }
     else if (fn->fileInfo.name.contains(".zip"))
     {
-        remoteDialog.setCommand("unzip -o -d ./ " + rootPath + fn->path);
+        remoteDialog.setCommand("unzip -o " + fn->path + " -d " + currentPath);
     }
     else if (fn->fileInfo.name.contains(".tar"))
     {
-        remoteDialog.setCommand("tar xvf " + rootPath + fn->path);
+        remoteDialog.setCommand("tar xvf " + fn->path + " -C " + currentPath);
     }
     else if (fn->fileInfo.name.contains(".tgz"))
     {
-        remoteDialog.setCommand("tar xvzf " + rootPath + fn->path);
+        remoteDialog.setCommand("tar xvzf " + fn->path + " -C " + currentPath);
     }
 
     if (remoteDialog.exec() != QDialog::Accepted)

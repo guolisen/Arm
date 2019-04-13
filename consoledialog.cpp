@@ -18,7 +18,7 @@ ConsoleDialog::~ConsoleDialog()
 
 void ConsoleDialog::setMessageToEditor(const QString &message)
 {
-    ui->textEdit->append(message);
+    ui->textEdit->setText(message);
 }
 
 void ConsoleDialog::on_pushButton_clicked()

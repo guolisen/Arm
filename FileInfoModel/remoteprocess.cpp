@@ -120,6 +120,10 @@ void RemoteProcess::handleProcessStdout()
         emit processStdout(m_remoteStdout);
     }
 }
+void RemoteProcess::clearStdout()
+{
+    m_remoteStdout.clear();
+}
 
 void RemoteProcess::handleProcessStderr()
 {
