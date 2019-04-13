@@ -3,6 +3,7 @@
 #include "sftpfilemodel.h"
 #include "logfilesystemmodel.h"
 #include "sftpreadtimejob.h"
+#include <Core/iconfigmgr.h>
 
 namespace fileinfomodel {
 typedef fileinfomodel::LogFileSystemModel<
@@ -12,7 +13,9 @@ SftpFileModel::SftpFileModel(core::ContextPtr context, QAbstractItemModel* model
     fileIdentifier_(context->getComponent<fileIdentifier::IFileIdentifier>(nullptr)),
     pool_(new QThreadPool(this))
 {
-    pool_->setMaxThreadCount(5);
+    core::ConfigMgrPtr configMgrPtr = context_->getComponent<core::IConfigMgr>(nullptr);
+    int threadNumber = configMgrPtr->getConfigInfo("Arm/Setting/threadNumber", 5).toInt();
+    pool_->setMaxThreadCount(threadNumber);
 }
 
 QString SftpFileModel::getLogStartTimeStr(const QModelIndex &index)

@@ -12,9 +12,9 @@ ConfigMgr::ConfigMgr(QObject *parent) : IConfigMgr(parent),
 
 }
 
-QVariant ConfigMgr::getConfigInfo(const QString &key)
+QVariant ConfigMgr::getConfigInfo(const QString &key, const QVariant &defaultValue)
 {
-    return setting_->value(key);
+    return setting_->value(key, defaultValue);
 }
 
 void ConfigMgr::setConfigInfo(const QString &key, const QVariant &value)
@@ -28,48 +28,36 @@ QSsh::SshConnectionParameters ConfigMgr::getSshParameters()
     QSsh::SshConnectionParameters sshParams;
 
     //IP
-    QString siteIp = getConfigInfo("Arm/Setting/siteIp").toString();
-    if (siteIp.isEmpty())
-        siteIp = "";
+    QString siteIp = getConfigInfo("Arm/Setting/siteIp", "").toString();
     sshParams.host = siteIp;
     qDebug() << "sshParams.host: " << sshParams.host;
 
     //port
-    QString port = getConfigInfo("Arm/Setting/port").toString();
-    if (port.isEmpty())
-        port = "22";
+    QString port = getConfigInfo("Arm/Setting/port", "22").toString();
     sshParams.port = port.toInt();
     qDebug() << "sshParams.port: " << sshParams.port;
 
     //userName
-    QString userName = getConfigInfo("Arm/Setting/userName").toString();
-    if (userName.isEmpty())
-        userName = "c4dev";
+    QString userName = getConfigInfo("Arm/Setting/userName", "c4dev").toString();
     sshParams.userName = userName;
     qDebug() << "sshParams.userName: " << sshParams.userName;
 
     //password
-    QString password = getConfigInfo("Arm/Setting/password").toString();
-    if (password.isEmpty())
-        password = "c4dev!";
+    QString password = getConfigInfo("Arm/Setting/password", "c4dev!").toString();
     sshParams.password = password;
     qDebug() << "sshParams.password: " << sshParams.password;
 
     //timeOut
-    QString timeOut = getConfigInfo("Arm/Setting/timeOut").toString();
-    if (timeOut.isEmpty())
-        timeOut = "99999";
+    QString timeOut = getConfigInfo("Arm/Setting/timeOut", "99999").toString();
     sshParams.timeout = timeOut.toInt();
     qDebug() << "sshParams.timeout: " << sshParams.timeout;
 
     //keyFile
-    QString keyFile = getConfigInfo("Arm/Setting/keyFile").toString();
-    if (keyFile.isEmpty())
-        keyFile = "0";
+    QString keyFile = getConfigInfo("Arm/Setting/keyFile", "0").toString();
     if (keyFile.toInt())
     {
         sshParams.authenticationType = QSsh::SshConnectionParameters::AuthenticationByKey;
-        QString keyFilePath = getConfigInfo("Arm/Setting/keyFilePath").toString();
+        QString keyFilePath = getConfigInfo("Arm/Setting/keyFilePath", "").toString();
         sshParams.privateKeyFile = keyFilePath;
     }
     else

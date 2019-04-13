@@ -2,6 +2,7 @@
 #include <QApplication>
 #include <QDir>
 #include <QTime>
+#include <QTextCodec>
 #include <FileIdentifier/ifileObject.h>
 #include <FileIdentifier/fileidentifier.h>
 #include <FileIdentifier/filetypecontainer.h>
@@ -13,6 +14,7 @@
 #include <Script/IScriptCenter.h>
 #include <Script/ScriptCenter.h>
 #include <Script/detail/ScriptCenterImpl.h>
+//#pragma execution_character_set("utf-8")
 
 QMutex messageMutex;
 void MessageOutput(QtMsgType type,const QMessageLogContext& context,const QString& msg)
@@ -58,6 +60,8 @@ void MessageOutput(QtMsgType type,const QMessageLogContext& context,const QStrin
 
 int main(int argc, char *argv[])
 {
+    //QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
+
     qInstallMessageHandler(MessageOutput);
     QApplication a(argc, argv);
 
@@ -71,9 +75,10 @@ int main(int argc, char *argv[])
     context->addComponent(configMgrPtr);
 
     // ThreadPool
+    int threadNumber = configMgrPtr->getConfigInfo("Arm/Setting/threadNumber", 5).toInt();
     core::ThreadPoolPtr pool = std::make_shared<core::ThreadPool>(
                 core::detail::Thread::getFactory());
-    pool->createThreads(1);
+    pool->createThreads(threadNumber);
     context->addComponent(pool);
 
     // ScriptCenter

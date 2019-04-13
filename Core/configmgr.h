@@ -16,7 +16,7 @@ class ConfigMgr : public IConfigMgr
 public:
     explicit ConfigMgr(QObject *parent = nullptr);
 
-    virtual QVariant getConfigInfo(const QString& key);
+    virtual QVariant getConfigInfo(const QString& key, const QVariant &defaultValue);
     virtual void setConfigInfo(const QString& key, const QVariant& value);
 
     virtual QSsh::SshConnectionParameters getSshParameters();
