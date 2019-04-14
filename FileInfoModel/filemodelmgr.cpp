@@ -139,7 +139,6 @@ void FileModelMgr::setRootRemotePath(const QString& path, QTreeView* tree)
 
     if(!isRemoteConnected_)
     {
-        //remoteState_ = RemoteStateConnecting;
         remoteFSModel_->shutDown();
         core::ConfigMgrPtr config = context_->getComponent<core::IConfigMgr>(nullptr);
         QSsh::SshConnectionParameters sshParams = config->getSshParameters();

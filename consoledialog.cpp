@@ -9,8 +9,8 @@ ConsoleDialog::ConsoleDialog(QWidget *parent) :
     Qt::WindowFlags flag = windowFlags();
     flag = flag & (~Qt::WindowContextHelpButtonHint);
     setWindowFlags(flag);
-    ui->textEdit->setAcceptRichText(true);
-    ui->textEdit->setAutoFormatting(QTextEdit::AutoAll);
+    //ui->textEdit->setAcceptRichText(true);
+    //ui->textEdit->setAutoFormatting(QTextEdit::AutoAll);
     ui->textEdit->setReadOnly(true);
 }
 
@@ -21,10 +21,10 @@ ConsoleDialog::~ConsoleDialog()
 
 void ConsoleDialog::setMessageToEditor(const QString &message)
 {
-    ui->textEdit->setText(message);
+    ui->textEdit->setPlainText(message);
 }
 
 void ConsoleDialog::on_pushButton_clicked()
 {
-    ui->textEdit->setText("");
+    ui->textEdit->setPlainText("");
 }

@@ -107,6 +107,8 @@ void SftpReadTimeJob::handleSftpOperationFinished(QSsh::SftpJobId jobId, QString
         lineStr = s.toStdString();
     }
 
+    qDebug() << "SftpReadTimeJob::handleSftpOperationFinished final: "
+             << QString::fromStdString(lineStr);
     fileIdentifier::DateEntry dateEntry = typeObj_->getLineTime(lineStr);
     if (!dateEntry.exist)
     {
@@ -120,19 +122,6 @@ void SftpReadTimeJob::handleSftpOperationFinished(QSsh::SftpJobId jobId, QString
     QDate date(dateEntry.year, dateEntry.month, dateEntry.day);
     QTime time(dateEntry.hour, dateEntry.minute, dateEntry.second, dateEntry.mSecond/1000);
     QDateTime dt(date, time);
-#if 0
-    TextDate,      // default Qt
-    ISODate,       // ISO 8601
-    SystemLocaleDate, // deprecated
-    LocalDate = SystemLocaleDate, // deprecated
-    LocaleDate,     // deprecated
-    SystemLocaleShortDate,
-    SystemLocaleLongDate,
-    DefaultLocaleShortDate,
-    DefaultLocaleLongDate,
-    RFC2822Date,        // RFC 2822 (+ 850 and 1036 during parsing)
-    ISODateWithMs
-#endif
 
     dataStr = dt.toString(Qt::RFC2822Date);
     setCache_(fullFileName_, dataStr);

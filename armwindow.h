@@ -41,6 +41,7 @@ private slots:
     void handleStdOut(QByteArray data);
     void updateColumn(const QModelIndex& index);
     void unCompressRemoteFile();
+    void handleClosed(int exitStatus);
 private:
     void createMenu();
     RemoteProcess* createRemoteProcess();

@@ -16,7 +16,27 @@
 #include <Script/detail/ScriptCenterImpl.h>
 //#pragma execution_character_set("utf-8")
 
+QString getLogFileName(const QString& logName)
+{
+    QFileInfo fi(logName);
+
+    if (!fi.isFile())
+        return logName;
+
+    int num = 0;
+    int startPos = logName.lastIndexOf("_");
+    if (startPos > 0)
+    {
+        int endPos = logName.lastIndexOf(".");
+        QString numStr = logName.mid(startPos+1, endPos - startPos -1);
+        num += numStr.toInt() + 1;
+    }
+
+    return getLogFileName(QString("ArmLog_%1.log").arg(num));
+}
+
 QMutex messageMutex;
+QString currentLogFileName = "ArmLog.log";
 void MessageOutput(QtMsgType type,const QMessageLogContext& context,const QString& msg)
 {
     QMutexLocker locker(&messageMutex);
@@ -46,6 +66,10 @@ void MessageOutput(QtMsgType type,const QMessageLogContext& context,const QStrin
     }
     txtMessage += QString(",{%1}").arg(context.line);
     txtMessage += QString("\r\n");
+
+    //QFileInfo fi(currentLogFileName);
+    //if (fi.size() > (5 * 1024 * 1024))
+    //    currentLogFileName = getLogFileName(currentLogFileName);
 
     QFile file("ArmLog.log");
     if(file.open(QIODevice::WriteOnly | QIODevice::Append))

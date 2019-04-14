@@ -7,6 +7,7 @@
 #include <QProcess>
 #include <QSettings>
 #include <QMessageBox>
+#include <QToolBar>
 #include "aboutdialog.h"
 #include "FileInfoModel/uncompressfilecache.h"
 #include "folderopendialog.h"
@@ -83,6 +84,7 @@ RemoteProcess* ArmWindow::createRemoteProcess()
     connect(remoteProcess, &RemoteProcess::readyRead, this, &ArmWindow::handleReadyRead);
     connect(remoteProcess, &RemoteProcess::processStdout, this, &ArmWindow::handleStdOut);
     connect(remoteProcess, &RemoteProcess::processStderr, this, &ArmWindow::handleStdOut);
+    connect(remoteProcess, &RemoteProcess::processClosed, this, &ArmWindow::handleClosed);
 
     return remoteProcess;
 }
@@ -117,13 +119,16 @@ void ArmWindow::init()
         editorPath_ = QDir::cleanPath("C:/Program Files (x86)/Notepad++/notepad++.exe");
 }
 
+void ArmWindow::handleClosed(int exitStatus)
+{
+    qDebug() << "Command result: " << exitStatus;
+}
+
 void ArmWindow::handleStdOut(QByteArray data)
 {
     QString result = QString::fromStdString(data.toStdString());
-    qDebug() << "Command result: " << result;
+    qDebug() << "Command Output: " << result;
     consoleDialog_->setMessageToEditor(result);
-    modelMgr_->update(needUpdateIndex_);
-
 }
 
 void ArmWindow::handleReadyRead(QByteArray data)
@@ -243,12 +248,14 @@ void ArmWindow::runRemoteCommand(const QString& defaultCommand)
 void ArmWindow::createMenu()
 {
     QMenu *fileMenu = menuBar()->addMenu(tr("&File"));
+    QToolBar *fileToolBar = addToolBar(tr("File"));
     const QIcon openIcon = QIcon::fromTheme("open", QIcon(":/folder.ico"));
     QAction *newAct = new QAction(openIcon, tr("&Open Log Folder"), this);
     newAct->setShortcuts(QKeySequence::Open);
     newAct->setStatusTip(tr("Open a new folder"));
     connect(newAct, &QAction::triggered, this, &ArmWindow::open);
     fileMenu->addAction(newAct);
+    fileToolBar->addAction(newAct);
     //-----
     const QIcon settingIcon = QIcon::fromTheme("setting", QIcon(":/setting.ico"));
     QAction *settingAct = new QAction(settingIcon, tr("&Preferences..."), this);
@@ -256,6 +263,7 @@ void ArmWindow::createMenu()
     settingAct->setStatusTip(tr("Setting..."));
     connect(settingAct, &QAction::triggered, this, &ArmWindow::setting);
     fileMenu->addAction(settingAct);
+    fileToolBar->addAction(settingAct);
     fileMenu->addSeparator();
     //-----
     const QIcon exitIcon = QIcon::fromTheme("exit", QIcon(":/exit.ico"));
@@ -264,8 +272,10 @@ void ArmWindow::createMenu()
     quitAct->setStatusTip(tr("Quit"));
     connect(quitAct, &QAction::triggered, this, [this](){close();});
     fileMenu->addAction(quitAct);
+    fileToolBar->addAction(quitAct);
     //-------------------------------------------
     QMenu *toolsMenu = menuBar()->addMenu(tr("&Tools"));
+    QToolBar *toolsToolBar = addToolBar(tr("Tools"));
     const QIcon runCommandIcon = QIcon::fromTheme("open", QIcon(":/play2.ico"));
     QAction *runCommandAct = new QAction(runCommandIcon, tr("&Run Command"), this);
     runCommandAct->setStatusTip(tr("Run Command"));
@@ -274,6 +284,7 @@ void ArmWindow::createMenu()
         runRemoteCommand("");
     });
     toolsMenu->addAction(runCommandAct);
+    toolsToolBar->addAction(runCommandAct);
 
     const QIcon reloadLogIcon = QIcon::fromTheme("open", QIcon(":/reload.ico"));
     QAction *reloadLogAct = new QAction(reloadLogIcon, tr("&Reload Log Time"), this);
@@ -282,8 +293,23 @@ void ArmWindow::createMenu()
         modelMgr_->clearCache();
     });
     toolsMenu->addAction(reloadLogAct);
+    toolsToolBar->addAction(reloadLogAct);
 
+    const QIcon reloadModelIcon = QIcon::fromTheme("open", QIcon(":/reloadMd.ico"));
+    QAction *reloadModelAct = new QAction(reloadModelIcon, tr("&Reload Model Time"), this);
+    reloadModelAct->setStatusTip(tr("Reload Model"));
+    connect(reloadModelAct, &QAction::triggered, this, [this](){
+        if (needUpdateIndex_.isValid())
+        {
+            modelMgr_->update(needUpdateIndex_);
+            needUpdateIndex_ = QModelIndex();
+        }
+    });
+    toolsMenu->addAction(reloadModelAct);
+    toolsToolBar->addAction(reloadModelAct);
+    //-------------------------------------------
     QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
+    QToolBar *helpToolBar = addToolBar(tr("Help"));
     const QIcon infoIcon = QIcon::fromTheme("info", QIcon(":/info.ico"));
     QAction *aboutAct = new QAction(infoIcon, tr("&About"), this);
     aboutAct->setStatusTip(tr("Open About"));
@@ -293,6 +319,7 @@ void ArmWindow::createMenu()
             return;
     });
     helpMenu->addAction(aboutAct);
+    helpToolBar->addAction(aboutAct);
 }
 
 void ArmWindow::on_treeView_doubleClicked(const QModelIndex &index)
