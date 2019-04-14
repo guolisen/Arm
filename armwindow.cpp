@@ -301,6 +301,8 @@ void ArmWindow::on_treeView_doubleClicked(const QModelIndex &index)
         return;
 
     QString cacheFile = modelMgr_->createCacheFile(index);
+    if (cacheFile.isEmpty())
+        return;
 
     QProcess* proc = new QProcess(this);
     connect(proc, static_cast<void(QProcess::*)(int)>(&QProcess::finished),

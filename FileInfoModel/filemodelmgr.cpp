@@ -217,6 +217,8 @@ QString FileModelMgr::createCacheFile(const QModelIndex &index)
         const RemoteFileModelType* remoteModel =
                 dynamic_cast<const RemoteFileModelType*>(index.model());
         QSsh::SftpFileNode* fn = static_cast<QSsh::SftpFileNode *>(index.internalPointer());
+        if (fn && fn->fileInfo.type == QSsh::FileTypeDirectory)
+            return "";
         pd_->setMaximum(fn->fileInfo.size);
         pd_->setMinimum(0);
         pd_->setLabelText(fn->fileInfo.name);
@@ -232,6 +234,9 @@ QString FileModelMgr::createCacheFile(const QModelIndex &index)
     else
     {
         LocalFileModelType* localModel = (LocalFileModelType*)index.model();
+        QFileInfo fi = localModel->fileInfo(index);
+        if (fi.isDir())
+            return "";
         localFile = localModel->filePath(index);
     }
 
