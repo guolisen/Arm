@@ -35,7 +35,7 @@ QSsh::SshConnectionParameters ConfigMgr::getSshParameters()
     //port
     QString port = getConfigInfo("Arm/Setting/port", "22").toString();
     sshParams.port = port.toInt();
-    qDebug() << "sshParams.port: " << sshParams.port;
+    //qDebug() << "sshParams.port: " << sshParams.port;
 
     //userName
     QString userName = getConfigInfo("Arm/Setting/userName", "c4dev").toString();
@@ -45,12 +45,12 @@ QSsh::SshConnectionParameters ConfigMgr::getSshParameters()
     //password
     QString password = getConfigInfo("Arm/Setting/password", "c4dev!").toString();
     sshParams.password = password;
-    qDebug() << "sshParams.password: " << sshParams.password;
+    //qDebug() << "sshParams.password: " << sshParams.password;
 
     //timeOut
     QString timeOut = getConfigInfo("Arm/Setting/timeOut", "99999").toString();
     sshParams.timeout = timeOut.toInt();
-    qDebug() << "sshParams.timeout: " << sshParams.timeout;
+    //qDebug() << "sshParams.timeout: " << sshParams.timeout;
 
     //keyFile
     QString keyFile = getConfigInfo("Arm/Setting/keyFile", "0").toString();
@@ -62,8 +62,8 @@ QSsh::SshConnectionParameters ConfigMgr::getSshParameters()
     }
     else
         sshParams.authenticationType = QSsh::SshConnectionParameters::AuthenticationByPassword;
-    qDebug() << "sshParams.authenticationType: " << sshParams.authenticationType;
-    qDebug() << "sshParams.privateKeyFile: " << sshParams.privateKeyFile;
+    //qDebug() << "sshParams.authenticationType: " << sshParams.authenticationType;
+    //qDebug() << "sshParams.privateKeyFile: " << sshParams.privateKeyFile;
 
     return sshParams;
 }

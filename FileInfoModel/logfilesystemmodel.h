@@ -96,6 +96,11 @@ public:
         QMutexLocker locker(&cacheMutex_);
         logCache_.clear();
     }
+
+    int getCurrentJobNum()
+    {
+        return fileModel_->getCurrentJobNum();
+    }
 private:
     QString logStartTime(const QModelIndex &index) const
     {

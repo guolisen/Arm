@@ -24,6 +24,10 @@ public:
 
     virtual QString getLogStartTimeStr(const QModelIndex &index);
     virtual void setCurrentDir(const QString& path, QTreeView* tree);
+    virtual int getCurrentJobNum()
+    {
+        return 0;
+    }
 private:
     core::ContextPtr context_;
     QAbstractItemModel* model_;

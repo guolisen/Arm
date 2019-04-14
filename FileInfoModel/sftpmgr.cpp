@@ -20,9 +20,9 @@ void SftpMgr::startToConnect()
         << qPrintable(sshParams_.host) << "'...";
 
     m_connection->connectToHost();
-    sftpMutex_.lock();
+    //sftpMutex_.lock();
     //cond_.wait(&sftpMutex_);
-    sftpMutex_.unlock();
+    //sftpMutex_.unlock();
 }
 
 QSsh::SftpJobId SftpMgr::download(const QString &remoteFilePath, QSharedPointer<QIODevice> localFile, quint32 size)

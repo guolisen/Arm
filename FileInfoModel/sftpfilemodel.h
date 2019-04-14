@@ -25,11 +25,18 @@ public:
 
     virtual QString getLogStartTimeStr(const QModelIndex &index);
     virtual void setCurrentDir(const QString& path, QTreeView* tree);
+    virtual int getCurrentJobNum()
+    {
+        return currentJobsNum_;
+    }
+
 private:
     core::ContextPtr context_;
     QAbstractItemModel* model_;
     fileIdentifier::FileIdentifierPtr fileIdentifier_;
     QThreadPool* pool_;
+    QMutex jobNumMutex_;
+    int currentJobsNum_;
 };
 
 template<>

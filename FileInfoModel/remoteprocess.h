@@ -50,6 +50,20 @@ public:
         m_remoteRunner->cancel();
     }
     void clearStdout();
+    bool isRunning()
+    {
+        return m_remoteRunner->isProcessRunning();
+    }
+
+    QByteArray readAllStandardOutput()
+    {
+        return m_remoteRunner->readAllStandardOutput();
+    }
+    QByteArray readAllStandardError()
+    {
+        return m_remoteRunner->readAllStandardError();
+    }
+
 Q_SIGNALS:
     void readyRead(QByteArray data);
     void processStdout(QByteArray data);

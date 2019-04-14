@@ -117,12 +117,17 @@ QAbstractItemModel* FileModelMgr::getModel()
 
 void FileModelMgr::update(const QModelIndex& index)
 {
-    remoteFSModel_->update(index);
+    if(currentModeType_ == RemoteFileSystemModel)
+    {
+        if (!remoteFSModel_->getCurrentJobNum())
+            remoteFSModel_->update(index);
+    }
 }
 
 void FileModelMgr::clearCache()
 {
     remoteFSModel_->clearCache();
+    localFSModel_->clearCache();
 }
 
 void FileModelMgr::setRootLocalPath(const QString& path, QTreeView* tree)

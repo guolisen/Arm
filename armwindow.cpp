@@ -21,6 +21,7 @@ ArmWindow::ArmWindow(core::ContextPtr context, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::ArmWindow), context_(context),
     modelMgr_(new fileinfomodel::FileModelMgr(context_, this)),
+    remoteProcess_(nullptr),
     consoleDialog_(new ConsoleDialog(this)),
     configMgrPtr_(context->getComponent<core::IConfigMgr>(nullptr))
 {
@@ -77,6 +78,10 @@ void ArmWindow::handleConnectionError(const QString &errorMessage)
 
 RemoteProcess* ArmWindow::createRemoteProcess()
 {
+    if (remoteProcess_)
+    {
+        return remoteProcess_;
+    }
     core::ConfigMgrPtr config = context_->getComponent<core::IConfigMgr>(nullptr);
     QSsh::SshConnectionParameters sshParams = config->getSshParameters();
 
@@ -86,6 +91,7 @@ RemoteProcess* ArmWindow::createRemoteProcess()
     connect(remoteProcess, &RemoteProcess::processStderr, this, &ArmWindow::handleStdOut);
     connect(remoteProcess, &RemoteProcess::processClosed, this, &ArmWindow::handleClosed);
 
+    remoteProcess_ = remoteProcess;
     return remoteProcess;
 }
 
@@ -97,7 +103,6 @@ void ArmWindow::init()
     ui->treeView->setIndentation(20);
     ui->treeView->setSortingEnabled(true);
     ui->treeView->setWindowTitle(QObject::tr("Arm"));
-
 
     //connect(ui->treeView->header(), &QHeaderView::sectionClicked, ui->treeView, &QTreeView::sortByColumn);
     connect(ui->comboBox, &QComboBox::editTextChanged, this, &ArmWindow::findStringProcess);
