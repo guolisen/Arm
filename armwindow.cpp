@@ -299,7 +299,7 @@ void ArmWindow::createMenu()
     QAction *reloadModelAct = new QAction(reloadModelIcon, tr("&Reload Model Time"), this);
     reloadModelAct->setStatusTip(tr("Reload Model"));
     connect(reloadModelAct, &QAction::triggered, this, [this](){
-        if (needUpdateIndex_.isValid())
+        //if (needUpdateIndex_.isValid())
         {
             modelMgr_->update(needUpdateIndex_);
             needUpdateIndex_ = QModelIndex();

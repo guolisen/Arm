@@ -22,6 +22,7 @@ ConsoleDialog::~ConsoleDialog()
 void ConsoleDialog::setMessageToEditor(const QString &message)
 {
     ui->textEdit->setPlainText(message);
+    ui->textEdit->moveCursor(QTextCursor::End);
 }
 
 void ConsoleDialog::on_pushButton_clicked()
