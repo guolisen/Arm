@@ -80,7 +80,8 @@ RemoteProcess* ArmWindow::createRemoteProcess()
 {
     if (remoteProcess_)
     {
-        return remoteProcess_;
+        delete remoteProcess_;
+        remoteProcess_ = nullptr;
     }
     core::ConfigMgrPtr config = context_->getComponent<core::IConfigMgr>(nullptr);
     QSsh::SshConnectionParameters sshParams = config->getSshParameters();
@@ -304,11 +305,9 @@ void ArmWindow::createMenu()
     QAction *reloadModelAct = new QAction(reloadModelIcon, tr("&Reload Model Time"), this);
     reloadModelAct->setStatusTip(tr("Reload Model"));
     connect(reloadModelAct, &QAction::triggered, this, [this](){
-        //if (needUpdateIndex_.isValid())
-        {
-            modelMgr_->update(needUpdateIndex_);
-            needUpdateIndex_ = QModelIndex();
-        }
+        QModelIndex currentInd = ui->treeView->currentIndex();
+        if (currentInd.isValid())
+            modelMgr_->update(currentInd);
     });
     toolsMenu->addAction(reloadModelAct);
     toolsToolBar->addAction(reloadModelAct);
@@ -376,7 +375,6 @@ void ArmWindow::on_treeView_customContextMenuRequested(const QPoint &pos)
             fn->fileInfo.name.contains(".tar") ||
             fn->fileInfo.name.contains(".tgz")))
     {
-        needUpdateIndex_ = index;
         rightPopMenu_->popup(QCursor::pos());
     }
 }
