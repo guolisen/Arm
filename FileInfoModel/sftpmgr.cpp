@@ -10,6 +10,11 @@ SftpMgr::SftpMgr(QSsh::SshConnectionParameters sshParams, QObject *parent) : QOb
 {
 }
 
+SftpMgr::~SftpMgr()
+{
+    disconnectToHost();
+}
+
 void SftpMgr::startToConnect()
 {
     m_connection = new QSsh::SshConnection(sshParams_);

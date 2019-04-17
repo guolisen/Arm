@@ -23,7 +23,8 @@ ArmWindow::ArmWindow(core::ContextPtr context, QWidget *parent) :
     modelMgr_(new fileinfomodel::FileModelMgr(context_, this)),
     remoteProcess_(nullptr),
     consoleDialog_(new ConsoleDialog(this)),
-    configMgrPtr_(context->getComponent<core::IConfigMgr>(nullptr))
+    configMgrPtr_(context->getComponent<core::IConfigMgr>(nullptr)),
+    isNeedUpdate_(false)
 {
     ui->setupUi(this);
     init();
@@ -32,12 +33,12 @@ ArmWindow::ArmWindow(core::ContextPtr context, QWidget *parent) :
 ArmWindow::~ArmWindow()
 {
     delete ui;
-    //::system("del cache*");
+    ::system("del cache*");
 
-    QProcess* proc = new QProcess();
-    proc->start("del", {"cache*"});
-    proc->close();
-    delete proc;
+    //QProcess* proc = new QProcess();
+    //proc->start("del", {"cache*"});
+    //proc->close();
+    //delete proc;
 }
 
 void ArmWindow::resizeColumn(const QString &path)
@@ -127,7 +128,15 @@ void ArmWindow::init()
 
 void ArmWindow::handleClosed(int exitStatus)
 {
-    qDebug() << "Command result: " << exitStatus;
+    qDebug() << " ArmWindow::handleClosed Command result: " << exitStatus;
+    if (isNeedUpdate_)
+    {
+        QModelIndex currentInd = ui->treeView->currentIndex();
+        if (currentInd.isValid())
+            modelMgr_->update(currentInd);
+        isNeedUpdate_ = false;
+    }
+    consoleDialog_->appendMessageToEditor("Command Done!");
 }
 
 void ArmWindow::handleStdOut(QByteArray data)
@@ -231,10 +240,11 @@ void ArmWindow::unCompressRemoteFile()
         }
     }
 
-    runRemoteCommand(uncompressCommand);
+    if (runRemoteCommand(uncompressCommand))
+        isNeedUpdate_ = true;
 }
 
-void ArmWindow::runRemoteCommand(const QString& defaultCommand)
+bool ArmWindow::runRemoteCommand(const QString& defaultCommand)
 {
     qDebug() << "runRemoteCommand default: " << defaultCommand;
 
@@ -242,13 +252,15 @@ void ArmWindow::runRemoteCommand(const QString& defaultCommand)
     remoteDialog.setCommand(defaultCommand);
     if (remoteDialog.exec() != QDialog::Accepted)
     {
-        return;
+        return false;
     }
 
     QString commandfinal = remoteDialog.getCommand();
+    consoleDialog_->setMessageToEditor("");
     consoleDialog_->show();
     RemoteProcess* rprocess = createRemoteProcess();
     rprocess->run(commandfinal);
+    return true;
 }
 
 void ArmWindow::createMenu()

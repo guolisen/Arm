@@ -96,7 +96,9 @@ void SftpReadTimeJob::handleSftpOperationFinished(QSsh::SftpJobId jobId, QString
         QByteArray compressData = uncompressData();
         if (compressData.isEmpty())
         {
-           qDebug() << "Uncompress error " << fullFileName_;
+           qCritical() << "Uncompress error " << fullFileName_;
+           lineStr = "Uncompress error";
+           setCache_(fullFileName_, QString::fromStdString(lineStr));
            emit jobfinished();
            return;
         }
@@ -161,7 +163,7 @@ void SftpReadTimeJob::run()
     loop.exec();
 
     emit dataChanged(index_);
-    sftpMgr_->disconnectToHost();
+    delete sftpMgr_;
     qDebug() << "Thread Out!";
 }
 }

@@ -16,6 +16,7 @@ public:
     ~ConsoleDialog();
 
     void setMessageToEditor(const QString& message);
+    void appendMessageToEditor(const QString &message);
 private slots:
     void on_pushButton_clicked();
 

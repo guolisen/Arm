@@ -21,7 +21,7 @@ class SftpMgr : public QObject
 
 public:
     SftpMgr(QSsh::SshConnectionParameters sshParams, QObject *parent = nullptr);
-    virtual ~SftpMgr() = default;
+    virtual ~SftpMgr();
     void startToConnect();
     QSsh::SftpJobId download(const QString &remoteFilePath, QSharedPointer<QIODevice> localFile, quint32 size);
     void disconnectToHost();
