@@ -10,5 +10,6 @@
         <file>play2.ico</file>
         <file>reload.ico</file>
         <file>reloadMd.ico</file>
+        <file>help.ico</file>
     </qresource>
 </RCC>

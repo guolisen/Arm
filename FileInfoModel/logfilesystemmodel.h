@@ -46,11 +46,12 @@ public:
                case(Qt::DisplayRole):
                 return logStartTime(index);
                case(Qt::TextAlignmentRole):
-                   return static_cast<int>(Qt::AlignLeft | Qt::AlignHCenter);
+                   return static_cast<int>(Qt::AlignVCenter | Qt::AlignHCenter);
                default:
                    break;
             }
         }
+
         return FileModelTrait<ModelT>::ModelBaseType::data(index,role);
     }
     int columnCount(const QModelIndex& parent = QModelIndex()) const override

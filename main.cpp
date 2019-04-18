@@ -86,7 +86,6 @@ int main(int argc, char *argv[])
 {
     //QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
 
-    qInstallMessageHandler(MessageOutput);
     QApplication a(argc, argv);
 
     QCoreApplication::setOrganizationName("DELLEMC");
@@ -97,6 +96,11 @@ int main(int argc, char *argv[])
     // ConfigMgr
     core::ConfigMgrPtr configMgrPtr = std::make_shared<core::ConfigMgr>();
     context->addComponent(configMgrPtr);
+
+    if(configMgrPtr->getConfigInfo("Arm/Setting/logEnable", false).toBool())
+    {
+        qInstallMessageHandler(MessageOutput);
+    }
 
     // ThreadPool
     int threadNumber = configMgrPtr->getConfigInfo("Arm/Setting/threadNumber", 5).toInt();

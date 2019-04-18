@@ -336,6 +336,23 @@ void ArmWindow::createMenu()
     });
     helpMenu->addAction(aboutAct);
     helpToolBar->addAction(aboutAct);
+
+    const QIcon howtologinIcon = QIcon::fromTheme("howtologin", QIcon(":/help.ico"));
+    QAction *howtologinAct = new QAction(howtologinIcon, tr("How To Login"), this);
+    howtologinAct->setStatusTip(tr("How to login"));
+    connect(howtologinAct, &QAction::triggered, this, [this](){
+        QProcess* proc = new QProcess(this);
+        //proc->setWorkingDirectory("E:/code/qt/build-Arm-Desktop_Qt_5_12_1_MSVC2017_64bit-Debug");
+        proc->start("dir", {""});
+        proc->waitForStarted();
+        proc->waitForFinished();
+        QByteArray out = proc->readAllStandardOutput();
+        std::string s = out.toStdString();
+        proc->close();
+        delete proc;
+    });
+    helpMenu->addAction(howtologinAct);
+    //helpToolBar->addAction(howtologinAct);
 }
 
 void ArmWindow::on_treeView_doubleClicked(const QModelIndex &index)
