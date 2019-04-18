@@ -70,6 +70,6 @@ QSsh::SshConnectionParameters ConfigMgr::getSshParameters()
 
 QString ConfigMgr::getCurrentVersion()
 {
-    return "0.23";
+    return "0.25";
 }
 }
