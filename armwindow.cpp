@@ -142,8 +142,8 @@ void ArmWindow::handleClosed(int exitStatus)
 void ArmWindow::handleStdOut(QByteArray data)
 {
     QString result = QString::fromStdString(data.toStdString());
-    qDebug() << "Command Output: " << result;
-    consoleDialog_->setMessageToEditor(result);
+    //qDebug() << "Command Output: " << result;
+    consoleDialog_->appendMessageToEditor(result);
 }
 
 void ArmWindow::handleReadyRead(QByteArray data)
@@ -215,7 +215,7 @@ void ArmWindow::createPopMenu()
 
 void ArmWindow::unCompressRemoteFile()
 {
-    qDebug() << "uncompressInRemote: ";
+    qDebug() << "uncompressInRemote";
     QModelIndex index = ui->treeView->currentIndex();
     QString uncompressCommand = "";
     QSsh::SftpFileNode* fn = static_cast<QSsh::SftpFileNode *>(index.internalPointer());
@@ -246,7 +246,7 @@ void ArmWindow::unCompressRemoteFile()
 
 bool ArmWindow::runRemoteCommand(const QString& defaultCommand)
 {
-    qDebug() << "runRemoteCommand default: " << defaultCommand;
+    //qDebug() << "runRemoteCommand default: " << defaultCommand;
 
     RemoteCommandDialog remoteDialog(this);
     remoteDialog.setCommand(defaultCommand);
@@ -294,7 +294,7 @@ void ArmWindow::createMenu()
     //-------------------------------------------
     QMenu *toolsMenu = menuBar()->addMenu(tr("&Tools"));
     QToolBar *toolsToolBar = addToolBar(tr("Tools"));
-    const QIcon runCommandIcon = QIcon::fromTheme("open", QIcon(":/play2.ico"));
+    const QIcon runCommandIcon = QIcon::fromTheme("runCommandIcon", QIcon(":/play2.ico"));
     QAction *runCommandAct = new QAction(runCommandIcon, tr("&Run Command"), this);
     runCommandAct->setStatusTip(tr("Run Command"));
     connect(runCommandAct, &QAction::triggered, this, [this](){
@@ -304,7 +304,7 @@ void ArmWindow::createMenu()
     toolsMenu->addAction(runCommandAct);
     toolsToolBar->addAction(runCommandAct);
 
-    const QIcon reloadLogIcon = QIcon::fromTheme("open", QIcon(":/reload.ico"));
+    const QIcon reloadLogIcon = QIcon::fromTheme("reloadLogIcon", QIcon(":/reload.ico"));
     QAction *reloadLogAct = new QAction(reloadLogIcon, tr("&Reload Log Time"), this);
     reloadLogAct->setStatusTip(tr("Reload Log time"));
     connect(reloadLogAct, &QAction::triggered, this, [this](){
@@ -313,8 +313,8 @@ void ArmWindow::createMenu()
     toolsMenu->addAction(reloadLogAct);
     toolsToolBar->addAction(reloadLogAct);
 
-    const QIcon reloadModelIcon = QIcon::fromTheme("open", QIcon(":/reloadMd.ico"));
-    QAction *reloadModelAct = new QAction(reloadModelIcon, tr("&Reload Model Time"), this);
+    const QIcon reloadModelIcon = QIcon::fromTheme("reloadModelIcon", QIcon(":/reloadMd.ico"));
+    QAction *reloadModelAct = new QAction(reloadModelIcon, tr("&Reload Model"), this);
     reloadModelAct->setStatusTip(tr("Reload Model"));
     connect(reloadModelAct, &QAction::triggered, this, [this](){
         QModelIndex currentInd = ui->treeView->currentIndex();
@@ -322,7 +322,7 @@ void ArmWindow::createMenu()
             modelMgr_->update(currentInd);
     });
     toolsMenu->addAction(reloadModelAct);
-    toolsToolBar->addAction(reloadModelAct);
+    //toolsToolBar->addAction(reloadModelAct);
     //-------------------------------------------
     QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
     QToolBar *helpToolBar = addToolBar(tr("Help"));

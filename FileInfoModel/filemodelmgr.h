@@ -80,6 +80,9 @@ private:
     QString downloadError_;
     QProgressDialog* pd_;
     RemoteState remoteState_;
+    QSsh::SshConnectionParameters currentServer_;
+    void createRemoteModel();
+    void releaseRemoteModel();
 };
 
 }

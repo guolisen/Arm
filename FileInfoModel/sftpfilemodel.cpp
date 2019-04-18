@@ -18,6 +18,11 @@ SftpFileModel::SftpFileModel(core::ContextPtr context, QAbstractItemModel* model
     pool_->setMaxThreadCount(threadNumber);
 }
 
+SftpFileModel::~SftpFileModel()
+{
+    pool_->clear();
+}
+
 QString SftpFileModel::getLogStartTimeStr(const QModelIndex &index)
 {
     RemoteFileSystemType* fileSystem = dynamic_cast<RemoteFileSystemType*>(model_);

@@ -22,7 +22,7 @@ class SftpFileModel: public IFileModel
 {
 public:
     SftpFileModel(core::ContextPtr context, QAbstractItemModel* model, QObject* parent);
-
+    virtual ~SftpFileModel();
     virtual QString getLogStartTimeStr(const QModelIndex &index);
     virtual void setCurrentDir(const QString& path, QTreeView* tree);
     virtual int getCurrentJobNum()

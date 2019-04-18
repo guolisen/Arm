@@ -18,7 +18,7 @@ FileModelMgr::FileModelMgr(core::ContextPtr context, QObject* parent):  QObject(
     currentModeType_(LocalFileSystemModel),
     isRemoteConnected_(false),
     localFSModel_(new LocalFileModelType(context, nullptr, this)),
-    remoteFSModel_(new RemoteFileModelType(context, nullptr, this)),
+    remoteFSModel_(nullptr),
     currentModel_(nullptr), context_(context), downloadId_(0), rootPath_("/"),
     remoteState_(RemoteStateConnectFinished)
 {
@@ -49,13 +49,12 @@ void FileModelMgr::createProgressBar()
     pd_->setWindowFlags(Qt::WindowTitleHint | Qt::CustomizeWindowHint);
 }
 
-bool FileModelMgr::init()
+void FileModelMgr::createRemoteModel()
 {
-    connect(localFSModel_, &LocalFileModelType::directoryLoaded,
-            this, [this](const QString& path)
+    if (!remoteFSModel_)
     {
-        emit directoryLoadedWrapper(path);
-    });
+        remoteFSModel_ = new RemoteFileModelType(context_, nullptr, this);
+    }
     connect(remoteFSModel_->getModel(), &IFileModel::dataChanged,
             this, [this](const QModelIndex &index)
     {
@@ -73,7 +72,16 @@ bool FileModelMgr::init()
     connect(remoteFSModel_, SIGNAL(connectionError(QString)), SLOT(handleConnectionError(QString)));
     connect(remoteFSModel_, SIGNAL(connectionSuccess()), SLOT(handleConnectionSuccess()));
     connect(remoteFSModel_, SIGNAL(downloadPrograss(quint64, quint64)), SLOT(handleDownloadPrograss(quint64, quint64)));
+}
 
+bool FileModelMgr::init()
+{
+    connect(localFSModel_, &LocalFileModelType::directoryLoaded,
+            this, [this](const QString& path)
+    {
+        emit directoryLoadedWrapper(path);
+    });
+    createRemoteModel();
     createProgressBar();
 
     return true;
@@ -137,16 +145,34 @@ void FileModelMgr::setRootLocalPath(const QString& path, QTreeView* tree)
     localFSModel_->setCurrentDir(path, tree);
 }
 
+void FileModelMgr::releaseRemoteModel()
+{
+    if (remoteFSModel_)
+    {
+        delete remoteFSModel_;
+        remoteFSModel_ = nullptr;
+        isRemoteConnected_ = false;
+    }
+}
+
 void FileModelMgr::setRootRemotePath(const QString& path, QTreeView* tree)
 {
+    releaseRemoteModel();
+    createRemoteModel();
     currentModel_ = remoteFSModel_;
     tree->setModel(currentModel_);
+    core::ConfigMgrPtr config = context_->getComponent<core::IConfigMgr>(nullptr);
+    QSsh::SshConnectionParameters sshParams = config->getSshParameters();
+    //if (currentServer_ != sshParams)
+    //{
+    //    isRemoteConnected_ = false;
+    //    remoteFSModel_->shutDown();
+    //    currentServer_ = sshParams;
+    //}
 
     if(!isRemoteConnected_)
     {
         remoteFSModel_->shutDown();
-        core::ConfigMgrPtr config = context_->getComponent<core::IConfigMgr>(nullptr);
-        QSsh::SshConnectionParameters sshParams = config->getSshParameters();
         remoteFSModel_->setSshConnection(sshParams);
     }
     else

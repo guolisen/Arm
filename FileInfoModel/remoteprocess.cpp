@@ -116,7 +116,7 @@ void RemoteProcess::handleProcessStdout()
             << "."  ;
         return;
     } else {
-        m_remoteStdout += m_remoteRunner->readAllStandardOutput();
+        m_remoteStdout = m_remoteRunner->readAllStandardOutput();
         emit processStdout(m_remoteStdout);
     }
 }
@@ -128,12 +128,12 @@ void RemoteProcess::clearStdout()
 void RemoteProcess::handleProcessStderr()
 {
     if (!m_started) {
-         qDebug() << "Error: Remote error output from non-started process."
-             ;
+         qDebug() << "Error: Remote error output from non-started process.";
+         emit processStderr("Error: Remote error output from non-started process.");
         return;
     } else if (m_state == TestingSuccess) {
-         qDebug() << "Error: Unexpected remote standard error output."
-             ;
+         qDebug() << "Error: Unexpected remote standard error output.";
+         emit processStderr("Error: Unexpected remote standard error output.");
         return;
     } else {
         m_remoteStderr += m_remoteRunner->readAllStandardError();
