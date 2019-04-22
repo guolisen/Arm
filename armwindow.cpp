@@ -33,12 +33,13 @@ ArmWindow::ArmWindow(core::ContextPtr context, QWidget *parent) :
 ArmWindow::~ArmWindow()
 {
     delete ui;
-    ::system("del cache*");
+    //::system("del cache*");
 
-    //QProcess* proc = new QProcess();
-    //proc->start("del", {"cache*"});
-    //proc->close();
-    //delete proc;
+    QProcess* proc = new QProcess();
+    proc->start("cmd", {"/c", "del", "cache*"});
+    proc->waitForFinished(1000);
+    proc->close();
+    delete proc;
 }
 
 void ArmWindow::resizeColumn(const QString &path)
@@ -342,12 +343,9 @@ void ArmWindow::createMenu()
     howtologinAct->setStatusTip(tr("How to login"));
     connect(howtologinAct, &QAction::triggered, this, [this](){
         QProcess* proc = new QProcess(this);
-        //proc->setWorkingDirectory("E:/code/qt/build-Arm-Desktop_Qt_5_12_1_MSVC2017_64bit-Debug");
-        proc->start("dir", {""});
-        proc->waitForStarted();
-        proc->waitForFinished();
-        QByteArray out = proc->readAllStandardOutput();
-        std::string s = out.toStdString();
+        proc->start("cmd", {"/c", "ArmHelp.chm"});
+        proc->waitForStarted(1000);
+        proc->waitForFinished(1000);
         proc->close();
         delete proc;
     });
