@@ -72,4 +72,28 @@ QString ConfigMgr::getCurrentVersion()
 {
     return "0.25";
 }
+
+QList<QString> ConfigMgr::getConfigArray(const QString &key, const QString &valueKey)
+{
+    QList<QString> retList;
+    int size = setting_->beginReadArray(key);
+    for (int i = 0; i < size; ++i) {
+        setting_->setArrayIndex(i);
+        QString var(setting_->value(valueKey).toString());
+        retList << var;
+    }
+    setting_->endArray();
+
+    return retList;
+}
+
+void ConfigMgr::setConfigArray(const QString &key, const QString &valueKey, const QList<QString> &configList)
+{
+    setting_->beginWriteArray(key);
+    for (int i = 0; i < configList.size(); ++i) {
+        setting_->setArrayIndex(i);
+        setting_->setValue(valueKey, configList.at(i));
+    }
+    setting_->endArray();
+}
 }

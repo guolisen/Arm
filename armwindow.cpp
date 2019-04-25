@@ -33,7 +33,6 @@ ArmWindow::ArmWindow(core::ContextPtr context, IRecentUseMgr::Factory recentUseF
 ArmWindow::~ArmWindow()
 {
     delete ui;
-    //::system("del cache*");
 
     QProcess* proc = new QProcess();
     proc->start("cmd", {"/c", "del", "cache*"});
@@ -177,7 +176,7 @@ void ArmWindow::findStringProcess(const QString& s)
 
 void ArmWindow::open()
 {
-    FolderOpenDialog folderDialog(this);
+    FolderOpenDialog folderDialog(recentUseFactory_(context_, "rootFolder", 10, this), this);
     if (folderDialog.exec() != QDialog::Accepted)
         return;
 
@@ -200,7 +199,7 @@ void ArmWindow::open()
 
 void ArmWindow::setting()
 {
-    SettingDialog settingDialog(context_, this);
+    SettingDialog settingDialog(context_, recentUseFactory_(context_, "siteIp", 10, this), this);
     if (settingDialog.exec() == QDialog::Accepted)
     {
         editorPath_ = configMgrPtr_->getConfigInfo("Arm/Setting/editorPath").toString();

@@ -21,6 +21,9 @@ public:
 
     virtual QSsh::SshConnectionParameters getSshParameters();
     virtual QString getCurrentVersion();
+
+    virtual QList<QString> getConfigArray(const QString& key, const QString &valueKey);
+    virtual void setConfigArray(const QString& key, const QString &valueKey, const QList<QString>& configList);
 private:
     QSettings* setting_;
 };

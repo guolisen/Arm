@@ -2,18 +2,23 @@
 #include <QSettings>
 #include "folderopendialog.h"
 #include "ui_folderopendialog.h"
+#include <irecentusemgr.h>
 
-FolderOpenDialog::FolderOpenDialog(QWidget *parent) :
+FolderOpenDialog::FolderOpenDialog(RecentUseMgrPtr recentUseTool, QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::FolderOpenDialog)
+    ui(new Ui::FolderOpenDialog),
+    recentUseTool_(recentUseTool)
 {
     ui->setupUi(this);
     QSettings setting;
-    filePath_ = setting.value("Arm/Setting/DefaultLogPath").toString();
+    //filePath_ = setting.value("Arm/Setting/DefaultLogPath").toString();
     Qt::WindowFlags flag = windowFlags();
     flag = flag & (~Qt::WindowContextHelpButtonHint);
     setWindowFlags(flag);
-    ui->comboBox->setEditText(filePath_);
+    //ui->comboBox->setEditText(filePath_);
+    EntryList entryList = recentUseTool_->getEntryList();
+    ui->comboBox->addItems(entryList);
+    ui->comboBox->setCurrentIndex(0);
 }
 
 FolderOpenDialog::~FolderOpenDialog()
@@ -21,40 +26,24 @@ FolderOpenDialog::~FolderOpenDialog()
     delete ui;
 }
 
+QString FolderOpenDialog::getFileName() const
+{
+    return ui->comboBox->currentText();
+}
+
 void FolderOpenDialog::on_pushButton_clicked()
 {
-#if 0
-    QFileDialog* fileDialog = new QFileDialog(this);
-    fileDialog->setWindowTitle("Choose Source Directory");
-    //fd->setDirectory(buf);
-    fileDialog->setFileMode(QFileDialog::DirectoryOnly);
-    QStringList fileName;
-    fileDialog->setOption(QFileDialog::ShowDirsOnly);
-    fileDialog->setDirectory(defaultLogPath_);
-    if (fileDialog->exec() == QDialog::Accepted)
-    {
-        fileName = fileDialog->selectedFiles();
-        filePath_ = fileName[0];
-        ui->comboBox->setEditText(filePath_);
-    }
-#endif
-
     QString logPath = QFileDialog::getExistingDirectory(
-                this, tr("Editor Path"), filePath_);
+                this, tr("Editor Path"), ui->comboBox->currentText());
     if (!logPath.isEmpty())
     {
-        filePath_ = QDir::cleanPath(logPath);
-        ui->comboBox->setEditText(filePath_);
+        QString filePath = QDir::cleanPath(logPath);
+        ui->comboBox->setCurrentText(filePath);
     }
 }
 
 void FolderOpenDialog::on_buttonBox_accepted()
 {
-    filePath_ = ui->comboBox->currentText();
-    //QFileInfo info(filePath_);
-    //if (!info.exists())
-    //    filePath_ = "";
-    QSettings setting;
-    setting.setValue("Arm/Setting/DefaultLogPath", filePath_);
+    recentUseTool_->addEntry(ui->comboBox->currentText());
     close();
 }

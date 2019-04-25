@@ -21,6 +21,8 @@ public:
     virtual void setConfigInfo(const QString& key, const QVariant& value) = 0;
     virtual QSsh::SshConnectionParameters getSshParameters() = 0;
     virtual QString getCurrentVersion() = 0;
+    virtual QList<QString> getConfigArray(const QString& key, const QString &valueKey) = 0;
+    virtual void setConfigArray(const QString& key, const QString &valueKey, const QList<QString>& configList) = 0;
 };
 
 typedef std::shared_ptr<IConfigMgr> ConfigMgrPtr;

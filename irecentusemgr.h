@@ -19,7 +19,7 @@ public:
     virtual ~IRecentUseMgr() = default;
 
     virtual void addEntry(const QString& entry) = 0;
-    virtual EntryList getEntryList(const QString& entry) = 0;
+    virtual EntryList getEntryList() = 0;
 };
 
 typedef std::shared_ptr<IRecentUseMgr> RecentUseMgrPtr;
