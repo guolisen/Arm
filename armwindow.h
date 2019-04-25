@@ -8,6 +8,7 @@
 #include <FileInfoModel/filemodelmgr.h>
 #include <QSettings>
 #include "FileInfoModel/remoteprocess.h"
+#include <irecentusemgr.h>
 
 namespace Ui {
 class ArmWindow;
@@ -20,7 +21,7 @@ class ArmWindow : public QMainWindow
 {
     Q_OBJECT
 public:
-    explicit ArmWindow(core::ContextPtr context, QWidget *parent = nullptr);
+    explicit ArmWindow(core::ContextPtr context, IRecentUseMgr::Factory recentUseFactory, QWidget *parent = nullptr);
     ~ArmWindow();
     void init();
 public slots:
@@ -48,6 +49,7 @@ private:
 
     Ui::ArmWindow *ui;
     core::ContextPtr context_;
+    IRecentUseMgr::Factory recentUseFactory_;
     fileinfomodel::FileModelMgr* modelMgr_;
     QString editorPath_;
     QMenu* rightPopMenu_;

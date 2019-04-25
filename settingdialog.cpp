@@ -37,7 +37,7 @@ void SettingDialog::init()
     QString siteIp = configMgr_->getConfigInfo("Arm/Setting/siteIp").toString();
     if (siteIp.isEmpty())
         siteIp = "";
-    ui->ipEdit->setText(siteIp);
+    //ui->ipEdit->setText(siteIp);
 
     //port
     QString port = configMgr_->getConfigInfo("Arm/Setting/port").toString();
@@ -88,8 +88,8 @@ void SettingDialog::on_buttonBox_accepted()
     QString keyFilePath = QDir::cleanPath(ui->keyEdit->text());
     configMgr_->setConfigInfo("Arm/Setting/keyFilePath", keyFilePath);
 
-    QString siteIp = ui->ipEdit->text();
-    configMgr_->setConfigInfo("Arm/Setting/siteIp", siteIp);
+    //QString siteIp = ui->ipEdit->text();
+    //configMgr_->setConfigInfo("Arm/Setting/siteIp", siteIp);
 
     QString port = ui->portEdit->text();
     configMgr_->setConfigInfo("Arm/Setting/port", port);

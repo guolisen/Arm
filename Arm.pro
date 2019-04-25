@@ -83,7 +83,8 @@ SOURCES += \
     FileInfoModel/sftpmgr.cpp \
     FileInfoModel/remoteprocess.cpp \
     consoledialog.cpp \
-    remotecommanddialog.cpp
+    remotecommanddialog.cpp \
+    recentusemgr.cpp
 
 
 HEADERS += \
@@ -159,7 +160,9 @@ HEADERS += \
     FileInfoModel/sftpmgr.h \
     FileInfoModel/remoteprocess.h \
     consoledialog.h \
-    remotecommanddialog.h
+    remotecommanddialog.h \
+    irecentusemgr.h \
+    recentusemgr.h
 
 FORMS += \
     armwindow.ui \

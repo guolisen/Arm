@@ -17,9 +17,9 @@
 #include "consoledialog.h"
 #include "remotecommanddialog.h"
 
-ArmWindow::ArmWindow(core::ContextPtr context, QWidget *parent) :
+ArmWindow::ArmWindow(core::ContextPtr context, IRecentUseMgr::Factory recentUseFactory, QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::ArmWindow), context_(context),
+    ui(new Ui::ArmWindow), context_(context), recentUseFactory_(recentUseFactory),
     modelMgr_(new fileinfomodel::FileModelMgr(context_, this)),
     remoteProcess_(nullptr),
     consoleDialog_(new ConsoleDialog(this)),

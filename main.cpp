@@ -14,6 +14,7 @@
 #include <Script/IScriptCenter.h>
 #include <Script/ScriptCenter.h>
 #include <Script/detail/ScriptCenterImpl.h>
+#include <recentusemgr.h>
 //#pragma execution_character_set("utf-8")
 
 QString getLogFileName(const QString& logName)
@@ -136,7 +137,7 @@ int main(int argc, char *argv[])
             fileIdentifier::FileIdentifier>(container);
     context->addComponent(fileIdentifier);
 
-    ArmWindow w(context);
+    ArmWindow w(context, RecentUseMgr::getFactory());
     w.show();
 
     return a.exec();
