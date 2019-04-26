@@ -24,44 +24,27 @@ SettingDialog::~SettingDialog()
 
 void SettingDialog::init()
 {
-    QString editorPath = configMgr_->getConfigInfo("Arm/Setting/EditorPath").toString();
-    if (editorPath.isEmpty())
-        editorPath = QDir::cleanPath("C:/Program Files (x86)/Notepad++/notepad++.exe");
+    QString editorPath = configMgr_->getConfigInfo("Arm/Setting/EditorPath",
+        "C:/Program Files (x86)/Notepad++/notepad++.exe").toString();
     ui->lineEdit->setText(editorPath);
 
-    QString keyFilePath = configMgr_->getConfigInfo("Arm/Setting/keyFilePath").toString();
-    if (keyFilePath.isEmpty())
-        keyFilePath = "";
+    QString keyFilePath = configMgr_->getConfigInfo("Arm/Setting/keyFilePath", "").toString();
     ui->keyEdit->setText(keyFilePath);
 
-    //IP
-    //QString siteIp = configMgr_->getConfigInfo("Arm/Setting/siteIp").toString();
-    //if (siteIp.isEmpty())
-    //    siteIp = "";
-    //ui->ipEdit->setText(siteIp);
-
     //port
-    QString port = configMgr_->getConfigInfo("Arm/Setting/port").toString();
-    if (port.isEmpty())
-        port = "";
+    QString port = configMgr_->getConfigInfo("Arm/Setting/port", "22").toString();
     ui->portEdit->setText(port);
 
     //userName
-    QString userName = configMgr_->getConfigInfo("Arm/Setting/userName").toString();
-    if (userName.isEmpty())
-        userName = "";
+    QString userName = configMgr_->getConfigInfo("Arm/Setting/userName", "c4dev").toString();
     ui->userEdit->setText(userName);
 
     //password
-    QString password = configMgr_->getConfigInfo("Arm/Setting/password").toString();
-    if (password.isEmpty())
-        password = "";
-    ui->passwordEdit->setText(password);
+    QString password = configMgr_->getConfigInfo("Arm/Setting/password", "c4dev!").toString();
+    ui->passwordLineEdit->setText(password);
 
     //timeOut
-    QString timeOut = configMgr_->getConfigInfo("Arm/Setting/timeOut").toString();
-    if (timeOut.isEmpty())
-        timeOut = "";
+    QString timeOut = configMgr_->getConfigInfo("Arm/Setting/timeOut", "9999").toString();
     ui->timeoutEdit->setText(timeOut);
 
     //keyFile
@@ -69,7 +52,7 @@ void SettingDialog::init()
     ui->KeyCheckBox->setCheckState((Qt::CheckState)keyFile.toInt());
     keyCheckBoxHandle((Qt::CheckState)keyFile.toInt());
 
-    //keyFile
+    //emcKeyFile
     QString emcKeyFile = configMgr_->getConfigInfo("Arm/Setting/emcKeyFile", "0").toString();
     ui->emcKeyCheckBox->setCheckState((Qt::CheckState)emcKeyFile.toInt());
     emcKeyCheckBoxHandle((Qt::CheckState)emcKeyFile.toInt());
@@ -86,40 +69,38 @@ void SettingDialog::init()
 
 void SettingDialog::keyCheckBoxHandle(int check)
 {
+    if (!ui->KeyCheckBox->isEnabled())
+        return;
     if (check)
     {
-        ui->passwordEdit->setEnabled(false);
         ui->emcKeyCheckBox->setEnabled(false);
+        ui->passwordLineEdit->setEnabled(false);
         return;
     }
-    ui->passwordEdit->setEnabled(true);
+
+    ui->passwordLineEdit->setEnabled(true);
     ui->emcKeyCheckBox->setEnabled(true);
 }
 
 void SettingDialog::emcKeyCheckBoxHandle(int check)
 {
+    if (!ui->emcKeyCheckBox->isEnabled())
+        return;
     if (check)
     {
-        QString emcRootKey = configMgr_->getConfigInfo("Arm/Setting/emcRootKeyPath").toString();
-        QString keyFilePath = QDir::cleanPath(emcRootKey);
-        ui->keyEdit->setText(keyFilePath);
-
-        ui->userEdit->setText("root");
         ui->userEdit->setEnabled(false);
-        ui->passwordEdit->setEnabled(false);
+        ui->passwordLineEdit->setEnabled(false);
         ui->KeyCheckBox->setEnabled(false);
         ui->keyEdit->setEnabled(false);
+        ui->keyFileBrower->setEnabled(false);
         return;
     }
 
-    QString keyFile = configMgr_->getConfigInfo("Arm/Setting/keyFilePath").toString();
-    QString keyFilePath = QDir::cleanPath(keyFile);
-    ui->keyEdit->setText(keyFilePath);
-
     ui->userEdit->setEnabled(true);
-    ui->passwordEdit->setEnabled(true);
+    ui->passwordLineEdit->setEnabled(true);
     ui->KeyCheckBox->setEnabled(true);
     ui->keyEdit->setEnabled(true);
+    ui->keyFileBrower->setEnabled(true);
 }
 
 void SettingDialog::on_pushButton_clicked()
@@ -146,7 +127,7 @@ void SettingDialog::on_buttonBox_accepted()
     QString userName = ui->userEdit->text();
     configMgr_->setConfigInfo("Arm/Setting/userName", userName);
 
-    QString password = ui->passwordEdit->text();
+    QString password = ui->passwordLineEdit->text();
     configMgr_->setConfigInfo("Arm/Setting/password", password);
 
     QString timeOut = ui->timeoutEdit->text();

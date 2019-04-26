@@ -2,6 +2,7 @@
 #include "configmgr.h"
 #include <ssh/sftpfilesystemmodel.h>
 #include <ssh/sshconnection.h>
+#include <QDir>
 
 namespace core
 {
@@ -37,6 +38,24 @@ QSsh::SshConnectionParameters ConfigMgr::getSshParameters()
     sshParams.port = port.toInt();
     //qDebug() << "sshParams.port: " << sshParams.port;
 
+    //timeOut
+    QString timeOut = getConfigInfo("Arm/Setting/timeOut", "99999").toString();
+    sshParams.timeout = timeOut.toInt();
+    //qDebug() << "sshParams.timeout: " << sshParams.timeout;
+
+    if (getConfigInfo("Arm/Setting/emcKeyFile", "0").toBool())
+    {
+        sshParams.userName = "root";
+        sshParams.authenticationType = QSsh::SshConnectionParameters::AuthenticationByKey;
+        QString emcRootKeyPath = getConfigInfo("Arm/Setting/emcRootKeyPath", "EmcRootKey/id_rsa.root").toString();
+        QString keyFilePath = QDir::cleanPath(emcRootKeyPath);
+        sshParams.privateKeyFile = keyFilePath;
+
+        qDebug() << "emc sshParams.authenticationType: " << sshParams.authenticationType;
+        qDebug() << "emc sshParams.privateKeyFile: " << sshParams.privateKeyFile;
+        return sshParams;
+    }
+
     //userName
     QString userName = getConfigInfo("Arm/Setting/userName", "c4dev").toString();
     sshParams.userName = userName;
@@ -46,11 +65,6 @@ QSsh::SshConnectionParameters ConfigMgr::getSshParameters()
     QString password = getConfigInfo("Arm/Setting/password", "c4dev!").toString();
     sshParams.password = password;
     //qDebug() << "sshParams.password: " << sshParams.password;
-
-    //timeOut
-    QString timeOut = getConfigInfo("Arm/Setting/timeOut", "99999").toString();
-    sshParams.timeout = timeOut.toInt();
-    //qDebug() << "sshParams.timeout: " << sshParams.timeout;
 
     //keyFile
     QString keyFile = getConfigInfo("Arm/Setting/keyFile", "0").toString();
@@ -62,8 +76,8 @@ QSsh::SshConnectionParameters ConfigMgr::getSshParameters()
     }
     else
         sshParams.authenticationType = QSsh::SshConnectionParameters::AuthenticationByPassword;
-    //qDebug() << "sshParams.authenticationType: " << sshParams.authenticationType;
-    //qDebug() << "sshParams.privateKeyFile: " << sshParams.privateKeyFile;
+    qDebug() << "sshParams.authenticationType: " << sshParams.authenticationType;
+    qDebug() << "sshParams.privateKeyFile: " << sshParams.privateKeyFile;
 
     return sshParams;
 }

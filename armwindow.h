@@ -36,7 +36,7 @@ private slots:
     void resizeColumn(const QString &path);
     void setting();
     void createPopMenu();
-    bool runRemoteCommand(const QString& defaultCommand);
+    bool requestRemoteCommand(const QString& defaultCommand);
     void on_treeView_doubleClicked(const QModelIndex &index);
     void on_treeView_customContextMenuRequested(const QPoint &pos);
     void handleStdOut(QByteArray data);
@@ -46,6 +46,7 @@ private slots:
 private:
     void createMenu();
     RemoteProcess* createRemoteProcess();
+    void executeRemoteCommand(const QString& command);
 
     Ui::ArmWindow *ui;
     core::ContextPtr context_;
@@ -57,6 +58,7 @@ private:
     ConsoleDialog* consoleDialog_;
     core::ConfigMgrPtr configMgrPtr_;
     bool isNeedUpdate_;
+
 };
 
 #endif // ARMWINDOW_H

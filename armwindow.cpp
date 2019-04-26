@@ -240,26 +240,31 @@ void ArmWindow::unCompressRemoteFile()
         }
     }
 
-    if (runRemoteCommand(uncompressCommand))
+    if (requestRemoteCommand(uncompressCommand))
         isNeedUpdate_ = true;
 }
 
-bool ArmWindow::runRemoteCommand(const QString& defaultCommand)
+void ArmWindow::executeRemoteCommand(const QString& command)
+{
+    QString commandfinal = command;
+    consoleDialog_->setMessageToEditor("");
+    consoleDialog_->show();
+    RemoteProcess* rprocess = createRemoteProcess();
+    rprocess->run(commandfinal);
+}
+
+bool ArmWindow::requestRemoteCommand(const QString& defaultCommand)
 {
     //qDebug() << "runRemoteCommand default: " << defaultCommand;
 
-    RemoteCommandDialog remoteDialog(this);
+    RemoteCommandDialog remoteDialog(recentUseFactory_(context_, "remoteCommand", 10, this), this);
     remoteDialog.setCommand(defaultCommand);
     if (remoteDialog.exec() != QDialog::Accepted)
     {
         return false;
     }
 
-    QString commandfinal = remoteDialog.getCommand();
-    consoleDialog_->setMessageToEditor("");
-    consoleDialog_->show();
-    RemoteProcess* rprocess = createRemoteProcess();
-    rprocess->run(commandfinal);
+    executeRemoteCommand(remoteDialog.getCommand());
     return true;
 }
 
@@ -299,7 +304,7 @@ void ArmWindow::createMenu()
     runCommandAct->setStatusTip(tr("Run Command"));
     connect(runCommandAct, &QAction::triggered, this, [this](){
         //modelMgr_->update();
-        runRemoteCommand("");
+        requestRemoteCommand("");
     });
     toolsMenu->addAction(runCommandAct);
     toolsToolBar->addAction(runCommandAct);
