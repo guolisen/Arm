@@ -133,7 +133,6 @@ void RemoteProcess::handleProcessStderr()
         return;
     } else if (m_state == TestingSuccess) {
          qDebug() << "Error: Unexpected remote standard error output.";
-         emit processStderr("Error: Unexpected remote standard error output.");
         return;
     } else {
         m_remoteStderr += m_remoteRunner->readAllStandardError();
@@ -154,7 +153,7 @@ void RemoteProcess::handleProcessClosed(int exitStatus)
         case TestingSuccess: {
             const int exitCode = m_remoteRunner->processExitCode();
             if (exitCode != 0) {
-                QString outStr = QString("Exit code is %1 expected zero.").arg(exitCode);
+                QString outStr = QString("Return code is %1.").arg(exitCode);
                 m_remoteStdout += outStr;
                 emit processStdout(m_remoteStdout);
                 earlyDisconnectFromHost();
@@ -168,18 +167,12 @@ void RemoteProcess::handleProcessClosed(int exitStatus)
                 earlyDisconnectFromHost();
                 return;
             }
-
-            qDebug() << "Ok. unsuccessful remote process... "  ;
-            m_state = TestingFailure;
-            m_started = false;
-            //m_timeoutTimer->start();
-            //m_remoteRunner->run("top -n 1", m_sshParams); // Does not succeed without terminal.
             break;
         }
         case TestingFailure: {
             const int exitCode = m_remoteRunner->processExitCode();
             if (exitCode == 0) {
-                QString outStr = "Error: exit code is zero, expected non-zero.";
+                QString outStr = QString("Failure: exit code is %1.").arg(exitCode);
                 qDebug() << outStr;
                 m_remoteStdout += outStr;
                 emit processStdout(m_remoteStdout);
@@ -187,10 +180,10 @@ void RemoteProcess::handleProcessClosed(int exitStatus)
                 return;
             }
             if (m_remoteStderr.isEmpty()) {
-                 QString outStr = "Command did not produce error output.";
-                 qDebug() << outStr;
-                 m_remoteStdout += outStr;
-                 emit processStdout(m_remoteStdout);
+                QString outStr = "Command did not produce error output.";
+                qDebug() << outStr;
+                m_remoteStdout += outStr;
+                emit processStdout(m_remoteStdout);
                 earlyDisconnectFromHost();
                 return;
             }
@@ -216,7 +209,7 @@ void RemoteProcess::handleProcessClosed(int exitStatus)
         case TestingTerminal: {
             const int exitCode = m_remoteRunner->processExitCode();
             if (exitCode != 0) {
-                QString outStr = QString("Exit code is %1 expected zero.").arg(exitCode);
+                QString outStr = QString("Exit code is %1.").arg(exitCode);
                 m_remoteStdout += outStr;
                 emit processStdout(m_remoteStdout);
                 earlyDisconnectFromHost();
@@ -231,39 +224,8 @@ void RemoteProcess::handleProcessClosed(int exitStatus)
                 return;
             }
             qDebug() << "Ok.\nTesting I/O device functionality... "  ;
-            //m_state = TestingIoDevice;
-           // m_sshConnection = new QSsh::SshConnection(m_sshParams);
-            //connect(m_sshConnection, SIGNAL(connected()), SLOT(handleConnected()));
-           // connect(m_sshConnection, SIGNAL(error(QSsh::SshError)),
-           //     SLOT(handleConnectionError()));
-            //m_sshConnection->connectToHost();
-            //m_timeoutTimer->start();
             break;
         }
-        case TestingIoDevice:
-            if (m_catProcess->exitCode() == 0) {
-                 qDebug() << "Error: Successful exit from process that was supposed to crash."
-                     ;
-                qApp->exit(EXIT_FAILURE);
-            } else {
-                handleSuccessfulIoTest();
-            }
-            break;
-        case TestingProcessChannels:
-            if (m_remoteStderr.isEmpty()) {
-                 qDebug() << "Error: Did not receive readyReadStderr()."  ;
-                //qApp->exit(EXIT_FAILURE);
-                return;
-            }
-            if (m_remoteData != StderrOutput) {
-                 qDebug() << "Error: Expected output '" << StderrOutput.data() << "', received '"
-                    << m_remoteData.data() << "'."  ;
-                //qApp->exit(EXIT_FAILURE);
-                return;
-            }
-            qDebug() << "Ok.\nAll tests succeeded."  ;
-            return;
-            break;
         case Inactive:
             Q_ASSERT(false);
         }

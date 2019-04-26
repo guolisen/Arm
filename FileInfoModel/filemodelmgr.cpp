@@ -38,13 +38,13 @@ void FileModelMgr::createProgressBar()
 {
     pd_ = new QProgressDialog("", "", 0, 100);
     pd_->reset();
+    pd_->setValue(0);
     pd_->setWindowModality(Qt::WindowModal);
     pd_->setMinimumDuration(5);
     pd_->setWindowTitle("Downloading...");
     pd_->setAutoClose(true);
     pd_->setModal(true);
     pd_->setCancelButton(nullptr);
-    //pd_->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     pd_->setWindowFlags(Qt::WindowTitleHint | Qt::CustomizeWindowHint);
 }
 
@@ -87,7 +87,7 @@ bool FileModelMgr::init()
 }
 void FileModelMgr::handleDownloadPrograss(quint64 current, quint64 total)
 {
-    qDebug() << "handleDownloadPrograss " << current << " " << total;
+    //qDebug() << "handleDownloadPrograss " << current << " " << total;
     pd_->setValue(current);
 }
 
@@ -204,6 +204,7 @@ void FileModelMgr::handleSftpOperationFinished(QSsh::SftpJobId jobId, const QStr
     {
         qDebug() << "1downloadAsync OK! " << error;
         pd_->hide();
+        pd_->setValue(0);
         downloadError_ = error;
         downloadId_ = 0;
         emit downloadFinished();
@@ -245,6 +246,7 @@ QString FileModelMgr::createCacheFile(const QModelIndex &index)
             return "";
         pd_->setMaximum(fn->fileInfo.size);
         pd_->setMinimum(0);
+        pd_->setValue(0);
         pd_->setLabelText(fn->fileInfo.name);
         pd_->show();
         localFile = fileCache.getCacheFileName(fn->fileInfo.name);
