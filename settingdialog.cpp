@@ -1,5 +1,6 @@
 #include <QDebug>
 #include <QFileDialog>
+#include <QProcess>
 #include "settingdialog.h"
 #include "ui_settingdialog.h"
 
@@ -31,6 +32,15 @@ void SettingDialog::init()
     QString keyFilePath = configMgr_->getConfigInfo("Arm/Setting/keyFilePath", "").toString();
     ui->keyEdit->setText(keyFilePath);
 
+    //IP
+    EntryList entryList = recentUseTool_->getEntryList();
+    ui->ipEdit->clear();
+    ui->ipEdit->addItems(entryList);
+    ui->ipEdit->setCurrentIndex(0);
+
+    QString siteIp = configMgr_->getConfigInfo("Arm/Setting/siteIp", "").toString();
+    ui->ipEdit->setCurrentText(siteIp);
+
     //port
     QString port = configMgr_->getConfigInfo("Arm/Setting/port", "22").toString();
     ui->portEdit->setText(port);
@@ -56,11 +66,6 @@ void SettingDialog::init()
     QString emcKeyFile = configMgr_->getConfigInfo("Arm/Setting/emcKeyFile", "0").toString();
     ui->emcKeyCheckBox->setCheckState((Qt::CheckState)emcKeyFile.toInt());
     emcKeyCheckBoxHandle((Qt::CheckState)emcKeyFile.toInt());
-
-    EntryList entryList = recentUseTool_->getEntryList();
-    ui->ipEdit->clear();
-    ui->ipEdit->addItems(entryList);
-    ui->ipEdit->setCurrentIndex(0);
 
     connect(ui->emcKeyCheckBox, &QCheckBox::stateChanged, this, &SettingDialog::emcKeyCheckBoxHandle);
     connect(ui->KeyCheckBox, &QCheckBox::stateChanged, this, &SettingDialog::keyCheckBoxHandle);
@@ -121,6 +126,9 @@ void SettingDialog::on_buttonBox_accepted()
     QString keyFilePath = QDir::cleanPath(ui->keyEdit->text());
     configMgr_->setConfigInfo("Arm/Setting/keyFilePath", keyFilePath);
 
+    QString siteIp = ui->ipEdit->currentText();
+    configMgr_->setConfigInfo("Arm/Setting/siteIp", siteIp);
+
     QString port = ui->portEdit->text();
     configMgr_->setConfigInfo("Arm/Setting/port", port);
 
@@ -153,4 +161,14 @@ void SettingDialog::on_keyFileBrower_clicked()
     {
         ui->keyEdit->setText(QDir::cleanPath(fileName));
     }
+}
+
+void SettingDialog::on_pushButton_2_clicked()
+{
+    QProcess* proc = new QProcess(this);
+    proc->start("cmd", {"/c", "ArmHelp.chm"});
+    proc->waitForStarted(1000);
+    proc->waitForFinished(1000);
+    proc->close();
+    delete proc;
 }

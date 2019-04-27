@@ -11,6 +11,7 @@
 #include "sftpfilemodel.h"
 #include "FileInfoModel/uncompressfilecache.h"
 #include <QProgressDialog>
+#include <FileInfoModel/sortfilterproxymodel.h>
 
 namespace fileinfomodel
 {
@@ -38,13 +39,13 @@ void FileModelMgr::createProgressBar()
 {
     pd_ = new QProgressDialog("", "", 0, 100);
     pd_->reset();
-    pd_->setValue(0);
     pd_->setWindowModality(Qt::WindowModal);
     pd_->setMinimumDuration(5);
     pd_->setWindowTitle("Downloading...");
     pd_->setAutoClose(true);
     pd_->setModal(true);
     pd_->setCancelButton(nullptr);
+    //pd_->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     pd_->setWindowFlags(Qt::WindowTitleHint | Qt::CustomizeWindowHint);
 }
 
@@ -54,6 +55,14 @@ void FileModelMgr::createRemoteModel()
     {
         remoteFSModel_ = new RemoteFileModelType(context_, nullptr, this);
     }
+
+    proxyModel_ = new SortFilterProxyModel(this);
+    proxyModel_->setSourceModel(remoteFSModel_);
+    proxyModel_->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    proxyModel_->setFilterKeyColumns(1);
+    proxyModel_->clearFilter();
+    proxyModel_->setRecursiveFilteringEnabled(true);
+
     connect(remoteFSModel_->getModel(), &IFileModel::dataChanged,
             this, [this](const QModelIndex &index)
     {
@@ -71,6 +80,21 @@ void FileModelMgr::createRemoteModel()
     connect(remoteFSModel_, SIGNAL(connectionError(QString)), SLOT(handleConnectionError(QString)));
     connect(remoteFSModel_, SIGNAL(connectionSuccess()), SLOT(handleConnectionSuccess()));
     connect(remoteFSModel_, SIGNAL(downloadPrograss(quint64, quint64)), SLOT(handleDownloadPrograss(quint64, quint64)));
+}
+
+void FileModelMgr::setNameFilter(const QString& s)
+{
+    proxyModel_->setRecursiveFilteringEnabled(true);
+    if (s.isEmpty())
+    {
+        proxyModel_->clearFilter();
+        proxyModel_->setFilterRegExp(QRegExp("", proxyModel_->filterCaseSensitivity(), QRegExp::Wildcard));
+        return;
+    }
+
+    QString str = "*" + s + "*";
+    proxyModel_->addFilterFixedString(str);
+    proxyModel_->setFilterRegExp(QRegExp(str, proxyModel_->filterCaseSensitivity(), QRegExp::Wildcard));
 }
 
 bool FileModelMgr::init()
@@ -156,11 +180,12 @@ void FileModelMgr::releaseRemoteModel()
 
 void FileModelMgr::setRootRemotePath(const QString& path, QTreeView* tree)
 {
+
     tree->setModel(nullptr);
     releaseRemoteModel();
     createRemoteModel();
     currentModel_ = remoteFSModel_;
-    tree->setModel(currentModel_);
+    tree->setModel(proxyModel_);
     core::ConfigMgrPtr config = context_->getComponent<core::IConfigMgr>(nullptr);
     QSsh::SshConnectionParameters sshParams = config->getSshParameters();
 
@@ -204,7 +229,6 @@ void FileModelMgr::handleSftpOperationFinished(QSsh::SftpJobId jobId, const QStr
     {
         qDebug() << "1downloadAsync OK! " << error;
         pd_->hide();
-        pd_->setValue(0);
         downloadError_ = error;
         downloadId_ = 0;
         emit downloadFinished();

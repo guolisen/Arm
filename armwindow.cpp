@@ -156,7 +156,20 @@ void ArmWindow::handleReadyRead(QByteArray data)
 void ArmWindow::findStringProcess(const QString& s)
 {
     if (modelMgr_->getCurrentModeType() == fileinfomodel::RemoteFileSystemModel)
+    {
+        QAbstractItemModel* model = modelMgr_->getModel();
+        fileinfomodel::RemoteFileModelType* remoteFsModel =
+                dynamic_cast<fileinfomodel::RemoteFileModelType*>(model);
+        if (!remoteFsModel)
+            return;
+        QStringList strlist = {s};
+        if (s.isEmpty())
+            strlist.clear();
+        remoteFsModel->setNameFilters(strlist);
+        modelMgr_->setNameFilter(s);
         return;
+    }
+
     QAbstractItemModel* model = modelMgr_->getModel();
     fileinfomodel::LocalFileModelType* localFsModel =
             dynamic_cast<fileinfomodel::LocalFileModelType*>(model);
@@ -171,7 +184,10 @@ void ArmWindow::findStringProcess(const QString& s)
         localFsModel->setNameFilterDisables(false);
     }
     localFsModel->setFilter(QDir::Files | QDir::Dirs);
-    localFsModel->setNameFilters({s});
+    QStringList strlist = {s};
+    if (s.isEmpty())
+        strlist.clear();
+    localFsModel->setNameFilters(strlist);
 }
 
 void ArmWindow::open()

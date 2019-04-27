@@ -25,6 +25,8 @@ private slots:
     void on_keyFileBrower_clicked();
     void emcKeyCheckBoxHandle(int check);
     void keyCheckBoxHandle(int check);
+    void on_pushButton_2_clicked();
+
 private:
     void init();
     Ui::SettingDialog *ui;

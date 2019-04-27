@@ -11,6 +11,7 @@
 #include "sftpfilemodel.h"
 
 class QProgressDialog;
+class SortFilterProxyModel;
 namespace fileinfomodel
 {
 
@@ -40,6 +41,7 @@ public:
     FileModelType getCurrentModeType() const { return currentModeType_; }
     void update(const QModelIndex& index);
     void clearCache();
+    void setNameFilter(const QString &s);
 Q_SIGNALS:
     void directoryUpdateWrapper(const QModelIndex &index);
     void directoryLoadedWrapper(const QString &path);
@@ -62,6 +64,8 @@ private:
 
     int downloadAsync(const QModelIndex &index, const QString &targetFilePath);
     void createProgressBar();
+    void createRemoteModel();
+    void releaseRemoteModel();
 private:
     FileModelType currentModeType_;
     bool isRemoteConnected_;
@@ -74,8 +78,7 @@ private:
     QSsh::SftpJobId downloadId_;
     QString downloadError_;
     QProgressDialog* pd_;
-    void createRemoteModel();
-    void releaseRemoteModel();
+    SortFilterProxyModel* proxyModel_;
 };
 
 }

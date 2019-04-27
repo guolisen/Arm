@@ -84,7 +84,8 @@ SOURCES += \
     FileInfoModel/remoteprocess.cpp \
     consoledialog.cpp \
     remotecommanddialog.cpp \
-    recentusemgr.cpp
+    recentusemgr.cpp \
+    FileInfoModel/sortfilterproxymodel.cpp
 
 
 HEADERS += \
@@ -162,7 +163,8 @@ HEADERS += \
     consoledialog.h \
     remotecommanddialog.h \
     irecentusemgr.h \
-    recentusemgr.h
+    recentusemgr.h \
+    FileInfoModel/sortfilterproxymodel.h
 
 FORMS += \
     armwindow.ui \
