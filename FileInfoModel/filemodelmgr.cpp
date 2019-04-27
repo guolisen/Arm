@@ -186,8 +186,8 @@ void FileModelMgr::setRootRemotePath(const QString& path, QTreeView* tree)
     releaseRemoteModel();
     createRemoteModel();
     currentModel_ = remoteFSModel_;
-    //tree->setModel(proxyModel_);
-    tree->setModel(remoteFSModel_);
+    tree->setModel(proxyModel_);
+    //tree->setModel(remoteFSModel_);
     core::ConfigMgrPtr config = context_->getComponent<core::IConfigMgr>(nullptr);
     QSsh::SshConnectionParameters sshParams = config->getSshParameters();
 
@@ -263,9 +263,10 @@ QString FileModelMgr::createCacheFile(const QModelIndex &index, QString& cacheFi
     UncompressFileCache fileCache;
     if (currentModeType_ == RemoteFileSystemModel)
     {
-        const RemoteFileModelType* remoteModel =
-                dynamic_cast<const RemoteFileModelType*>(index.model());
-        const QSsh::SftpFileNode* fn = static_cast<QSsh::SftpFileNode *>(index.internalPointer());
+        const SortFilterProxyModel* remoteModel =
+                dynamic_cast<const SortFilterProxyModel*>(index.model());
+        QModelIndex entryIndex = remoteModel->mapToSource(index);
+        const QSsh::SftpFileNode* fn = static_cast<QSsh::SftpFileNode *>(entryIndex.internalPointer());
         if (fn && fn->fileInfo.type == QSsh::FileTypeDirectory)
             return "";
         pd_->setMaximum(fn->fileInfo.size);
@@ -274,7 +275,7 @@ QString FileModelMgr::createCacheFile(const QModelIndex &index, QString& cacheFi
         pd_->setLabelText(fn->fileInfo.name);
         pd_->show();
         localFile = fileCache.getCacheFileName(fn->fileInfo.name);
-        QString retStr = downloadAsync(index, localFile);
+        QString retStr = downloadAsync(entryIndex, localFile);
         if (!retStr.isEmpty())
         {
             return retStr;

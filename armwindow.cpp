@@ -383,9 +383,6 @@ void ArmWindow::on_treeView_doubleClicked(const QModelIndex &index)
     if (!index.isValid())
         return;
 
-    //QPoint pos = cursor().pos();
-    //QPoint gpos = ui->treeView->mapToGlobal(pos);
-    //QModelIndex entryIndex = ui->treeView->indexAt(pos);
     QString cacheFile = "";
     QString res = modelMgr_->createCacheFile(index, cacheFile);
     if (cacheFile.isEmpty())
