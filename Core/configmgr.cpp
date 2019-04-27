@@ -84,7 +84,7 @@ QSsh::SshConnectionParameters ConfigMgr::getSshParameters()
 
 QString ConfigMgr::getCurrentVersion()
 {
-    return "0.25";
+    return "0.27";
 }
 
 QList<QString> ConfigMgr::getConfigArray(const QString &key, const QString &valueKey)
