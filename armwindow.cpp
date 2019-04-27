@@ -162,11 +162,13 @@ void ArmWindow::findStringProcess(const QString& s)
                 dynamic_cast<fileinfomodel::RemoteFileModelType*>(model);
         if (!remoteFsModel)
             return;
-        QStringList strlist = {s};
+        QString regStr = "*" + s + "*";
+        QStringList strlist = {regStr};
         if (s.isEmpty())
             strlist.clear();
         remoteFsModel->setNameFilters(strlist);
-        modelMgr_->setNameFilter(s);
+        //remoteFsModel->setNameFilters({});
+        //modelMgr_->setNameFilter(s);
         return;
     }
 
@@ -378,9 +380,21 @@ void ArmWindow::on_treeView_doubleClicked(const QModelIndex &index)
     if ( qApp->mouseButtons() == Qt::RightButton)
         return;
 
-    QString cacheFile = modelMgr_->createCacheFile(index);
-    if (cacheFile.isEmpty())
+    if (!index.isValid())
         return;
+
+    //QPoint pos = cursor().pos();
+    //QPoint gpos = ui->treeView->mapToGlobal(pos);
+    //QModelIndex entryIndex = ui->treeView->indexAt(pos);
+    QString cacheFile = "";
+    QString res = modelMgr_->createCacheFile(index, cacheFile);
+    if (cacheFile.isEmpty())
+    {
+        if (res.isEmpty()) // Dir
+            return;
+        QMessageBox::information(this, tr("Warning"), tr("Download error: %1").arg(res));
+        return;
+    }
 
     QProcess* proc = new QProcess(this);
     connect(proc, static_cast<void(QProcess::*)(int)>(&QProcess::finished),

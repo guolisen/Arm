@@ -37,7 +37,7 @@ public:
         return rootPath_;
     }
     QAbstractItemModel *getModel();
-    QString createCacheFile(const QModelIndex &index);
+    QString createCacheFile(const QModelIndex &index, QString& cacheFileName);
     FileModelType getCurrentModeType() const { return currentModeType_; }
     void update(const QModelIndex& index);
     void clearCache();
@@ -62,7 +62,7 @@ private:
     void setRootLocalPath(const QString& path, QTreeView* tree);
     void setRootRemotePath(const QString &path, QTreeView* tree);
 
-    int downloadAsync(const QModelIndex &index, const QString &targetFilePath);
+    QString downloadAsync(const QModelIndex &index, const QString &targetFilePath);
     void createProgressBar();
     void createRemoteModel();
     void releaseRemoteModel();

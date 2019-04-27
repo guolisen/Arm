@@ -60,6 +60,7 @@ void FileModelMgr::createRemoteModel()
     proxyModel_->setSourceModel(remoteFSModel_);
     proxyModel_->setFilterCaseSensitivity(Qt::CaseInsensitive);
     proxyModel_->setFilterKeyColumns(1);
+    proxyModel_->setSortCaseSensitivity(Qt::CaseInsensitive);
     proxyModel_->clearFilter();
     proxyModel_->setRecursiveFilteringEnabled(true);
 
@@ -95,6 +96,7 @@ void FileModelMgr::setNameFilter(const QString& s)
     QString str = "*" + s + "*";
     proxyModel_->addFilterFixedString(str);
     proxyModel_->setFilterRegExp(QRegExp(str, proxyModel_->filterCaseSensitivity(), QRegExp::Wildcard));
+    //proxyModel_->sort(0, Qt::AscendingOrder);
 }
 
 bool FileModelMgr::init()
@@ -180,12 +182,12 @@ void FileModelMgr::releaseRemoteModel()
 
 void FileModelMgr::setRootRemotePath(const QString& path, QTreeView* tree)
 {
-
     tree->setModel(nullptr);
     releaseRemoteModel();
     createRemoteModel();
     currentModel_ = remoteFSModel_;
-    tree->setModel(proxyModel_);
+    //tree->setModel(proxyModel_);
+    tree->setModel(remoteFSModel_);
     core::ConfigMgrPtr config = context_->getComponent<core::IConfigMgr>(nullptr);
     QSsh::SshConnectionParameters sshParams = config->getSshParameters();
 
@@ -245,19 +247,17 @@ void FileModelMgr::handleConnectionError(const QString &errorMessage)
     emit connectionError(errorMessage);
 }
 
-int FileModelMgr::downloadAsync(const QModelIndex &index, const QString &targetFilePath)
+QString FileModelMgr::downloadAsync(const QModelIndex &index, const QString &targetFilePath)
 {
     downloadId_ = remoteFSModel_->downloadFile(index, targetFilePath);
     QEventLoop loop;
     connect(this, &FileModelMgr::downloadFinished, &loop, &QEventLoop::quit);
     loop.exec();
 
-    if (!downloadError_.isEmpty())
-        return -1;
-    return 0;
+    return downloadError_;
 }
 
-QString FileModelMgr::createCacheFile(const QModelIndex &index)
+QString FileModelMgr::createCacheFile(const QModelIndex &index, QString& cacheFileName)
 {
     QString localFile;
     UncompressFileCache fileCache;
@@ -265,7 +265,7 @@ QString FileModelMgr::createCacheFile(const QModelIndex &index)
     {
         const RemoteFileModelType* remoteModel =
                 dynamic_cast<const RemoteFileModelType*>(index.model());
-        QSsh::SftpFileNode* fn = static_cast<QSsh::SftpFileNode *>(index.internalPointer());
+        const QSsh::SftpFileNode* fn = static_cast<QSsh::SftpFileNode *>(index.internalPointer());
         if (fn && fn->fileInfo.type == QSsh::FileTypeDirectory)
             return "";
         pd_->setMaximum(fn->fileInfo.size);
@@ -274,9 +274,10 @@ QString FileModelMgr::createCacheFile(const QModelIndex &index)
         pd_->setLabelText(fn->fileInfo.name);
         pd_->show();
         localFile = fileCache.getCacheFileName(fn->fileInfo.name);
-        if (downloadAsync(index, localFile) < 0)
+        QString retStr = downloadAsync(index, localFile);
+        if (!retStr.isEmpty())
         {
-            return "";
+            return retStr;
         }
 
         qDebug() << "downloadAsync OK!";
@@ -290,10 +291,10 @@ QString FileModelMgr::createCacheFile(const QModelIndex &index)
         localFile = localModel->filePath(index);
     }
 
-    QString cacheFileName = fileCache.createUncompressCacheFile(localFile);
+    cacheFileName = fileCache.createUncompressCacheFile(localFile);
     if(cacheFileName.isEmpty())
-       return "";
-    return cacheFileName;
+       return "create Uncompress Cache File file";
+    return "";
 }
 
 }

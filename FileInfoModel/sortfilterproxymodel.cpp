@@ -51,6 +51,16 @@ bool SortFilterProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &so
     return true;
 }
 
+bool SortFilterProxyModel::lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const
+{
+    const QSsh::SftpFileNode* leftFileNode = static_cast<QSsh::SftpFileNode *>(source_left.internalPointer());
+    const QSsh::SftpFileNode* rightFileNode = static_cast<QSsh::SftpFileNode *>(source_left.internalPointer());
+
+    if (leftFileNode->fileInfo.name > rightFileNode->fileInfo.name)
+        return true;
+    return false;
+}
+
 #if 0
 bool SortFilterProxyModel::filterAcceptsRowRecursion(const QString& filter, const QSsh::SftpFileNode* fileNode)
 {

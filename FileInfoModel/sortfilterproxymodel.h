@@ -14,7 +14,7 @@ public:
     void clearFilter();
 protected:
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
-
+    virtual bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const;
 private:
     QMap<qint32, QString> columnPatterns_;
 };
