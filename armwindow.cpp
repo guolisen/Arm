@@ -60,6 +60,8 @@ void ArmWindow::updateColumn(const QModelIndex& index)
 void ArmWindow::handleSftpOperationFailed(const QString &errorMessage)
 {
     statusBar()->showMessage(errorMessage);
+    QMessageBox::warning(this, tr("Operation Failed"),
+        tr("Operation SSH error: %1").arg(errorMessage));
 }
 
 void ArmWindow::handleSftpOperationFinished(const QString &error)
