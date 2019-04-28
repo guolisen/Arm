@@ -154,16 +154,14 @@ void RemoteProcess::handleProcessClosed(int exitStatus)
             const int exitCode = m_remoteRunner->processExitCode();
             if (exitCode != 0) {
                 QString outStr = QString("Return code is %1.").arg(exitCode);
-                m_remoteStdout += outStr;
-                emit processStdout(m_remoteStdout);
+                emit processStdout(QByteArray::fromStdString(outStr.toStdString()));
                 earlyDisconnectFromHost();
                 return;
             }
             if (m_remoteStdout.isEmpty()) {
                 QString outStr = "Command did not produce error output.";
                 qDebug() << outStr;
-                m_remoteStdout += outStr;
-                emit processStdout(m_remoteStdout);
+                emit processStdout(QByteArray::fromStdString(outStr.toStdString()));
                 earlyDisconnectFromHost();
                 return;
             }
@@ -174,16 +172,14 @@ void RemoteProcess::handleProcessClosed(int exitStatus)
             if (exitCode == 0) {
                 QString outStr = QString("Failure: exit code is %1.").arg(exitCode);
                 qDebug() << outStr;
-                m_remoteStdout += outStr;
-                emit processStdout(m_remoteStdout);
+                emit processStdout(QByteArray::fromStdString(outStr.toStdString()));
                 earlyDisconnectFromHost();
                 return;
             }
             if (m_remoteStderr.isEmpty()) {
                 QString outStr = "Command did not produce error output.";
                 qDebug() << outStr;
-                m_remoteStdout += outStr;
-                emit processStdout(m_remoteStdout);
+                emit processStdout(QByteArray::fromStdString(outStr.toStdString()));
                 earlyDisconnectFromHost();
                 return;
             }
@@ -210,16 +206,14 @@ void RemoteProcess::handleProcessClosed(int exitStatus)
             const int exitCode = m_remoteRunner->processExitCode();
             if (exitCode != 0) {
                 QString outStr = QString("Exit code is %1.").arg(exitCode);
-                m_remoteStdout += outStr;
-                emit processStdout(m_remoteStdout);
+                emit processStdout(QByteArray::fromStdString(outStr.toStdString()));
                 earlyDisconnectFromHost();
                 return;
             }
             if (m_remoteStdout.isEmpty()) {
                 QString outStr = "Command did not produce error output.";
                 qDebug() << outStr;
-                m_remoteStdout += outStr;
-                emit processStdout(m_remoteStdout);
+                emit processStdout(QByteArray::fromStdString(outStr.toStdString()));
                 earlyDisconnectFromHost();
                 return;
             }
@@ -235,13 +229,11 @@ void RemoteProcess::handleProcessClosed(int exitStatus)
              QString outStr = "Error: Got 'failed to start' signal for process "
                               "that has not started yet.";
              qDebug() << outStr;
-             m_remoteStdout += outStr;
-             emit processStdout(m_remoteStdout);
+             emit processStdout(QByteArray::fromStdString(outStr.toStdString()));
         } else {
              QString outStr = "Error: Process failed to start.";
              qDebug() << outStr;
-             m_remoteStdout += outStr;
-             emit processStdout(m_remoteStdout);
+             emit processStdout(QByteArray::fromStdString(outStr.toStdString()));
         }
         return;
         break;
