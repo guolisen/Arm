@@ -143,7 +143,8 @@ QByteArray SftpReadTimeJob::uncompressData()
         return QByteArray();
     }
     qDebug() << "UnCompress: " << (char*)buf;
-    return QByteArray::fromRawData((const char *)buf, destSize);
+    std::string data = (char*)buf;
+    return QByteArray::fromStdString(data);
 }
 
 void SftpReadTimeJob::run()

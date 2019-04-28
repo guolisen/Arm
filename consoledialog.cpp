@@ -28,6 +28,7 @@ void ConsoleDialog::appendMessageToEditor(const QString &message)
 {
     ui->textEdit->appendPlainText(message);
     ui->textEdit->moveCursor(QTextCursor::End);
+    ui->textEdit->textCursor().deletePreviousChar();
 }
 void ConsoleDialog::on_pushButton_clicked()
 {
