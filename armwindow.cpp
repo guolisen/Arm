@@ -209,7 +209,9 @@ void ArmWindow::open()
     modelMgr_->setRootPath(QDir::cleanPath(fileName), ui->treeView);
 
     QString version = "Arm v" + configMgrPtr_->getCurrentVersion();
-    setWindowTitle(version + " " + fileName);
+    QSsh::SshConnectionParameters sshParam = configMgrPtr_->getSshParameters();
+    QString hostTitle = sshParam.userName + "@" + sshParam.host;
+    setWindowTitle(version + " " + hostTitle + " " + fileName);
 
     if (modelMgr_->getCurrentModeType() == fileinfomodel::RemoteFileSystemModel)
     {
