@@ -385,6 +385,18 @@ void ArmWindow::on_treeView_doubleClicked(const QModelIndex &index)
     if (!index.isValid())
         return;
 
+    if (editorPath_.isEmpty())
+    {
+        QMessageBox::information(this, tr("Warning"), tr("Cannot Find Editor Path"));
+        return;
+    }
+    QFileInfo editorFi(editorPath_);
+    if (!editorFi.isFile())
+    {
+        QMessageBox::information(this, tr("Warning"), tr("The Editor doesn't exist, Please set again in Setting Panel."));
+        return;
+    }
+
     QString cacheFile = "";
     QString res = modelMgr_->createCacheFile(index, cacheFile);
     if (cacheFile.isEmpty())
@@ -405,17 +417,6 @@ void ArmWindow::on_treeView_doubleClicked(const QModelIndex &index)
     });
 
     qDebug() << "cacheFileName: " << cacheFile;
-    if (editorPath_.isEmpty())
-    {
-        QMessageBox::information(this, tr("Warning"), tr("Cannot Find Editor Path"));
-        return;
-    }
-    QFileInfo editorFi(editorPath_);
-    if (!editorFi.isFile())
-    {
-        QMessageBox::information(this, tr("Warning"), tr("The Editor doesn't exist, Please set again in Setting Panel."));
-        return;
-    }
     proc->start(editorPath_, {cacheFile});
 }
 
