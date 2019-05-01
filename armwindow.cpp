@@ -232,7 +232,27 @@ void ArmWindow::setting()
 void ArmWindow::createPopMenu()
 {
     rightPopMenu_ = new QMenu(this);
-    rightPopMenu_->addAction(tr("&Uncompress on Site"), this, SLOT(unCompressRemoteFile()));
+}
+
+void ArmWindow::downloadFile()
+{
+    qDebug() << "downloadFile";
+    QString targetDownloadPath = QFileDialog::getExistingDirectory(
+                this, tr("Download Path"));
+    if (targetDownloadPath.isEmpty())
+        return;
+
+    QString targetPath = QDir::cleanPath(targetDownloadPath);
+
+    QModelIndex index = ui->treeView->currentIndex();
+    QSsh::SftpFileNode* fn = static_cast<QSsh::SftpFileNode *>(index.internalPointer());
+    if (!fn)
+    {
+        qDebug() << "downloadFile get QSsh::SftpFileNode from index error";
+        return;
+    }
+
+
 }
 
 void ArmWindow::unCompressRemoteFile()
@@ -428,16 +448,49 @@ void ArmWindow::on_treeView_customContextMenuRequested(const QPoint &pos)
     qDebug() << "on_treeView_customContextMenuRequested: ";
     if ( qApp->mouseButtons() == Qt::LeftButton)
         return;
+    if (!modelMgr_->getModel())
+        return;
     if (modelMgr_->getCurrentModeType() != fileinfomodel::RemoteFileSystemModel)
         return;
 
     QModelIndex index = ui->treeView->indexAt(pos);
     QSsh::SftpFileNode* fn = static_cast<QSsh::SftpFileNode *>(index.internalPointer());
 
+    rightPopMenu_->clear();
+
+    const QIcon uploadIcon = QIcon::fromTheme("upload", QIcon(":/upload.ico"));
+    QAction* uploadAct = new QAction(uploadIcon, tr("&Upload"), this);
+    connect(uploadAct, &QAction::triggered, this, &ArmWindow::setting);
+    rightPopMenu_->addAction(uploadAct);
+
+    const QIcon downloadIcon = QIcon::fromTheme("download", QIcon(":/download.ico"));
+    QAction* downloadAct = new QAction(downloadIcon, tr("&Download"), this);
+    connect(downloadAct, &QAction::triggered, this, [this, index](){downloadFile(index);});
+    rightPopMenu_->addAction(downloadAct);
+
     if (fn && (fn->fileInfo.name.contains(".gz") || fn->fileInfo.name.contains(".zip") ||
             fn->fileInfo.name.contains(".tar") ||
             fn->fileInfo.name.contains(".tgz")))
     {
-        rightPopMenu_->popup(QCursor::pos());
+        const QIcon uncompressIcon = QIcon::fromTheme("uncompress", QIcon(":/compress.ico"));
+        QAction* uncompressAct = new QAction(uncompressIcon, tr("&Uncompress on Site"), this);
+        connect(uncompressAct, &QAction::triggered, this, &ArmWindow::unCompressRemoteFile);
+        rightPopMenu_->addAction(uncompressAct);
     }
+    rightPopMenu_->popup(QCursor::pos());
+}
+
+void ArmWindow::downloadFile(const QModelIndex& index)
+{
+    const QSsh::SftpFileNode* fn = static_cast<QSsh::SftpFileNode *>(index.internalPointer());
+    QString downloadPath = QFileDialog::getSaveFileName(
+                this, tr("Download Path"), fn->fileInfo.name);
+
+    if (downloadPath.isEmpty())
+        return;
+
+    QString downloadPathClean = QDir::cleanPath(downloadPath);
+
+    modelMgr_->downloadAsync(index, downloadPathClean);
+    statusBar()->showMessage("Download OK!");
 }

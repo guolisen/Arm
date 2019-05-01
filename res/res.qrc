@@ -11,5 +11,8 @@
         <file>reload.ico</file>
         <file>reloadMd.ico</file>
         <file>help.ico</file>
+        <file>compress.ico</file>
+        <file>download.ico</file>
+        <file>upload.ico</file>
     </qresource>
 </RCC>

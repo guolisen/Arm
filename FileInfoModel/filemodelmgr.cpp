@@ -15,7 +15,8 @@
 
 namespace fileinfomodel
 {
-FileModelMgr::FileModelMgr(core::ContextPtr context, QObject* parent):  QObject(parent),
+FileModelMgr::FileModelMgr(core::ContextPtr context, QWidget* parent):  QObject(parent),
+    parentWin_(parent),
     currentModeType_(LocalFileSystemModel),
     isRemoteConnected_(false),
     localFSModel_(new LocalFileModelType(context, nullptr, this)),
@@ -37,7 +38,7 @@ void FileModelMgr::directoryLoaded(const QString &path)
 
 void FileModelMgr::createProgressBar()
 {
-    pd_ = new QProgressDialog("", "", 0, 100);
+    pd_ = new QProgressDialog(nullptr);
     pd_->reset();
     pd_->setWindowModality(Qt::WindowModal);
     pd_->setMinimumDuration(5);
@@ -249,6 +250,12 @@ void FileModelMgr::handleConnectionError(const QString &errorMessage)
 
 QString FileModelMgr::downloadAsync(const QModelIndex &index, const QString &targetFilePath)
 {
+    const QSsh::SftpFileNode* fn = static_cast<QSsh::SftpFileNode *>(index.internalPointer());
+    pd_->setMaximum(fn->fileInfo.size);
+    pd_->setMinimum(0);
+    pd_->setValue(0);
+    pd_->setLabelText(fn->fileInfo.name);
+    pd_->show();
     downloadId_ = remoteFSModel_->downloadFile(index, targetFilePath);
     QEventLoop loop;
     connect(this, &FileModelMgr::downloadFinished, &loop, &QEventLoop::quit);
@@ -263,17 +270,11 @@ QString FileModelMgr::createCacheFile(const QModelIndex &index, QString& cacheFi
     UncompressFileCache fileCache;
     if (currentModeType_ == RemoteFileSystemModel)
     {
-        const SortFilterProxyModel* remoteModel =
-                dynamic_cast<const SortFilterProxyModel*>(index.model());
         //QModelIndex entryIndex = remoteModel->mapToSource(index);
         const QSsh::SftpFileNode* fn = static_cast<QSsh::SftpFileNode *>(index.internalPointer());
         if (fn && fn->fileInfo.type == QSsh::FileTypeDirectory)
             return "";
-        pd_->setMaximum(fn->fileInfo.size);
-        pd_->setMinimum(0);
-        pd_->setValue(0);
-        pd_->setLabelText(fn->fileInfo.name);
-        pd_->show();
+
         localFile = fileCache.getCacheFileName(fn->fileInfo.name);
         QString retStr = downloadAsync(index, localFile);
         if (!retStr.isEmpty())

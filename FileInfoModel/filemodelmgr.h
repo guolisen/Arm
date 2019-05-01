@@ -28,7 +28,7 @@ class FileModelMgr: public QObject
 {
     Q_OBJECT
 public:
-    FileModelMgr(core::ContextPtr context, QObject* parent = nullptr);
+    FileModelMgr(core::ContextPtr context, QWidget* parent = nullptr);
     virtual ~FileModelMgr();
     bool init();
     void setRootPath(const QString &path, QTreeView* tree);
@@ -42,6 +42,7 @@ public:
     void update(const QModelIndex& index);
     void clearCache();
     void setNameFilter(const QString &s);
+    QString downloadAsync(const QModelIndex &index, const QString &targetFilePath);
 Q_SIGNALS:
     void directoryUpdateWrapper(const QModelIndex &index);
     void directoryLoadedWrapper(const QString &path);
@@ -62,11 +63,11 @@ private:
     void setRootLocalPath(const QString& path, QTreeView* tree);
     void setRootRemotePath(const QString &path, QTreeView* tree);
 
-    QString downloadAsync(const QModelIndex &index, const QString &targetFilePath);
     void createProgressBar();
     void createRemoteModel();
     void releaseRemoteModel();
 private:
+    QWidget* parentWin_;
     FileModelType currentModeType_;
     bool isRemoteConnected_;
     LocalFileModelType* localFSModel_;
