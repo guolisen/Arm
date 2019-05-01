@@ -6,6 +6,7 @@
 #include <ssh/sftpfilesystemmodel.h>
 #include <Core/iconfigmgr.h>
 #include <QTreeView>
+#include <QEventLoop>
 #include "logfilesystemmodel.h"
 #include "localfilemodel.h"
 #include "sftpfilemodel.h"
@@ -43,13 +44,14 @@ public:
     void clearCache();
     void setNameFilter(const QString &s);
     QString downloadAsync(const QModelIndex &index, const QString &targetFilePath);
+    QString uploadAsync(const QString &localFilePath, const QModelIndex &index);
 Q_SIGNALS:
     void directoryUpdateWrapper(const QModelIndex &index);
     void directoryLoadedWrapper(const QString &path);
     void sftpOperationFailed(const QString &errorMessage);
     void sftpOperationFinished(const QString &error);
     void connectionError(const QString &errorMessage);
-    void downloadFinished();
+    void transferFinished();
 
 public slots:
     void directoryLoaded(const QString &path);
@@ -76,10 +78,11 @@ private:
     core::ContextPtr context_;
     QString rootPath_;
     QTreeView* treeView_;
-    QSsh::SftpJobId downloadId_;
-    QString downloadError_;
+    QSsh::SftpJobId transferTaskId_;
+    QString transferTaskError_;
     QProgressDialog* pd_;
     SortFilterProxyModel* proxyModel_;
+    QEventLoop loop_;
 };
 
 }

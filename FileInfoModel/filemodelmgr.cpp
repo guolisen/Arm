@@ -21,7 +21,7 @@ FileModelMgr::FileModelMgr(core::ContextPtr context, QWidget* parent):  QObject(
     isRemoteConnected_(false),
     localFSModel_(new LocalFileModelType(context, nullptr, this)),
     remoteFSModel_(nullptr),
-    currentModel_(nullptr), context_(context), downloadId_(0), rootPath_("/")
+    currentModel_(nullptr), context_(context), transferTaskId_(0), rootPath_("/")
 {
     init();
 }
@@ -42,7 +42,6 @@ void FileModelMgr::createProgressBar()
     pd_->reset();
     pd_->setWindowModality(Qt::WindowModal);
     pd_->setMinimumDuration(5);
-    pd_->setWindowTitle("Downloading...");
     pd_->setAutoClose(true);
     pd_->setModal(true);
     pd_->setCancelButton(nullptr);
@@ -107,6 +106,7 @@ bool FileModelMgr::init()
     {
         emit directoryLoadedWrapper(path);
     });
+    connect(this, &FileModelMgr::transferFinished, &loop_, &QEventLoop::quit);
     createRemoteModel();
     createProgressBar();
 
@@ -228,13 +228,13 @@ void FileModelMgr::handleSftpOperationFinished(QSsh::SftpJobId jobId, const QStr
 
     qDebug() << "FileModelMgr::handleSftpOperationFinished " << message;
 
-    if(downloadId_ == jobId)
+    if(transferTaskId_ == jobId)
     {
-        qDebug() << "1downloadAsync OK! " << error;
+        qDebug() << "transfer Async OK! " << error;
         pd_->hide();
-        downloadError_ = error;
-        downloadId_ = 0;
-        emit downloadFinished();
+        transferTaskError_ = error;
+        transferTaskId_ = 0;
+        emit transferFinished();
         return;
     }
 
@@ -248,6 +248,26 @@ void FileModelMgr::handleConnectionError(const QString &errorMessage)
     emit connectionError(errorMessage);
 }
 
+QString FileModelMgr::uploadAsync(const QString &localFilePath, const QModelIndex &index)
+{
+    QFileInfo fi(localFilePath);
+    QString localFileName = fi.fileName();
+    const QSsh::SftpFileNode* fn = static_cast<QSsh::SftpFileNode *>(index.internalPointer());
+    QFileInfo remoteFileInfo(fn->path);
+    QString remoteFileFullPath = remoteFileInfo.path() + localFileName;
+    qDebug() << "Upload src: " << localFilePath << " target: " << remoteFileFullPath;
+
+    pd_->setMaximum(fi.size());
+    pd_->setMinimum(0);
+    pd_->setValue(0);
+    pd_->setLabelText(localFileName);
+    pd_->setWindowTitle("Uploading...");
+    pd_->show();
+    transferTaskId_ = remoteFSModel_->uploadFile(localFilePath, remoteFileFullPath);
+    loop_.exec();
+
+    return transferTaskError_;
+}
 QString FileModelMgr::downloadAsync(const QModelIndex &index, const QString &targetFilePath)
 {
     const QSsh::SftpFileNode* fn = static_cast<QSsh::SftpFileNode *>(index.internalPointer());
@@ -255,13 +275,12 @@ QString FileModelMgr::downloadAsync(const QModelIndex &index, const QString &tar
     pd_->setMinimum(0);
     pd_->setValue(0);
     pd_->setLabelText(fn->fileInfo.name);
+    pd_->setWindowTitle("Downloading...");
     pd_->show();
-    downloadId_ = remoteFSModel_->downloadFile(index, targetFilePath);
-    QEventLoop loop;
-    connect(this, &FileModelMgr::downloadFinished, &loop, &QEventLoop::quit);
-    loop.exec();
+    transferTaskId_ = remoteFSModel_->downloadFile(index, targetFilePath);
+    loop_.exec();
 
-    return downloadError_;
+    return transferTaskError_;
 }
 
 QString FileModelMgr::createCacheFile(const QModelIndex &index, QString& cacheFileName)

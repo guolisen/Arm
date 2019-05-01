@@ -460,7 +460,7 @@ void ArmWindow::on_treeView_customContextMenuRequested(const QPoint &pos)
 
     const QIcon uploadIcon = QIcon::fromTheme("upload", QIcon(":/upload.ico"));
     QAction* uploadAct = new QAction(uploadIcon, tr("&Upload"), this);
-    connect(uploadAct, &QAction::triggered, this, &ArmWindow::setting);
+    connect(uploadAct, &QAction::triggered, this, [this, index](){uploadFile(index);});
     rightPopMenu_->addAction(uploadAct);
 
     const QIcon downloadIcon = QIcon::fromTheme("download", QIcon(":/download.ico"));
@@ -493,4 +493,22 @@ void ArmWindow::downloadFile(const QModelIndex& index)
 
     modelMgr_->downloadAsync(index, downloadPathClean);
     statusBar()->showMessage("Download OK!");
+}
+
+void ArmWindow::uploadFile(const QModelIndex& index)
+{
+    const QSsh::SftpFileNode* fn = static_cast<QSsh::SftpFileNode *>(index.internalPointer());
+    QString uploadFileName = QFileDialog::getOpenFileName(
+                this, tr("Upload Path"));
+
+    if (uploadFileName.isEmpty())
+        return;
+
+    QString uploadFileClean = QDir::cleanPath(uploadFileName);
+
+    modelMgr_->uploadAsync(uploadFileClean, index);
+    statusBar()->showMessage("Upload OK!");
+    QModelIndex currentInd = ui->treeView->currentIndex();
+    if (currentInd.isValid())
+        modelMgr_->update(currentInd);
 }

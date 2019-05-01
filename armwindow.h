@@ -24,6 +24,7 @@ public:
     explicit ArmWindow(core::ContextPtr context, IRecentUseMgr::Factory recentUseFactory, QWidget *parent = nullptr);
     ~ArmWindow();
     void init();
+
 public slots:
     void handleSftpOperationFailed(const QString &errorMessage);
     void handleSftpOperationFinished(const QString &error);
@@ -49,6 +50,7 @@ private:
     RemoteProcess* createRemoteProcess();
     void executeRemoteCommand(const QString& command);
     void downloadFile(const QModelIndex &index);
+    void uploadFile(const QModelIndex &index);
 
     Ui::ArmWindow *ui;
     core::ContextPtr context_;
