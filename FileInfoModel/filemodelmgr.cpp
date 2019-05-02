@@ -80,7 +80,7 @@ void FileModelMgr::createRemoteModel()
     connect(remoteFSModel_, SIGNAL(sftpOperationFailed(QString)), SLOT(handleSftpOperationFailed(QString)));
     connect(remoteFSModel_, SIGNAL(connectionError(QString)), SLOT(handleConnectionError(QString)));
     connect(remoteFSModel_, SIGNAL(connectionSuccess()), SLOT(handleConnectionSuccess()));
-    connect(remoteFSModel_, SIGNAL(downloadPrograss(quint64, quint64)), SLOT(handleDownloadPrograss(quint64, quint64)));
+    connect(remoteFSModel_, SIGNAL(transferPrograss(quint64, quint64)), SLOT(handleTransferPrograss(quint64, quint64)));
 }
 
 void FileModelMgr::setNameFilter(const QString& s)
@@ -112,7 +112,7 @@ bool FileModelMgr::init()
 
     return true;
 }
-void FileModelMgr::handleDownloadPrograss(quint64 current, quint64 total)
+void FileModelMgr::handleTransferPrograss(quint64 current, quint64 total)
 {
     //qDebug() << "handleDownloadPrograss " << current << " " << total;
     pd_->setValue(current);
@@ -260,11 +260,11 @@ QString FileModelMgr::uploadAsync(const QString &localFilePath, const QModelInde
     {
         QFileInfo remoteFileInfo(fn->path);
         QString path = remoteFileInfo.path();
-        remoteFileFullPath = path + "/" + localFileName;
+        remoteFileFullPath = path + (path == "/" ? "" : "/") + localFileName;
     }
     else
     {
-        remoteFileFullPath = fn->path + "/" + localFileName;
+        remoteFileFullPath = fn->path + (fn->path == "/" ? "" : "/") + localFileName;
     }
 
     qDebug() << "Upload src: " << localFilePath << " target: " << remoteFileFullPath;

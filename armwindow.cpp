@@ -468,7 +468,7 @@ void ArmWindow::on_treeView_customContextMenuRequested(const QPoint &pos)
     connect(downloadAct, &QAction::triggered, this, [this, index](){downloadFile(index);});
     rightPopMenu_->addAction(downloadAct);
 
-    if (fn && (fn->fileInfo.name.contains(".gz") || fn->fileInfo.name.contains(".zip") ||
+    if (fn && (fn->fileInfo.name.contains(".zip") ||
             fn->fileInfo.name.contains(".tar") ||
             fn->fileInfo.name.contains(".tgz")))
     {

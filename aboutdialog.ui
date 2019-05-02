@@ -110,6 +110,9 @@
         <property name="text">
          <string>Lewis Guo</string>
         </property>
+        <property name="textInteractionFlags">
+         <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+        </property>
        </widget>
       </item>
       <item row="4" column="0">
@@ -142,6 +145,9 @@
         <property name="text">
          <string>Lewis.guo@emc.com</string>
         </property>
+        <property name="textInteractionFlags">
+         <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+        </property>
        </widget>
       </item>
       <item row="5" column="0">
@@ -173,6 +179,9 @@
         </property>
         <property name="text">
          <string>https://sourceforge.net/projects/logarm/files/</string>
+        </property>
+        <property name="textInteractionFlags">
+         <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
         </property>
        </widget>
       </item>

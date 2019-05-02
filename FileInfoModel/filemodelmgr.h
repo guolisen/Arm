@@ -59,7 +59,7 @@ public slots:
     void handleSftpOperationFinished(QSsh::SftpJobId jobId, const QString &error);
     void handleConnectionError(const QString &errorMessage);
     void handleConnectionSuccess();
-    void handleDownloadPrograss(quint64 current, quint64 total);
+    void handleTransferPrograss(quint64 current, quint64 total);
 private:
     bool isRemote(const QString &path);
     void setRootLocalPath(const QString& path, QTreeView* tree);
