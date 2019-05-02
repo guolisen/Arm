@@ -155,8 +155,14 @@ void FileModelMgr::update(const QModelIndex& index)
 {
     if(currentModeType_ == RemoteFileSystemModel)
     {
-        if (!remoteFSModel_->getCurrentJobNum())
+        //if (!remoteFSModel_->getCurrentJobNum())
+        {
+            qDebug() << "FileModelMgr::update";
             remoteFSModel_->update(index);
+        }
+        //else {
+        //    qDebug() << "NNNN FileModelMgr::update";
+        //}
     }
 }
 

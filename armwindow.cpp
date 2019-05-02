@@ -45,7 +45,7 @@ void ArmWindow::resizeColumn(const QString &path)
 {
     if (modelMgr_->getCurrentModeType() == fileinfomodel::RemoteFileSystemModel)
         return;
-    ui->treeView->clearSelection();
+    ui->treeView->setCurrentIndex(ui->treeView->currentIndex());
     qDebug() << "resizeColumn";
     QAbstractItemModel* model = modelMgr_->getModel();
     for (int column = 0; column < model->columnCount(); ++column)
@@ -55,7 +55,7 @@ void ArmWindow::resizeColumn(const QString &path)
 void ArmWindow::updateColumn(const QModelIndex& index)
 {
     qDebug() << "updateColumn" << index.column();
-    ui->treeView->clearSelection();
+    ui->treeView->setCurrentIndex(ui->treeView->currentIndex());
     ui->treeView->resizeColumnToContents(index.column());
 }
 
@@ -68,12 +68,16 @@ void ArmWindow::handleSftpOperationFailed(const QString &errorMessage)
 
 void ArmWindow::handleSftpOperationFinished(const QString &error)
 {
-    ui->treeView->clearSelection();
     ui->treeView->resizeColumnToContents(0);
+    if (!error.isEmpty())
+        QMessageBox::warning(this, tr("Operation Failed"),
+            tr("Operation Result: %1").arg(error));
+    //ui->treeView->setCurrentIndex(ui->treeView->currentIndex());
+    //ui->treeView->resizeColumnToContents(0);
     //ui->treeView->sortByColumn(0);
-    statusBar()->showMessage(error);
-    if (error.isEmpty())
-        statusBar()->showMessage("Process OK!");
+    //statusBar()->showMessage(error);
+    //if (error.isEmpty())
+    //    statusBar()->showMessage("Process OK!");
 }
 
 void ArmWindow::handleConnectionError(const QString &errorMessage)
