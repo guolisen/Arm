@@ -330,6 +330,23 @@ void ArmWindow::createMenu()
     toolsMenu->addAction(runCommandAct);
     toolsToolBar->addAction(runCommandAct);
 
+    //-------------------------------------------
+    const QIcon runSimpleIcon = QIcon::fromTheme("runSimple", QIcon(":/runComman.ico"));
+    QMenu *runCommandMenu = toolsMenu->addMenu(runSimpleIcon, "Run &Simple Command");
+
+    QList<QString> simpleComList = configMgrPtr_->getConfigArray("SimpleCommand", "Array");
+    Q_FOREACH(auto command, simpleComList)
+    {
+        QAction* simpleCommandAct = new QAction(command, this);
+        connect(simpleCommandAct, &QAction::triggered, this, [this, command](){
+            executeRemoteCommand(command);
+        });
+        runCommandMenu->addAction(simpleCommandAct);
+    }
+
+    toolsMenu->addMenu(runCommandMenu);
+
+    //-------------------------------------------
     const QIcon reloadLogIcon = QIcon::fromTheme("reloadLogIcon", QIcon(":/reload.ico"));
     QAction *reloadLogAct = new QAction(reloadLogIcon, tr("&Reload Log Time"), this);
     reloadLogAct->setStatusTip(tr("Reload Log time"));

@@ -15,5 +15,6 @@
         <file>download.ico</file>
         <file>upload.ico</file>
         <file>remove.ico</file>
+        <file>runComman.ico</file>
     </qresource>
 </RCC>
