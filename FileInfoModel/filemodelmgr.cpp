@@ -67,6 +67,7 @@ void FileModelMgr::createRemoteModel()
     connect(remoteFSModel_->getModel(), &IFileModel::dataChanged,
             this, [this](const QModelIndex &index)
     {
+        //remoteFSModel_->updateLayout();
         emit directoryUpdateWrapper(index);
     });
     connect(remoteFSModel_, &QAbstractItemModel::layoutChanged,
@@ -115,7 +116,8 @@ bool FileModelMgr::init()
 void FileModelMgr::handleTransferPrograss(quint64 current, quint64 total)
 {
     //qDebug() << "handleDownloadPrograss " << current << " " << total;
-    pd_->setValue(current);
+    int percent = (double)current/(double)total * 100.0;
+    pd_->setValue(percent);
 }
 
 void FileModelMgr::setRootPath(const QString &path, QTreeView* tree)
@@ -269,7 +271,7 @@ QString FileModelMgr::uploadAsync(const QString &localFilePath, const QModelInde
 
     qDebug() << "Upload src: " << localFilePath << " target: " << remoteFileFullPath;
 
-    pd_->setMaximum(fi.size());
+    pd_->setMaximum(100);
     pd_->setMinimum(0);
     pd_->setValue(0);
     pd_->setLabelText(localFileName);
@@ -285,7 +287,7 @@ QString FileModelMgr::downloadAsync(const QModelIndex &index, const QString &tar
     if (transferTaskId_)
         return "Other transfer task is running!";
     const QSsh::SftpFileNode* fn = static_cast<QSsh::SftpFileNode *>(index.internalPointer());
-    pd_->setMaximum(fn->fileInfo.size);
+    pd_->setMaximum(100);
     pd_->setMinimum(0);
     pd_->setValue(0);
     pd_->setLabelText(fn->fileInfo.name);
@@ -297,12 +299,12 @@ QString FileModelMgr::downloadAsync(const QModelIndex &index, const QString &tar
     return transferTaskError_;
 }
 
-QString FileModelMgr::removeAsync(const QString &removeFilePath)
+QString FileModelMgr::removeAsync(const QModelIndex &index)
 {
     if (transferTaskId_)
         return "Other transfer task is running!";
 
-    transferTaskId_ = remoteFSModel_->removeFile(removeFilePath);
+    transferTaskId_ = remoteFSModel_->removeFile(index);
     loop_.exec();
 
     return transferTaskError_;

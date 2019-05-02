@@ -45,6 +45,7 @@ void ArmWindow::resizeColumn(const QString &path)
 {
     if (modelMgr_->getCurrentModeType() == fileinfomodel::RemoteFileSystemModel)
         return;
+    ui->treeView->clearSelection();
     qDebug() << "resizeColumn";
     QAbstractItemModel* model = modelMgr_->getModel();
     for (int column = 0; column < model->columnCount(); ++column)
@@ -54,6 +55,7 @@ void ArmWindow::resizeColumn(const QString &path)
 void ArmWindow::updateColumn(const QModelIndex& index)
 {
     qDebug() << "updateColumn" << index.column();
+    ui->treeView->clearSelection();
     ui->treeView->resizeColumnToContents(index.column());
 }
 
@@ -66,6 +68,7 @@ void ArmWindow::handleSftpOperationFailed(const QString &errorMessage)
 
 void ArmWindow::handleSftpOperationFinished(const QString &error)
 {
+    ui->treeView->clearSelection();
     ui->treeView->resizeColumnToContents(0);
     //ui->treeView->sortByColumn(0);
     statusBar()->showMessage(error);
@@ -242,7 +245,8 @@ void ArmWindow::unCompressRemoteFile()
     QSsh::SftpFileNode* fn = static_cast<QSsh::SftpFileNode *>(index.internalPointer());
     if (fn)
     {
-        QString currentPath = fn->path.mid(0, fn->path.lastIndexOf("/"));
+        QFileInfo fi(fn->path);
+        QString currentPath = fi.path();
         if (fn->fileInfo.name.contains(".gz"))
         {
             uncompressCommand = "gunzip " + fn->path;
@@ -451,6 +455,8 @@ void ArmWindow::on_treeView_customContextMenuRequested(const QPoint &pos)
 
     QModelIndex index = ui->treeView->indexAt(pos);
     QSsh::SftpFileNode* fn = static_cast<QSsh::SftpFileNode *>(index.internalPointer());
+    if (!fn)
+        return;
 
     rightPopMenu_->clear();
 
@@ -464,9 +470,9 @@ void ArmWindow::on_treeView_customContextMenuRequested(const QPoint &pos)
     connect(downloadAct, &QAction::triggered, this, [this, index](){downloadFile(index);});
     rightPopMenu_->addAction(downloadAct);
 
-    if (fn && (fn->fileInfo.name.contains(".zip") ||
+    if (fn->fileInfo.name.contains(".zip") ||
             fn->fileInfo.name.contains(".tar") ||
-            fn->fileInfo.name.contains(".tgz")))
+            fn->fileInfo.name.contains(".tgz"))
     {
         const QIcon uncompressIcon = QIcon::fromTheme("uncompress", QIcon(":/compress.ico"));
         QAction* uncompressAct = new QAction(uncompressIcon, tr("&Uncompress on Site"), this);
@@ -573,7 +579,7 @@ void ArmWindow::removeFile(const QModelIndex& index)
     if (r == QMessageBox::No)
         return;
 
-    QString ret = modelMgr_->removeAsync(fn->path);
+    QString ret = modelMgr_->removeAsync(index);
     if (!ret.isEmpty())
     {
         QMessageBox::information(this, tr("Warning"), tr("Remove File Error: %1").arg(ret));

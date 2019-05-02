@@ -45,7 +45,7 @@ public:
     void setNameFilter(const QString &s);
     QString downloadAsync(const QModelIndex &index, const QString &targetFilePath);
     QString uploadAsync(const QString &localFilePath, const QModelIndex &index);
-    QString removeAsync(const QString &removeFilePath);
+    QString removeAsync(const QModelIndex &index);
 Q_SIGNALS:
     void directoryUpdateWrapper(const QModelIndex &index);
     void directoryLoadedWrapper(const QString &path);
