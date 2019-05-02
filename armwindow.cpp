@@ -505,6 +505,20 @@ void ArmWindow::uploadFile(const QModelIndex& index)
         return;
 
     QString uploadFileClean = QDir::cleanPath(uploadFileName);
+    QFileInfo fi(uploadFileClean);
+    Q_FOREACH(auto fileNode, fn->parent->children)
+    {
+        if (fileNode->fileInfo.name == fi.fileName())
+        {
+            QMessageBox::StandardButton r = QMessageBox::question(
+                        this, "Warning", "Remote File Exist, Do you cover this file?",
+                        QMessageBox::Yes | QMessageBox::No,
+                        QMessageBox::No);
+            if (r == QMessageBox::No) {
+                return;
+            }
+        }
+    }
 
     modelMgr_->uploadAsync(uploadFileClean, index);
     statusBar()->showMessage("Upload OK!");
