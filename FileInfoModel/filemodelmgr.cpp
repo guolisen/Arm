@@ -160,9 +160,6 @@ void FileModelMgr::update(const QModelIndex& index)
             qDebug() << "FileModelMgr::update";
             remoteFSModel_->update(index);
         }
-        //else {
-        //    qDebug() << "NNNN FileModelMgr::update";
-        //}
     }
 }
 
