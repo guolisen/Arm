@@ -483,6 +483,11 @@ void ArmWindow::on_treeView_customContextMenuRequested(const QPoint &pos)
 void ArmWindow::downloadFile(const QModelIndex& index)
 {
     const QSsh::SftpFileNode* fn = static_cast<QSsh::SftpFileNode *>(index.internalPointer());
+    if (fn->fileInfo.type == QSsh::FileTypeDirectory)
+    {
+        QMessageBox::information(this, tr("Warning"), tr("Don't support directory download in this version."));
+        return;
+    }
     QString downloadPath = QFileDialog::getSaveFileName(
                 this, tr("Download Path"), fn->fileInfo.name);
 
@@ -491,7 +496,12 @@ void ArmWindow::downloadFile(const QModelIndex& index)
 
     QString downloadPathClean = QDir::cleanPath(downloadPath);
 
-    modelMgr_->downloadAsync(index, downloadPathClean);
+    QString ret = modelMgr_->downloadAsync(index, downloadPathClean);
+    if (!ret.isEmpty())
+    {
+        QMessageBox::information(this, tr("Warning"), tr("Download Error: %1").arg(ret));
+        return;
+    }
     statusBar()->showMessage("Download OK!");
 }
 
@@ -506,7 +516,17 @@ void ArmWindow::uploadFile(const QModelIndex& index)
 
     QString uploadFileClean = QDir::cleanPath(uploadFileName);
     QFileInfo fi(uploadFileClean);
-    Q_FOREACH(auto fileNode, fn->parent->children)
+
+    QList<QSsh::SftpFileNode*> currentFileList;
+    if (fn->fileInfo.type != QSsh::FileTypeDirectory)
+        currentFileList = fn->parent->children;
+    else
+    {
+        const QSsh::SftpDirNode* dirNode = dynamic_cast<const QSsh::SftpDirNode*>(fn);
+        Q_ASSERT(dirNode);
+        currentFileList = dirNode->children;
+    }
+    Q_FOREACH(auto fileNode, currentFileList)
     {
         if (fileNode->fileInfo.name == fi.fileName())
         {
@@ -520,7 +540,12 @@ void ArmWindow::uploadFile(const QModelIndex& index)
         }
     }
 
-    modelMgr_->uploadAsync(uploadFileClean, index);
+    QString ret = modelMgr_->uploadAsync(uploadFileClean, index);
+    if (!ret.isEmpty())
+    {
+        QMessageBox::information(this, tr("Warning"), tr("Upload Error: %1").arg(ret));
+        return;
+    }
     statusBar()->showMessage("Upload OK!");
     QModelIndex currentInd = ui->treeView->currentIndex();
     if (currentInd.isValid())

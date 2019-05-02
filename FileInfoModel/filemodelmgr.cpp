@@ -250,11 +250,23 @@ void FileModelMgr::handleConnectionError(const QString &errorMessage)
 
 QString FileModelMgr::uploadAsync(const QString &localFilePath, const QModelIndex &index)
 {
+    if (transferTaskId_)
+        return "Other transfer task is running!";
     QFileInfo fi(localFilePath);
     QString localFileName = fi.fileName();
     const QSsh::SftpFileNode* fn = static_cast<QSsh::SftpFileNode *>(index.internalPointer());
-    QFileInfo remoteFileInfo(fn->path);
-    QString remoteFileFullPath = remoteFileInfo.path() + localFileName;
+    QString remoteFileFullPath = "";
+    if (fn->fileInfo.type != QSsh::FileTypeDirectory)
+    {
+        QFileInfo remoteFileInfo(fn->path);
+        QString path = remoteFileInfo.path();
+        remoteFileFullPath = path + "/" + localFileName;
+    }
+    else
+    {
+        remoteFileFullPath = fn->path + "/" + localFileName;
+    }
+
     qDebug() << "Upload src: " << localFilePath << " target: " << remoteFileFullPath;
 
     pd_->setMaximum(fi.size());
@@ -270,6 +282,8 @@ QString FileModelMgr::uploadAsync(const QString &localFilePath, const QModelInde
 }
 QString FileModelMgr::downloadAsync(const QModelIndex &index, const QString &targetFilePath)
 {
+    if (transferTaskId_)
+        return "Other transfer task is running!";
     const QSsh::SftpFileNode* fn = static_cast<QSsh::SftpFileNode *>(index.internalPointer());
     pd_->setMaximum(fn->fileInfo.size);
     pd_->setMinimum(0);
