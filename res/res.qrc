@@ -14,5 +14,6 @@
         <file>compress.ico</file>
         <file>download.ico</file>
         <file>upload.ico</file>
+        <file>remove.ico</file>
     </qresource>
 </RCC>

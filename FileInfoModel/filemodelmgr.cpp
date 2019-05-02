@@ -297,6 +297,17 @@ QString FileModelMgr::downloadAsync(const QModelIndex &index, const QString &tar
     return transferTaskError_;
 }
 
+QString FileModelMgr::removeAsync(const QString &removeFilePath)
+{
+    if (transferTaskId_)
+        return "Other transfer task is running!";
+
+    transferTaskId_ = remoteFSModel_->removeFile(removeFilePath);
+    loop_.exec();
+
+    return transferTaskError_;
+}
+
 QString FileModelMgr::createCacheFile(const QModelIndex &index, QString& cacheFileName)
 {
     QString localFile;

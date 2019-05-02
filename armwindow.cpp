@@ -234,27 +234,6 @@ void ArmWindow::createPopMenu()
     rightPopMenu_ = new QMenu(this);
 }
 
-void ArmWindow::downloadFile()
-{
-    qDebug() << "downloadFile";
-    QString targetDownloadPath = QFileDialog::getExistingDirectory(
-                this, tr("Download Path"));
-    if (targetDownloadPath.isEmpty())
-        return;
-
-    QString targetPath = QDir::cleanPath(targetDownloadPath);
-
-    QModelIndex index = ui->treeView->currentIndex();
-    QSsh::SftpFileNode* fn = static_cast<QSsh::SftpFileNode *>(index.internalPointer());
-    if (!fn)
-    {
-        qDebug() << "downloadFile get QSsh::SftpFileNode from index error";
-        return;
-    }
-
-
-}
-
 void ArmWindow::unCompressRemoteFile()
 {
     qDebug() << "uncompressInRemote";
@@ -477,6 +456,15 @@ void ArmWindow::on_treeView_customContextMenuRequested(const QPoint &pos)
         connect(uncompressAct, &QAction::triggered, this, &ArmWindow::unCompressRemoteFile);
         rightPopMenu_->addAction(uncompressAct);
     }
+
+    if (fn->fileInfo.type != QSsh::FileTypeDirectory)
+    {
+        const QIcon removeIcon = QIcon::fromTheme("remove", QIcon(":/remove.ico"));
+        QAction* removeAct = new QAction(removeIcon, tr("&Remove File on Site"), this);
+        connect(removeAct, &QAction::triggered, this, [this, index](){removeFile(index);});
+        rightPopMenu_->addAction(removeAct);
+    }
+
     rightPopMenu_->popup(QCursor::pos());
 }
 
@@ -547,6 +535,34 @@ void ArmWindow::uploadFile(const QModelIndex& index)
         return;
     }
     statusBar()->showMessage("Upload OK!");
+    QModelIndex currentInd = ui->treeView->currentIndex();
+    if (currentInd.isValid())
+        modelMgr_->update(currentInd);
+}
+
+void ArmWindow::removeFile(const QModelIndex& index)
+{
+    const QSsh::SftpFileNode* fn = static_cast<QSsh::SftpFileNode *>(index.internalPointer());
+    if (fn->fileInfo.type == QSsh::FileTypeDirectory)
+    {
+        QMessageBox::information(this, tr("Warning"), tr("Don't support directory remove in this version."));
+        return;
+    }
+
+    QMessageBox::StandardButton r = QMessageBox::question(
+                this, "Warning", tr("Do you want to remove the file %1").arg(fn->fileInfo.name),
+                QMessageBox::Yes | QMessageBox::No,
+                QMessageBox::No);
+    if (r == QMessageBox::No)
+        return;
+
+    QString ret = modelMgr_->removeAsync(fn->path);
+    if (!ret.isEmpty())
+    {
+        QMessageBox::information(this, tr("Warning"), tr("Remove File Error: %1").arg(ret));
+        return;
+    }
+    statusBar()->showMessage("Remove OK!");
     QModelIndex currentInd = ui->treeView->currentIndex();
     if (currentInd.isValid())
         modelMgr_->update(currentInd);

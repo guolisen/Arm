@@ -44,13 +44,14 @@ private slots:
     void updateColumn(const QModelIndex& index);
     void unCompressRemoteFile();
     void handleClosed(int exitStatus);
-    void downloadFile();
+
 private:
     void createMenu();
     RemoteProcess* createRemoteProcess();
     void executeRemoteCommand(const QString& command);
     void downloadFile(const QModelIndex &index);
     void uploadFile(const QModelIndex &index);
+    void removeFile(const QModelIndex &index);
 
     Ui::ArmWindow *ui;
     core::ContextPtr context_;
