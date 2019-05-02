@@ -196,7 +196,7 @@ void ArmWindow::findStringProcess(const QString& s)
 
 void ArmWindow::open()
 {
-    FolderOpenDialog folderDialog(recentUseFactory_(context_, "rootFolder", 10, this), this);
+    FolderOpenDialog folderDialog(recentUseFactory_(context_, "rootFolder", 20, this), this);
     if (folderDialog.exec() != QDialog::Accepted)
         return;
 
@@ -221,7 +221,7 @@ void ArmWindow::open()
 
 void ArmWindow::setting()
 {
-    SettingDialog settingDialog(context_, recentUseFactory_(context_, "siteIp", 10, this), this);
+    SettingDialog settingDialog(context_, recentUseFactory_(context_, "siteIp", 30, this), this);
     if (settingDialog.exec() == QDialog::Accepted)
     {
         editorPath_ = configMgrPtr_->getConfigInfo("Arm/Setting/editorPath").toString();
@@ -278,7 +278,7 @@ bool ArmWindow::requestRemoteCommand(const QString& defaultCommand)
 {
     //qDebug() << "runRemoteCommand default: " << defaultCommand;
 
-    RemoteCommandDialog remoteDialog(recentUseFactory_(context_, "remoteCommand", 10, this), this);
+    RemoteCommandDialog remoteDialog(recentUseFactory_(context_, "remoteCommand", 30, this), this);
     remoteDialog.setCommand(defaultCommand);
     if (remoteDialog.exec() != QDialog::Accepted)
     {
