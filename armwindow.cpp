@@ -8,6 +8,7 @@
 #include <QSettings>
 #include <QMessageBox>
 #include <QToolBar>
+#include <QClipboard>
 #include "aboutdialog.h"
 #include "FileInfoModel/uncompressfilecache.h"
 #include "folderopendialog.h"
@@ -492,6 +493,14 @@ void ArmWindow::on_treeView_customContextMenuRequested(const QPoint &pos)
         rightPopMenu_->addAction(removeAct);
     }
 
+    const QIcon copyIcon = QIcon::fromTheme("copy", QIcon(":/copy.ico"));
+    QAction* copyAct = new QAction(copyIcon, tr("&Copy Path to Clipboard"), this);
+    connect(copyAct, &QAction::triggered, this, [this, fn](){
+        QClipboard *clipboard = QApplication::clipboard();
+        clipboard->setText(fn->path);
+    });
+
+    rightPopMenu_->addAction(copyAct);
     rightPopMenu_->popup(QCursor::pos());
 }
 
