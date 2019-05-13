@@ -6,17 +6,20 @@ namespace fileinfomodel
 {
 
 SftpMgr::SftpMgr(QSsh::SshConnectionParameters sshParams, QObject *parent) : QObject(parent),
-    sshParams_(sshParams)
+    sshParams_(sshParams), isDestroyed_(false)
 {
 }
 
 SftpMgr::~SftpMgr()
 {
+    isDestroyed_ = true;
     disconnectToHost();
 }
 
 void SftpMgr::startToConnect()
 {
+    if (isDestroyed_)
+        return;
     m_connection = new QSsh::SshConnection(sshParams_);
     connect(m_connection, SIGNAL(connected()), SLOT(handleConnected()));
     connect(m_connection, SIGNAL(error(QSsh::SshError)), SLOT(handleError()));
@@ -32,6 +35,8 @@ void SftpMgr::startToConnect()
 
 QSsh::SftpJobId SftpMgr::download(const QString &remoteFilePath, QSharedPointer<QIODevice> localFile, quint32 size)
 {
+    if (isDestroyed_)
+        return 0xFFFFFFFF;
     QSsh::SftpJobId id = m_channel->downloadFile(remoteFilePath, localFile, size);
     return id;
 }
@@ -43,6 +48,8 @@ void SftpMgr::disconnectToHost()
 
 void SftpMgr::handleConnected()
 {
+    if (isDestroyed_)
+        return;
     qDebug() << "Connected. Initializing SFTP channel...";
     m_channel = m_connection->createSftpChannel();
     connect(m_channel.data(), SIGNAL(initialized()), this,
@@ -75,6 +82,8 @@ void SftpMgr::handleDisconnected()
 
 void SftpMgr::handleChannelInitialized()
 {
+    if (isDestroyed_)
+        return;
     qDebug() << "Initialized OK.";
     cond_.notify_all();
     emit connectHostSuccess();
@@ -89,6 +98,8 @@ void SftpMgr::handleChannelInitializationFailure(const QString &reason)
 
 void SftpMgr::handleJobFinished(QSsh::SftpJobId job, const QString &error)
 {
+    if (isDestroyed_)
+        return;
     qDebug() << "handleJobFinished ";
     emit jobFinished(job, error);
     cond_.notify_all();
@@ -116,6 +127,7 @@ void SftpMgr::earlyDisconnectFromHost()
         disconnect(m_channel.data(), 0, this, 0);
     }
     m_connection->disconnectFromHost();
+    emit jobFinished(0xFFFFFFFF, "Cancel");
 }
 
 }

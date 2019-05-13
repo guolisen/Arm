@@ -63,9 +63,13 @@ SftpReadTimeJob::SftpReadTimeJob(core::ContextPtr context, QAbstractItemModel* m
                                  SetCacheCallBack setCache): context_(context),
                                  model_(model), fullFileName_(fullFileName), typeObj_(typeObj),
                                  setCache_(setCache), index_(index), buffer_(new QBuffer()),
-                                 currentId_(0)
+                                 currentId_(0), isDestroyed_(false), loop_(nullptr)
 {
     setAutoDelete(true);
+}
+
+SftpReadTimeJob::~SftpReadTimeJob()
+{
 }
 
 bool SftpReadTimeJob::isCompressFile()
@@ -78,10 +82,26 @@ bool SftpReadTimeJob::isCompressFile()
 void SftpReadTimeJob::connectHostProcess()
 {
     qDebug() << "connectHostProcess!";
+    if (isDestroyed_)
+    {
+        emit jobfinished();
+        return;
+    }
     buffer_->open(QBuffer::ReadWrite);
 
     QSsh::SftpFileNode* fileNode = static_cast<QSsh::SftpFileNode *>(index_.internalPointer());
     QMetaObject::invokeMethod(sftpMgr_, std::bind(&fileinfomodel::SftpMgr::download, sftpMgr_, fileNode->path, buffer_, 130));
+}
+
+void SftpReadTimeJob::cancel()
+{
+    isDestroyed_ = true;
+
+    if (loop_)
+    {
+        qDebug() << "SftpReadTimeJob::cancel()";
+        loop_->exit();
+    }
 }
 
 void SftpReadTimeJob::handleSftpOperationFinished(QSsh::SftpJobId jobId, QString error)
@@ -89,6 +109,11 @@ void SftpReadTimeJob::handleSftpOperationFinished(QSsh::SftpJobId jobId, QString
     QString message1;
     QString s = QString::fromLatin1(buffer_->buffer());
     qDebug() << "SftpReadTimeJob::handleSftpOperationFinished Result: " << s;
+    if (isDestroyed_)
+    {
+        emit jobfinished();
+        return;
+    }
 
     std::string lineStr;
     if (isCompressFile())
@@ -149,6 +174,8 @@ QByteArray SftpReadTimeJob::uncompressData()
 
 void SftpReadTimeJob::run()
 {
+    if (isDestroyed_)
+        return;
     core::ConfigMgrPtr config = context_->getComponent<core::IConfigMgr>(nullptr);
     QSsh::SshConnectionParameters sshParams = config->getSshParameters();
 
@@ -159,12 +186,14 @@ void SftpReadTimeJob::run()
 
     sftpMgr_->startToConnect();
 
-    QEventLoop loop;
-    connect(this, &SftpReadTimeJob::jobfinished, &loop, &QEventLoop::quit);
-    loop.exec();
+    loop_ = new QEventLoop(this);
+    connect(this, &SftpReadTimeJob::jobfinished, loop_, &QEventLoop::quit);
+    loop_->exec();
 
     emit dataChanged(index_);
     delete sftpMgr_;
+    delete loop_;
+    loop_ = nullptr;
     qDebug() << "Thread Out!";
 }
 }

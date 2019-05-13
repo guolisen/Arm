@@ -20,6 +20,7 @@ namespace fileinfomodel {
 
 class SftpFileModel: public IFileModel
 {
+    Q_OBJECT
 public:
     SftpFileModel(core::ContextPtr context, QAbstractItemModel* model, QObject* parent);
     virtual ~SftpFileModel();
@@ -29,7 +30,8 @@ public:
     {
         return currentJobsNum_;
     }
-
+Q_SIGNALS:
+    void cancel();
 private:
     core::ContextPtr context_;
     QAbstractItemModel* model_;
@@ -37,6 +39,7 @@ private:
     QThreadPool* pool_;
     QMutex jobNumMutex_;
     int currentJobsNum_;
+    bool isDestroyed_;
 };
 
 template<>

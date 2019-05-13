@@ -54,6 +54,7 @@ private:
     QSsh::SftpFileInfo m_dirInfo;
     QWaitCondition cond_;
     QMutex sftpMutex_;
+    bool isDestroyed_;
 };
 
 }

@@ -11,7 +11,7 @@ typedef fileinfomodel::LogFileSystemModel<
 SftpFileModel::SftpFileModel(core::ContextPtr context, QAbstractItemModel* model, QObject* parent): IFileModel(parent),
     context_(context), model_(model),
     fileIdentifier_(context->getComponent<fileIdentifier::IFileIdentifier>(nullptr)),
-    pool_(new QThreadPool(this)), currentJobsNum_(0)
+    pool_(new QThreadPool(this)), currentJobsNum_(0), isDestroyed_(false)
 {
     core::ConfigMgrPtr configMgrPtr = context_->getComponent<core::IConfigMgr>(nullptr);
     int threadNumber = configMgrPtr->getConfigInfo("Arm/Setting/threadNumber", 5).toInt();
@@ -20,11 +20,15 @@ SftpFileModel::SftpFileModel(core::ContextPtr context, QAbstractItemModel* model
 
 SftpFileModel::~SftpFileModel()
 {
+    isDestroyed_ = true;
     pool_->clear();
+    emit cancel();
 }
 
 QString SftpFileModel::getLogStartTimeStr(const QModelIndex &index)
 {
+    if (isDestroyed_)
+        return "";
     RemoteFileSystemType* fileSystem = dynamic_cast<RemoteFileSystemType*>(model_);
     QSsh::SftpFileNode* fn = static_cast<QSsh::SftpFileNode *>(index.internalPointer());
     if (!fn || (QSsh::FileTypeDirectory == fn->fileInfo.type))
@@ -45,6 +49,7 @@ QString SftpFileModel::getLogStartTimeStr(const QModelIndex &index)
     SftpReadTimeJob* readTimeJobPtr = new SftpReadTimeJob(context_, model_,
                 index, fn->path, fileTypeObj, setCacheFunc);
 
+    connect(this, &SftpFileModel::cancel, readTimeJobPtr, &SftpReadTimeJob::cancel);
     connect(readTimeJobPtr, &SftpReadTimeJob::dataChanged, this,
             [this](const QModelIndex& index)
     {

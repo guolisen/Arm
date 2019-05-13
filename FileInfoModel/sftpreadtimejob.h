@@ -11,6 +11,7 @@
 #include "sftpfilemodel.h"
 #include "sftpmgr.h"
 
+class QEventLoop;
 namespace fileinfomodel
 {
 
@@ -21,12 +22,13 @@ class SftpReadTimeJob : public QObject, public QRunnable
 public:
     SftpReadTimeJob(core::ContextPtr context, QAbstractItemModel* model, const QModelIndex& index, const QString& fullFileName, fileIdentifier::FileObjectPtr typeObj,
                 SetCacheCallBack setCache);
+    ~SftpReadTimeJob();
     virtual void run();
 
 public slots:
     void handleSftpOperationFinished(QSsh::SftpJobId jobId, QString error);
     void connectHostProcess();
-
+    void cancel();
 Q_SIGNALS:
     void dataChanged(const QModelIndex& index);
     void jobfinished();
@@ -44,6 +46,8 @@ private:
     QSharedPointer<QBuffer> buffer_;
     QSsh::SftpJobId currentId_;
     SftpMgr* sftpMgr_;
+    bool isDestroyed_;
+    QEventLoop* loop_;
 };
 
 template<>
