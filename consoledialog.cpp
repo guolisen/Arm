@@ -1,4 +1,6 @@
 #include <QDebug>
+#include <Qsci/qscilexer.h>
+#include <Qsci/qscilexerbash.h>
 #include "consoledialog.h"
 #include "ui_consoledialog.h"
 
@@ -14,7 +16,29 @@ ConsoleDialog::ConsoleDialog(QWidget *parent) :
     //ui->textEdit->setAutoFormatting(QTextEdit::AutoAll);
     //ui->textEdit->setReadOnly(true);
 
-    ui->textArea->setMarginWidth(0, 0);
+    QsciLexer* lexer = new QsciLexerBash();
+    ui->textArea->setLexer(lexer);
+
+    QFont font;
+    font.fromString("Courier New");
+    font.setPointSize(9);
+    lexer->setFont(font);
+
+    QColor color;
+    color.setNamedColor("#CCCCCC");
+    lexer->setColor(color, -1);
+    QColor errorColor;
+    errorColor.setNamedColor("Red");
+    lexer->setColor(errorColor, 1);
+
+    QColor stringColor;
+    stringColor.setNamedColor("Green");
+    lexer->setColor(stringColor, 5);
+    lexer->setColor(stringColor, 6);
+
+    QColor bgcolor;
+    bgcolor.setNamedColor("black");
+    lexer->setPaper(bgcolor);
 }
 
 ConsoleDialog::~ConsoleDialog()

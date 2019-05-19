@@ -126,11 +126,17 @@ void ArmWindow::createCommandHistory()
 void ArmWindow::consoleClose()
 {
     remoteProcess_->cancel();
+    consoleDialog_->setMessageToEditor("");
 }
 
 void ArmWindow::init()
 {
     ui->pwdText->setText(pwdPath_);
+    //ui->runButton->setFocusPolicy(Qt::StrongFocus);
+    //ui->runButton->setFocus();
+    //ui->runButton->setShortcut(Qt::Key_Return);
+   //ui->runButton->setShortcut(Qt::Key_Enter);
+    ui->runButton->setShortcut(QKeySequence(QLatin1String("Return")));
     QString version = "Arm v" + configMgrPtr_->getCurrentVersion();
     setWindowTitle(version);
     ui->treeView->setAnimated(false);
@@ -659,3 +665,5 @@ void ArmWindow::on_runButton_clicked()
     QString finalCommand = pwdCommand + ui->commandBox->currentText();
     executeRemoteCommand(finalCommand);
 }
+
+
