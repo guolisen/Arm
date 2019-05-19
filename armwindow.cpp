@@ -177,7 +177,7 @@ void ArmWindow::handleClosed(int exitStatus)
             modelMgr_->update(currentInd);
         isNeedUpdate_ = false;
     }
-    consoleDialog_->appendMessageToEditor("Command Done!\n");
+    consoleDialog_->appendMessageToEditor("\nCommand Done!\n");
 }
 
 void ArmWindow::handleStdOut(QByteArray data)
