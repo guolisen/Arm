@@ -22,6 +22,7 @@ private slots:
 
 private:
     Ui::ConsoleDialog *ui;
+    int size_;
 };
 
 #endif // CONSOLEDIALOG_H

@@ -92,16 +92,6 @@ void RemoteProcess::handleProcessStarted()
         return;
     } else {
         m_started = true;
-        if (m_state == TestingCrash) {
-            QSsh::SshRemoteProcessRunner * const killer
-                = new QSsh::SshRemoteProcessRunner(this);
-            killer->run("pkill -9 sleep", m_sshParams);
-        } else if (m_state == TestingIoDevice) {
-            connect(m_catProcess.data(), SIGNAL(readyRead()), SLOT(handleReadyRead()));
-            m_textStream = new QTextStream(m_catProcess.data());
-            *m_textStream << testString();
-            m_textStream->flush();
-        }
     }
 }
 

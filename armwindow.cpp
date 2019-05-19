@@ -25,7 +25,8 @@ ArmWindow::ArmWindow(core::ContextPtr context, IRecentUseMgr::Factory recentUseF
     remoteProcess_(nullptr),
     consoleDialog_(new ConsoleDialog(this)),
     configMgrPtr_(context->getComponent<core::IConfigMgr>(nullptr)),
-    isNeedUpdate_(false)
+    isNeedUpdate_(false), recentCommandUseTool_(recentUseFactory_(context_, "remoteCommand", 30, this)),
+    pwdPath_("/home/root")
 {
     ui->setupUi(this);
     init();
@@ -89,13 +90,20 @@ void ArmWindow::handleConnectionError(const QString &errorMessage)
 
 RemoteProcess* ArmWindow::createRemoteProcess()
 {
+    core::ConfigMgrPtr config = context_->getComponent<core::IConfigMgr>(nullptr);
+    QSsh::SshConnectionParameters sshParams = config->getSshParameters();
+
     if (remoteProcess_)
     {
+        const QSsh::SshConnectionParameters sshOldParams = remoteProcess_->getSshParam();
+        if (sshParams == sshOldParams)
+        {
+            return remoteProcess_;
+        }
+
         delete remoteProcess_;
         remoteProcess_ = nullptr;
     }
-    core::ConfigMgrPtr config = context_->getComponent<core::IConfigMgr>(nullptr);
-    QSsh::SshConnectionParameters sshParams = config->getSshParameters();
 
     RemoteProcess* remoteProcess = new RemoteProcess(sshParams);
     connect(remoteProcess, &RemoteProcess::readyRead, this, &ArmWindow::handleReadyRead);
@@ -104,11 +112,25 @@ RemoteProcess* ArmWindow::createRemoteProcess()
     connect(remoteProcess, &RemoteProcess::processClosed, this, &ArmWindow::handleClosed);
 
     remoteProcess_ = remoteProcess;
-    return remoteProcess;
+    return remoteProcess_;
+}
+
+void ArmWindow::createCommandHistory()
+{
+    ui->commandBox->clear();
+    EntryList entryList = recentCommandUseTool_->getEntryList();
+    ui->commandBox->addItems(entryList);
+    ui->commandBox->setCurrentIndex(0);
+}
+
+void ArmWindow::consoleClose()
+{
+    remoteProcess_->cancel();
 }
 
 void ArmWindow::init()
 {
+    ui->pwdText->setText(pwdPath_);
     QString version = "Arm v" + configMgrPtr_->getCurrentVersion();
     setWindowTitle(version);
     ui->treeView->setAnimated(false);
@@ -127,9 +149,12 @@ void ArmWindow::init()
     connect(modelMgr_, SIGNAL(sftpOperationFinished(QString)),
         SLOT(handleSftpOperationFinished(QString)));
 
+    connect(consoleDialog_, &ConsoleDialog::finished, this, &ArmWindow::consoleClose);
+
     createMenu();
     createPopMenu();
     createRemoteProcess();
+    createCommandHistory();
 
     editorPath_ = configMgrPtr_->getConfigInfo("Arm/Setting/editorPath").toString();
     if (editorPath_.isEmpty())
@@ -146,7 +171,7 @@ void ArmWindow::handleClosed(int exitStatus)
             modelMgr_->update(currentInd);
         isNeedUpdate_ = false;
     }
-    consoleDialog_->appendMessageToEditor("Command Done!");
+    consoleDialog_->appendMessageToEditor("Command Done!\n");
 }
 
 void ArmWindow::handleStdOut(QByteArray data)
@@ -602,4 +627,35 @@ void ArmWindow::removeFile(const QModelIndex& index)
     QModelIndex currentInd = ui->treeView->currentIndex();
     if (currentInd.isValid())
         modelMgr_->update(currentInd);
+}
+
+void ArmWindow::on_treeView_clicked(const QModelIndex &index)
+{
+    QSsh::SftpFileNode* fn = static_cast<QSsh::SftpFileNode *>(index.internalPointer());
+    if (fn)
+    {
+        if (fn->fileInfo.type == QSsh::FileTypeDirectory)
+        {
+            pwdPath_ = fn->path;
+            ui->pwdText->setText(pwdPath_);
+            return;
+        }
+
+        pwdPath_ = fn->parent->path;
+        ui->pwdText->setText(pwdPath_);
+    }
+}
+
+void ArmWindow::on_runButton_clicked()
+{
+    recentCommandUseTool_->addEntry(ui->commandBox->currentText());
+    createCommandHistory();
+    QString pwdCommand = "";
+    if (!pwdPath_.isEmpty())
+    {
+        pwdCommand = "cd " + pwdPath_ + ";";
+    }
+
+    QString finalCommand = pwdCommand + ui->commandBox->currentText();
+    executeRemoteCommand(finalCommand);
 }

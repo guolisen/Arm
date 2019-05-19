@@ -45,8 +45,13 @@ private slots:
     void unCompressRemoteFile();
     void handleClosed(int exitStatus);
 
+    void on_treeView_clicked(const QModelIndex &index);
+    void on_runButton_clicked();
+
+    void consoleClose();
 private:
     void createMenu();
+    void createCommandHistory();
     RemoteProcess* createRemoteProcess();
     void executeRemoteCommand(const QString& command);
     void downloadFile(const QModelIndex &index);
@@ -63,6 +68,8 @@ private:
     ConsoleDialog* consoleDialog_;
     core::ConfigMgrPtr configMgrPtr_;
     bool isNeedUpdate_;
+    RecentUseMgrPtr recentCommandUseTool_;
+    QString pwdPath_;
 };
 
 #endif // ARMWINDOW_H

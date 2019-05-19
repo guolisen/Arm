@@ -20,6 +20,16 @@
       <string>Console Message:</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
+       <widget class="QsciScintilla" name="textArea" native="true">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
       <item row="1" column="0">
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
@@ -44,14 +54,19 @@
         </item>
        </layout>
       </item>
-      <item row="0" column="0">
-       <widget class="QTextEdit" name="textEdit"/>
-      </item>
      </layout>
     </widget>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QsciScintilla</class>
+   <extends>QWidget</extends>
+   <header location="global">Qsci/qsciscintilla.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

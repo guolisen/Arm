@@ -64,6 +64,10 @@ public:
         return m_remoteRunner->readAllStandardError();
     }
 
+    QSsh::SshConnectionParameters getSshParam()
+    {
+        return m_sshParams;
+    }
 Q_SIGNALS:
     void readyRead(QByteArray data);
     void processStdout(QByteArray data);

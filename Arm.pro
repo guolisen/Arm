@@ -85,8 +85,7 @@ SOURCES += \
     consoledialog.cpp \
     remotecommanddialog.cpp \
     recentusemgr.cpp \
-    FileInfoModel/sortfilterproxymodel.cpp
-
+    FileInfoModel/sortfilterproxymodel.cpp \
 
 HEADERS += \
     Core/detail/IThread.h \
@@ -164,7 +163,7 @@ HEADERS += \
     remotecommanddialog.h \
     irecentusemgr.h \
     recentusemgr.h \
-    FileInfoModel/sortfilterproxymodel.h
+    FileInfoModel/sortfilterproxymodel.h \
 
 FORMS += \
     armwindow.ui \
@@ -186,11 +185,15 @@ FORMS += \
 INCLUDEPATH += Thirdparty/Lua/src \
                E:/code/qt/quazip/quazip/quazip \
                E:/"Program Files"/zlib/include \
-               E:/code/qt/qssh/MyQssh/QSsh/src/libs
+               E:/code/qt/qssh/MyQssh/QSsh/src/libs \
+               E:/code/qt/QScintilla_gpl-2.11.1/include \
+               E:/code/qt/QScintilla_gpl-2.11.1/Qt4Qt5
 
 LIBS += E:/"Program Files"/zlib/lib/zlibstaticd.lib \
         E:/code/qt/quazip/build-quazip-Desktop_Qt_5_12_1_MSVC2017_64bit-Debug/quazip/debug/quazipd.lib \
-        E:/code/qt/qssh/MyQssh/build-qssh-Desktop_Qt_5_12_1_MSVC2017_64bit-Debug/lib/QSshd.lib
+        E:/code/qt/qssh/MyQssh/build-qssh-Desktop_Qt_5_12_1_MSVC2017_64bit-Debug/lib/QSshd.lib \
+        E:/code/qt/QScintilla_gpl-2.11.1/build-qscintilla-Desktop_Qt_5_12_1_MSVC2017_64bit-Debug/debug/qscintilla2_qt5d.lib
+
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
