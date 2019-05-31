@@ -189,10 +189,22 @@ INCLUDEPATH += Thirdparty/Lua/src \
                E:/code/qt/QScintilla_gpl-2.11.1/include \
                E:/code/qt/QScintilla_gpl-2.11.1/Qt4Qt5
 
-LIBS += E:/"Program Files"/zlib/lib/zlibstaticd.lib \
-        E:/code/qt/quazip/build-quazip-Desktop_Qt_5_12_1_MSVC2017_64bit-Debug/quazip/debug/quazipd.lib \
-        E:/code/qt/qssh/MyQssh/build-qssh-Desktop_Qt_5_12_1_MSVC2017_64bit-Debug/lib/QSshd.lib \
-        E:/code/qt/QScintilla_gpl-2.11.1/build-qscintilla-Desktop_Qt_5_12_1_MSVC2017_64bit-Debug/debug/qscintilla2_qt5d.lib
+#LIBS += E:/"Program Files"/zlib/lib/zlibstaticd.lib \
+#        E:/code/qt/quazip/build-quazip-Desktop_Qt_5_12_1_MSVC2017_64bit-Debug/quazip/debug/quazipd.lib \
+#        E:/code/qt/qssh/MyQssh/build-qssh-Desktop_Qt_5_12_1_MSVC2017_64bit-Debug/lib/QSshd.lib \
+#        E:/code/qt/QScintilla_gpl-2.11.1/build-qscintilla-Desktop_Qt_5_12_1_MSVC2017_64bit-Debug/debug/qscintilla2_qt5d.lib
+
+#LIBS += E:/"Program Files"/zlib/lib/zlibstatic.lib \
+#        E:/code/qt/quazip/build-quazip-Desktop_Qt_5_12_1_MSVC2017_64bit-Release/quazip/release/quazip.lib \
+#        E:/code/qt/qssh/MyQssh/build-qssh-Desktop_Qt_5_12_1_MSVC2017_64bit-Release/lib/QSsh.lib \
+#        E:/code/qt/QScintilla_gpl-2.11.1/build-qscintilla-Desktop_Qt_5_12_1_MSVC2017_64bit-Release/release/qscintilla2_qt5.lib
+
+LIBS += E:/"Program Files (x86)"/zlib/lib/zlibstaticd.lib \
+        E:/code/qt/quazip/build-quazip-Desktop_Qt_5_12_2_MSVC2017_32bit-Debug/quazip/debug/quazipd.lib \
+        E:/code/qt/qssh/MyQssh/build-qssh-Desktop_Qt_5_12_2_MSVC2017_32bit-Debug/lib/QSshd.lib \
+        E:/code/qt/QScintilla_gpl-2.11.1/build-qscintilla-Desktop_Qt_5_12_2_MSVC2017_32bit-Debug/debug/qscintilla2_qt5d.lib
+
+
 
 
 # Default rules for deployment.
